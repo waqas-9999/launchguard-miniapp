@@ -1,0 +1,15 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 323 83" width="323" height="83">
+	<title>New Project</title>
+	<defs>
+		<image  width="500" height="200" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAADIAQMAAAAk14GrAAAAAXNSR0IB2cksfwAAAANQTFRFAAAAp3o92gAAAAF0Uk5TAEDm2GYAAAAjSURBVHic7cExAQAAAMKg9U9tDQ+gAAAAAAAAAAAAAAAAeDYyAAABpldPmQAAAABJRU5ErkJggg=="/>
+	</defs>
+	<style>
+		tspan { white-space:pre } 
+		.t0 { font-size: 87px;fill: #06091b;font-weight: 700;font-family: "RobotoCondensed-Bold", "Roboto Condensed" } 
+	</style>
+	<use id="Background" href="#img1" x="-88" y="-58"/>
+	<text id="No image" style="transform: matrix(1,0,0,1,-4,0)" >
+		<tspan x="0" y="65.3" class="t0">N</tspan><tspan  y="65.3" class="t0">o</tspan><tspan  y="65.3" class="t0"> </tspan><tspan  y="65.3" class="t0">i</tspan><tspan  y="65.3" class="t0">m</tspan><tspan  y="65.3" class="t0">a</tspan><tspan  y="65.3" class="t0">g</tspan><tspan  y="65.3" class="t0">e
+</tspan>
+	</text>
+</svg>

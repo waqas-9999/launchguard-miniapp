@@ -1,0 +1,171 @@
+.remtittix__roadmap{
+    display: flex; /* Align children side by side */
+    flex-direction: column;
+    justify-content: center; /* Space between the content and bank details */
+    align-items:center; /* Align items to the top */
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    color: #000 !important;   /* Example text color */
+    width: 100%;
+
+    background-image: url('../../assets/images/background-roadmap.png'); 
+    background-size: cover; /* Ensure the image covers the entire element */
+    background-repeat: no-repeat; /* Prevent the image from repeating */ 
+    background-position: center -250px; /* Adjust the image vertically */
+
+}
+
+.remtittix__remtittix__roadmap .button-container {
+    display: flex;
+    justify-content: flex-start; /* Align items horizontally */
+    gap: 40px; /* Space between buttons */
+    margin-bottom: 40px; /* Bottom margin for spacing */
+}
+
+ /* Container for the cards */
+.RemittixCardContainer {
+    display: flex;
+    justify-content: center; /* Center the cards horizontally */
+    align-items: flex-start; /* Align the cards based on the top margin */
+    flex-wrap: nowrap;
+    width: fit-content;
+    
+}
+
+/* Common styles for all cards */
+.RemittixCardWrapper {
+    position: relative;
+    width: 408px;
+    height: 480px;
+    transition: transform 0.3s; /* Smooth transition for hover effect */
+}
+
+/* Styling for the first and last cards */
+.RemittixCardWrapper:first-child {
+    margin-right: -20px; /* Overlap the second card */
+    margin-top: 60px; /* Push the first card lower */
+    z-index: 2; /* Ensure the first card stays above the second */
+}
+
+.RemittixCardWrapper:nth-child(2) {
+    margin-right: 30px; /* Space between the second and third cards */
+    z-index: 1; /* Lower z-index for the second card */
+}
+
+.RemittixCardWrapper:nth-child(3) {
+    margin-right: -20px; /* Overlap the fourth card */
+    z-index: 1; /* Lower z-index for the third card */
+}
+
+.RemittixCardWrapper:last-child {
+    margin-top: 60px; /* Push the last card lower */
+    z-index: 2; /* Ensure the fourth card stays above the third */
+}
+
+/* Optional hover effect */
+.RemittixCardWrapper:hover {
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+ 
+
+/* Main content wrapper */
+.roadmap-mini__RemittixCard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Spacing between rows */
+    align-items: stretch; /* Make sure it takes the full width */
+    justify-content: flex-start; /* Align content to the top */
+  }
+  
+  /* Top row containing HeaderLabel and icon */
+  .roadmap-mini__RemittixCard-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+  
+  /* Icon on the right side */
+  .roadmap-mini__RemittixCard-icon {
+    width: 60px;
+    height: 60px;
+  }
+  
+  /* Divider line */
+  .roadmap-mini__RemittixCard-divider {
+    height: 1px;
+    background: linear-gradient(270deg, rgba(249, 255, 56, 0) 0%, rgba(249, 255, 56, 0.68) 17.83%, rgba(249, 255, 56, 0) 100%);
+    border-radius: 0 0 12.582px 12.582px;
+  }
+  
+  /* Text row containing bullet and text */
+  .roadmap-mini__RemittixCard-text-row {
+    display: flex;
+    align-items: flex-start;
+    margin: 0 50px;
+
+    gap: 10px; /* Spacing between bullet and text */
+  }
+  
+  /* Bullet icon */
+  .roadmap-mini__RemittixCard-bullet-icon {
+    width: 15px;
+    height: 15px;
+  }
+  
+  /* Text styling */
+  .roadmap-mini__RemittixCard-text {
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 24px; /* 160% */
+    letter-spacing: -0.8px;
+    text-align: justify;
+  }
+
+  
+/* Media query for mobile view */
+@media screen and (max-width: 768px) {
+    .RemittixCardContainer {
+        display: block;
+        flex-direction: column; /* Switch to column layout */
+        align-items: center; /* Center cards horizontally */
+         
+      }
+.RemittixCardWrapper{
+   width: 100% !important;
+   margin-right: auto;
+    
+}
+
+/* Styling for the first and last cards */
+.RemittixCardWrapper:first-child {
+  width: 100% !important;
+  margin-right: 0px; /* Overlap the second card */
+  margin-top: 60px; /* Push the first card lower */
+  z-index: 2; /* Ensure the first card stays above the second */
+  margin-bottom: 20px;
+}
+
+.RemittixCardWrapper:nth-child(2) {
+  margin-right: 0px; /* Space between the second and third cards */
+  z-index: 1; /* Lower z-index for the second card */
+  margin-bottom: 20px;
+}
+
+.RemittixCardWrapper:nth-child(3) {
+  margin-right: 0px; /* Overlap the fourth card */
+  z-index: 1; /* Lower z-index for the third card */
+  margin-bottom: 20px;
+}
+
+.RemittixCardWrapper:last-child {
+  margin-top: 0px; /* Push the last card lower */
+  z-index: 2; /* Ensure the fourth card stays above the third */
+  margin-bottom: 20px;
+}
+
+      .remtittix__roadmap{
+        display: block; /* Align children side by side */
+         
+    }
+}

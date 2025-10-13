@@ -1,0 +1,177 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract BCXPresaleNative is Ownable {
+    using SafeERC20 for IERC20;
+    using SafeERC20 for IERC20Metadata;
+
+    // --- Presale Settings ---
+    uint256 public rate; // ETH price per BCX (in wei)
+    uint256 public minBuyLimit;
+    uint256 public maxBuyLimit;
+    uint256 public totalTokensforSale;
+    uint256 public totalTokensSold;
+
+
+    bool public isPresaleActive;
+    bool public isUnlockingStarted;
+
+    // --- Mappings ---
+    mapping(address => bool) public tokenWL;
+    mapping(address => uint256) public tokenPrices; // token => price per BCX
+    mapping(address => uint256) public userBCXAllocation;
+    mapping(address => bool) public isDelivered;
+
+    // --- Purchase Records ---
+    struct PurchaseRecord {
+        address buyer;
+        address payToken;
+        uint256 amountPaid;
+        uint256 bcxReceived;
+        uint256 timestamp;
+    }
+
+    PurchaseRecord[] public allPurchases;
+    mapping(address => PurchaseRecord[]) public userPurchases;
+
+    // --- Events ---
+    event Purchased(address indexed buyer, address indexed payToken, uint256 amountPaid, uint256 bcxAmount);
+    event ETHWithdrawn(uint256 amount);
+    event TokenWithdrawn(address token, uint256 amount);
+   
+    // --- Constructor ---
+    constructor(address owner_) Ownable(owner_) {}
+
+    // --- Modifiers ---
+    modifier presaleActive() {
+        require(isPresaleActive, "Presale is not active");
+        _;
+    }
+
+    // --- Fallbacks ---
+    receive() external payable {
+        buyToken(address(0), 0);
+    }
+
+    fallback() external payable {}
+
+    // --- Admin Functions ---
+    function togglePresale(bool status) external onlyOwner {
+        isPresaleActive = status;
+    }
+
+    function setRate(uint256 _rate) external onlyOwner {
+        rate = _rate;
+    }
+
+    function setMinMax(uint256 _min, uint256 _max) external onlyOwner {
+        minBuyLimit = _min;
+        maxBuyLimit = _max;
+    }
+
+    function whitelistToken(address token, uint256 pricePerBCX) external onlyOwner {
+        require(pricePerBCX > 0, "Invalid price");
+        tokenWL[token] = true;
+        tokenPrices[token] = pricePerBCX;
+    }
+
+    function setSaleTokenParams( uint256 _totalTokensforSale) external onlyOwner {
+   
+    totalTokensforSale = _totalTokensforSale;
+}
+
+
+    function startUnlocking() external onlyOwner {
+        isUnlockingStarted = true;
+    }
+
+    function stopUnlocking() external onlyOwner {
+        isUnlockingStarted = false;
+    }
+
+    function markAsDelivered(address buyer) external onlyOwner {
+        require(userBCXAllocation[buyer] > 0, "Nothing to deliver");
+        isDelivered[buyer] = true;
+    }
+
+    // --- Unified Purchase Function (ETH or Token) ---
+    function buyToken(address _token, uint256 _amount) public payable presaleActive {
+        uint256 bcxAmount;
+
+        if (_token == address(0)) {
+            require(msg.value > 0, "No ETH sent");
+            require(rate > 0, "ETH rate not set");
+            bcxAmount = msg.value * (10 * 1e18) / rate;
+        } else {
+            require(tokenWL[_token], "Token not whitelisted");
+            require(_amount > 0, "Zero token amount");
+            uint256 price = tokenPrices[_token];
+            bcxAmount = _amount * (10 * 1e18) / price;
+
+            IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+        }
+
+        require(bcxAmount >= minBuyLimit, "Below min limit");
+        require(userBCXAllocation[msg.sender] + bcxAmount <= maxBuyLimit, "Above max limit");
+        require(totalTokensSold + bcxAmount <= totalTokensforSale, "Presale cap reached");
+
+        userBCXAllocation[msg.sender] += bcxAmount;
+        totalTokensSold += bcxAmount;
+
+        PurchaseRecord memory record = PurchaseRecord({
+            buyer: msg.sender,
+            payToken: _token,
+            amountPaid: _token == address(0) ? msg.value : _amount,
+            bcxReceived: bcxAmount,
+            timestamp: block.timestamp
+        });
+
+        allPurchases.push(record);
+        userPurchases[msg.sender].push(record);
+
+        emit Purchased(msg.sender, _token, record.amountPaid, bcxAmount);
+    }
+
+   
+
+    // --- Admin Withdrawals ---
+    function withdrawETH() external onlyOwner {
+        uint256 amt = address(this).balance;
+        require(amt > 0, "No ETH to withdraw");
+        payable(msg.sender).transfer(amt);
+        emit ETHWithdrawn(amt);
+    }
+
+    function withdrawToken(address token) external onlyOwner {
+        uint256 bal = IERC20(token).balanceOf(address(this));
+        require(bal > 0, "No token balance");
+        IERC20(token).safeTransfer(msg.sender, bal);
+        emit TokenWithdrawn(token, bal);
+    }
+
+    // --- View Functions ---
+    function getTokenAmount(address token, uint256 amount) public view returns (uint256) {
+        if (!isPresaleActive) return 0;
+
+        if (token == address(0)) {
+            require(rate > 0, "Rate not set");
+            return amount * (10 * 1e18) / rate;
+        } else {
+            require(tokenWL[token], "Token not allowed");
+            uint256 price = tokenPrices[token];
+            return amount * (10 * 1e18) / price;
+        }
+    }
+
+    function getAllPurchases() external view returns (PurchaseRecord[] memory) {
+        return allPurchases;
+    }
+
+    function getUserPurchases(address user) external view returns (PurchaseRecord[] memory) {
+        return userPurchases[user];
+    }
+}

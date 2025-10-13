@@ -1,0 +1,285 @@
+/* SecurityAuditSection.css */
+.security-audit-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Floating Animation for Cards */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Staggered Animation for Cards */
+.audit-card {
+  animation: slideInUp 0.8s ease-out forwards;
+  opacity: 0;
+  transform: translateY(50px);
+  position: relative;
+  z-index: 1;
+}
+
+.audit-card:nth-child(1) { animation-delay: 0.1s; }
+.audit-card:nth-child(2) { animation-delay: 0.3s; }
+.audit-card:nth-child(3) { animation-delay: 0.5s; }
+
+@keyframes slideInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Icon Hover Effects */
+.audit-icon {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.audit-icon:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Status Badge Animation */
+.status-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.status-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.status-badge:hover::before {
+  left: 100%;
+}
+
+/* Card Hover Effects - Fixed */
+.audit-card {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.audit-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  z-index: 10;
+}
+
+/* Button Shine Effect */
+.cta-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.8s ease;
+}
+
+.cta-button:hover::before {
+  left: 100%;
+}
+
+/* Background Blob Animation */
+@keyframes blobFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+.background-blob {
+  animation: blobFloat 20s ease-in-out infinite;
+}
+
+.background-blob:nth-child(2) {
+  animation-delay: -10s;
+  animation-duration: 25s;
+}
+
+/* Decorative Line Animation */
+@keyframes lineExtend {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    width: 32px;
+    opacity: 1;
+  }
+}
+
+.decorative-line {
+  animation: lineExtend 1.5s ease-out forwards;
+  animation-delay: 0.5s;
+}
+
+/* Text Gradient Animation */
+@keyframes textShine {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.gradient-text {
+  background-size: 200% auto;
+  animation: textShine 3s ease-in-out infinite;
+}
+
+/* Card Border Glow - Fixed */
+@keyframes borderGlow {
+  0%, 100% {
+    border-color: rgba(239, 184, 28, 0.3);
+    box-shadow: 0 0 20px rgba(239, 184, 28, 0.1);
+  }
+  50% {
+    border-color: rgba(239, 184, 28, 0.6);
+    box-shadow: 0 0 30px rgba(239, 184, 28, 0.3);
+  }
+}
+
+/* Enhanced Card Hover Effects - Fixed */
+.audit-card:hover {
+  border-color: rgba(239, 184, 28, 0.5);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(239, 184, 28, 0.2);
+  z-index: 10;
+}
+
+/* Icon Glow Effect */
+.audit-icon:hover {
+  filter: drop-shadow(0 0 20px rgba(239, 184, 28, 0.6));
+}
+
+/* Status Badge Hover */
+.status-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+}
+
+/* Button Hover Enhancements */
+.cta-button:hover {
+  box-shadow: 0 20px 40px rgba(239, 184, 28, 0.4);
+}
+
+/* Responsive Animations */
+@media (max-width: 768px) {
+  .audit-card {
+    animation-delay: 0.1s !important;
+  }
+  
+  .background-blob {
+    animation-duration: 15s;
+  }
+}
+
+/* Loading State Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Enhanced Focus States */
+.audit-card:focus-within {
+  outline: 2px solid #efb81c;
+  outline-offset: 2px;
+  z-index: 10;
+}
+
+.cta-button:focus {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Performance Optimizations */
+.audit-card {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.cta-button {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Additional Hover Effects - Fixed */
+.audit-card:hover .audit-icon {
+  transform: scale(1.15) rotate(8deg);
+}
+
+.audit-card:hover .status-badge {
+  transform: translateY(-2px);
+}
+
+/* Text Selection */
+.audit-card::selection {
+  background: rgba(239, 184, 28, 0.3);
+  color: white;
+}
+
+/* Enhanced Shadow Effects - Fixed */
+.audit-card {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.audit-card:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(239, 184, 28, 0.2);
+  z-index: 10;
+}
+
+/* Ensure proper stacking context */
+.audit-card {
+  isolation: isolate;
+}
+
+/* Fix for hover glow effect */
+.audit-card .hover-glow {
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Ensure card content stays visible */
+.audit-card .card-content {
+  position: relative;
+  z-index: 2;
+} 

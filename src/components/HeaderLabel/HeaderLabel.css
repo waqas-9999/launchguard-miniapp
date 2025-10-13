@@ -1,0 +1,46 @@
+/* Base styles for label and value */
+.HeaderLabel__container, .Value__container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border-radius: 12.582px;
+  box-shadow: 0px 1.049px 0px 0px rgba(255, 255, 255, 0.12) inset;
+  line-height: 46px;
+  letter-spacing: -0.8px;
+  position: relative;
+  margin-bottom: 15px;
+}
+
+/* Differentiating label and value background */
+.HeaderLabel__container {
+  background: rgba(2, 8, 14, 0.50);
+}
+
+.Value__container {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Gradient before */
+.gradient-before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  width: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(249, 255, 56, 0) 0%, rgba(249, 255, 56, 0.68) 17.83%, rgba(249, 255, 56, 0) 100%);
+  border-radius: 12.582px 12.582px 0 0;
+}
+
+/* Gradient after */
+.gradient-after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 35%;
+  width: 40%;
+  height: 1px;
+  background: linear-gradient(270deg, rgba(249, 255, 56, 0) 0%, rgba(249, 255, 56, 0.68) 17.83%, rgba(249, 255, 56, 0) 100%);
+  border-radius: 0 0 12.582px 12.582px;
+}

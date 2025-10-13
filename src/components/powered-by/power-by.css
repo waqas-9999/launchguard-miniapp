@@ -1,0 +1,20 @@
+.remtittix__poweredby {
+    
+    display: flex; /* Align children side by side */
+    flex-direction: column;
+    justify-content: center; /* Space between the content and bank details */
+    align-items:center; /* Align items to the top */
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    color: #000 !important;   /* Example text color */
+    width: 100%;
+    background-color: #fff;
+     
+    
+}
+
+.remtittix__poweredby .button-container {
+    display: flex;
+    justify-content: flex-start; /* Align items horizontally */
+    gap: 40px; /* Space between buttons */
+    margin-bottom: 40px; /* Bottom margin for spacing */
+}

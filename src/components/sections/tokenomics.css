@@ -1,0 +1,340 @@
+.remtittix__tokenomics {
+    
+    display: flex; /* Align children side by side */
+    flex-direction: column;
+    justify-content: center; 
+    align-items:center; /* Align items to the top */
+
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    background-image: url('../../assets/images/background-tokenomics.png'); 
+    background-size: cover; /* Ensure the image covers the entire element */
+    background-repeat: no-repeat; /* Prevent the image from repeating */ 
+    background-position: center -250px; /* Adjust the image vertically */
+    width: 100%;
+    min-height: 100vh; /* Ensure it takes the full viewport height */
+    padding-top: 0; /* Remove any padding if there's space at the top */
+    margin-top: 0; /* Remove any margin if there's space at the top */
+    box-sizing: border-box; /* Include padding and border in the element's dimensions */
+    background-color: var(--color-bg); /* Optional: fallback background color */
+    padding: 40px;      
+    
+    justify-content: space-between; /* Space between the content and bank details */
+    
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    
+}
+
+
+
+.remtittix__tokenomics_columns {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    gap: 10px; /* Horizontal gap between left and right columns */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    margin-left: 123px; /* Left margin */
+    margin-top: 50px; /* Top margin */
+}
+ 
+
+
+ 
+
+.remtittix__tokenomics_right_content {
+    position: relative;
+    flex: 1; /* Allow it to grow and shrink */
+}
+
+.remtittix__tokenomics_right_content_tokenomics-header {
+    border-radius: 12.582px;
+    background: rgba(2, 8, 14, 0.50);
+    box-shadow: 0px 1.049px 0px 0px rgba(255, 255, 255, 0.12) inset;
+    max-width: 544.186px;
+    width: 100%;
+    height: 49.281px;
+    flex-shrink: 0;
+    padding: 12px 28px;
+    
+    display: block;
+    align-items: center; /* Vertically centers the items */
+    justify-content:left; /* Centers items horizontally if needed */
+    gap: 10px; /* Optional: Add some space between the logo and text */
+}
+
+.remtittix__tokenomics_right_content_tokenomics-header .col1
+{ margin-left: 143px;}
+
+.remtittix__tokenomics_right_content_tokenomics-header .col2
+{ margin-left: 55px;}
+
+.remtittix__tokenomics_right_content_tokenomics-footer {
+     
+    flex-direction: column;
+    gap: 10px; /* Gap between rows */
+    position: relative;
+    border-radius: 12.582px;
+    background: rgba(2, 8, 14, 0.50);
+    box-shadow: 0px 1.049px 0px 0px rgba(255, 255, 255, 0.12) inset;
+    max-width: 544.186px;
+    width: 100%;
+    height: 55.572px;
+    flex-shrink: 0;
+    margin: 20px 0;
+    padding: 10px; /* Padding for content inside the box */
+}
+
+.remtittix__tokenomics_right_content_tokenomics-header .logo_image{
+    width: 45px;
+    height: 24px;
+}
+
+.remtittix__tokenomics_right_content_tokenomics-header .table_name 
+{
+    color: #F9FF38;
+    font-size: 16.345px;
+    font-weight: 700;
+    line-height: 25.334px; /* 155% */
+    letter-spacing: -0.654px;
+    margin: 0 14px 0 14px;    
+}
+
+.remtittix__tokenomics_right_content_tokenomics-header .column_name {
+    color: #FFF;
+    font-size: 20.971px;
+    font-weight: 500;
+    line-height: 32.504px; /* 155% */
+    letter-spacing: -0.839px;
+}
+.remtittix__tokenomics_right_content_tokenomics-header .v_divider{
+    margin: 0 14px 0 14px;  
+}
+
+.remtittix__tokenomics_right_content_tokenomics-content{
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Gap between rows */
+    position: relative;
+    border-radius: 12.582px;
+    background: #08161F;
+    box-shadow: 0px 1.049px 0px 0px rgba(255, 255, 255, 0.12) inset;
+     
+    height: auto; /* Allow height to adjust based on content */
+    flex-shrink: 0;
+    margin: 20px 0;
+    padding: 10px; /* Padding for content inside the box */
+}
+
+
+
+/* Styles for each row */
+.remtittix__tokenomics_row {
+    display: flex;
+    justify-content: space-between; /* Space out columns evenly */
+    align-items: center; /* Align items vertically */
+    gap: 10px; /* Gap between columns */
+    width: 100%;
+}
+
+/* Styles for each column */
+.remtittix__tokenomics_column {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    /* background: rgba(255, 255, 255, 0.1);   */
+    padding: 10px;
+    border-radius: 5px; /* Optional: round corners */
+    
+}
+
+/* Modifier classes for column alignment */
+.remtittix__tokenomics_row .column-center {
+    display: flex;
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    text-align: center; /* Center text inside */
+}
+
+.remtittix__tokenomics_row .column-left {
+    display: flex;
+    justify-content: flex-start; /* Align content to the left */
+    align-items: center; /* Center content vertically */
+    text-align: left; /* Align text inside to the left */
+}
+
+/* Example of setting a specific width */
+.remtittix__tokenomics_column--width-small {
+    flex: 0 0 120px; /* Fixed width */
+}
+
+.remtittix__tokenomics_column--width-medium {
+    flex: 0 0 150px; /* Fixed width */
+}
+
+.remtittix__tokenomics_column--width-large {
+    flex: 0 0 250px; /* Fixed width */
+}
+
+.tokenomics_image {
+    position: absolute; /* Position the image absolutely within the parent */
+    top: -50px; /* Adjust as needed to control vertical position */
+    left: 10px; /* Adjust as needed to control horizontal position */
+    width: 80%; /* Control the size */
+    max-width: 100%; /* Ensure it doesn’t exceed the parent’s width */
+    height: auto; /* Maintain aspect ratio */
+    transition: all 0.3s ease; /* Smooth transition when resizing */
+}
+
+.remtittix__horizontal_divider {
+    display: block; /* Ensures the image is treated as a block element */
+    width: 100%; /* Makes the image take the full width of its container */
+    height: 1px; /* Maintains the aspect ratio */
+    margin: 200px 0 40px 0; /* Optional: Adds space above and below the divider */
+    position: relative; /* Set the image's position to relative */
+    left: -720px; /* Adjust the image's position horizontally with a negative value */
+}
+
+.remtittix__grid_container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 columns */
+    gap: 20px; /* Space between columns */
+    justify-content: center; /* Center grid horizontally */
+    align-items: center; /* Center content vertically */
+    width: 100%;     
+    margin: 0 ; /* Center the container */
+    padding: 0;
+     
+
+}
+
+ 
+
+/* Each grid item */
+  .remtittix__grid_item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items to the start */
+    text-align: left; /* Align text to the left */
+    padding: 10px;
+    position: relative;
+    width: 100%; /* Full width */
+}
+
+@media screen and (max-width: 820px) {
+    .remtittix__tokenomics_columns {
+        display: block;
+        flex-direction: column; /* Stack left and right content vertically */
+        align-items: center; /* Center content */
+        margin-left: 0px; /* Left margin */
+        margin-top: 20px; /* Top margin */
+        width: auto;
+    }
+    .tokenomics_image {
+        top: 20px; /* Adjust top position for mobile */
+        left: 0; /* Center horizontally */
+        width: 90%; /* Shrink image for mobile view */
+    }
+     
+    .remtittix__tokenomics{
+        padding: 20px;
+    }
+}
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+
+    .remtittix__tokenomics_right_content_tokenomics-header .col1, .remtittix__tokenomics_right_content_tokenomics-header  .col2{ margin-left: 0;}
+    
+    /* Example of setting a specific width */
+    .remtittix__tokenomics_column--width-small {
+        flex: 0 0 120px; /* Fixed width */
+    }
+
+    .remtittix__tokenomics_column--width-medium {
+        flex: 0 0 150px; /* Fixed width */
+    }
+
+    .remtittix__tokenomics_column--width-large {
+        flex: 0 0 180px; /* Fixed width */
+    }
+
+    .remtittix__tokenomics_right_content_tokenomics-content{
+         
+        max-width: 100%;
+        width: 100%;     
+    }
+
+    .remtittix__horizontal_divider {
+         
+        margin: 250px 0 40px 0; /* Optional: Adds space above and below the divider */
+        left: 0px; 
+    }
+
+     
+    
+    .remtittix__tokenomics_columns {
+        display: block;
+        flex-direction: column; /* Stack left and right content vertically */
+        align-items: center; /* Center content */
+        margin-left: 0px; /* Left margin */
+        margin-top: 20px; /* Top margin */
+        width: auto;
+    }
+    
+
+    .tokenomics_image {
+        top: 20px; /* Adjust top position for mobile */
+        left: 0; /* Center horizontally */
+        width: 90%; /* Shrink image for mobile view */
+    }
+     
+    .remtittix__tokenomics{
+        padding: 20px;
+    }
+     
+    .remtittix__grid_container {
+        grid-template-columns: 1fr; /* Make each column a full-width row */
+        gap: 20px; /* Space between rows */
+    }
+
+    .remtittix__grid_item {
+        flex-direction: column; /* Ensure it remains column layout */
+        align-items: flex-start; /* Align items to the start */
+        width: 100%; /* Full width */
+    }
+
+    /* Adjust label-container to stack the contract address correctly */
+    .label-container {
+        flex-direction: column; /* Stack the label and icon vertically */
+        align-items: flex-start; /* Align items to the start */
+        gap: 4px; /* Reduce gap for mobile view */
+        width: 100%;
+    }
+
+    /* Ensure labels and values behave as expected */
+    .label, .value {
+        width: 100%; /* Take full width */
+        max-width: 100%; /* Override any max-width for mobile */
+        text-align: left; /* Align text to the left */
+       
+    }
+
+    /* Top border gradient */
+    .label::before {
+        
+        top: 0px;  
+        left: 20px;
+        width: 50%;
+        
+    }
+
+    .label::after {
+        
+        bottom: 0px;  
+        left: 50%;
+        width: 40%;
+        
+    }
+     
+}
