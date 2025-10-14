@@ -21,7 +21,7 @@ function GetBcx() {
     return () => document.removeEventListener('click', onDocClick)
   }, [])
   return (
-    <div>
+    <div className="max-w-sm mx-auto">
         {/* Top 4 Cards */}
         <Link to="/transaction"><button className="flex items-center justify-self-end mx-4 text-[#efb81c] mt-4">Transaction<FaAngleRight className='mt-1'/></button></Link>
       <div className="grid grid-cols-2 gap-3 my-4 mx-4">

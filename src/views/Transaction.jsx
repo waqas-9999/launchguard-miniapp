@@ -16,7 +16,7 @@ function Transaction() {
   ]
 
   return (
-    <div className="min-h-screen bg-black pb-20">
+    <div className="min-h-screen max-w-sm mx-auto bg-black pb-20">
       {/* Header */}
       <div className="bg-white/5 backdrop-blur-md border-b border-[#efb81c]/20 p-4">
         <Link to="/get-bcx"><button className="flex items-center mb-2 text-[#efb81c]"><FaAngleLeft className='mt-0.5'/>Back</button></Link>

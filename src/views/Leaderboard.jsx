@@ -48,7 +48,7 @@ function Leaderboard() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#0B0C0E] via-[#111214] to-[#0E0F11] text-white pb-20">
+        <div className="min-h-screen max-w-sm mx-auto bg-gradient-to-br from-[#0B0C0E] via-[#111214] to-[#0E0F11] text-white pb-20">
             {/* Header */}
             <div className="relative overflow-hidden">
                 <div className="absolute inset-0" />

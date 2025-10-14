@@ -15,7 +15,7 @@ const icons = {
   locate: LocateFixed,
 }
 
-export function StatRow({ icon, label, value, hint, muted = false, onClick, hideIcon = false, preserveIconSpace = true, trailing = null }) {
+export function StatRow({ icon, label, value, hint, muted = false, onClick, hideIcon = false, preserveIconSpace = true, trailing = null, claimed = false }) {
   // icon can be:
   // - a string key (e.g. 'zap') to lookup in icons
   // - a React component (function/class)
@@ -82,14 +82,36 @@ export function StatRow({ icon, label, value, hint, muted = false, onClick, hide
       <div className="relative z-10 flex items-baseline gap-2">
         <div className="flex items-baseline gap-1">
           {value && (
-            <span
-              className={cn(
-                "text-sm font-semibold border-2 rounded-full px-3 py-1 border-gray-700 tracking-wide",
-                muted ? "text-gray-400" : "text-white"
+            <div className="relative">
+              {!claimed ? (
+                // Animated ring for unclaimed items
+                <span
+                  className={cn(
+                    "text-sm font-semibold border-2 rounded-full px-3 py-1 tracking-wide relative overflow-hidden",
+                    muted ? "text-gray-400 border-gray-700" : "text-white border-gray-700"
+                  )}
+                >
+                  {value}
+                  {/* Animated ring */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full border-2 border-yellow-400"
+                    animate={{ 
+                      scale: [1, 1.1, 1],
+                      opacity: [0.3, 0.8, 0.3]
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
+                </span>
+              ) : (
+                <>
+                
+                </>
               )}
-            >
-              {value}
-            </span>
+            </div>
           )}
           {hint && <span className="text-xs text-gray-500">{hint}</span>}
         </div>

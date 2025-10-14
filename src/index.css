@@ -405,3 +405,42 @@ overflow-y: auto;
 -webkit-overflow-scrolling: touch;
 overscroll-behavior: none; /* Stops swipe-to-minimize */
 }
+
+/* Telegram Web App specific styles to prevent minimize */
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+  touch-action: manipulation; /* Prevents double-tap zoom and other gestures */
+  -webkit-touch-callout: none; /* Prevents callout on iOS */
+  -webkit-user-select: none; /* Prevents text selection */
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Prevent pull-to-refresh and other browser gestures */
+* {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent context menu on long press */
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection in input fields */
+input, textarea {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}

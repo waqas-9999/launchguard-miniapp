@@ -10,10 +10,12 @@ import { TriangleAlert, ShoppingCart, FileText, ChevronRight } from "lucide-reac
 function cn(...classes) { return classes.filter(Boolean).join(" ") }
 import { motion } from "framer-motion"
 import SelectWallet from "../components/global/SelectWallet"
+import StoryProgress from "../components/boost/StoryProgress"
 
 export default function Boost() {
   const [open, setOpen] = useState(false)
   const [wallet, setWallet] = useState(false)
+  const [showStory, setShowStory] = useState(false)
   const items = [
     { icon: TriangleAlert, title: "What is BUYCEX?", subtitle: "Intro" },
     { icon: ShoppingCart, title: "Get BCX", subtitle: "Swap crypto to BCX", url: "/get-bcx" },
@@ -39,13 +41,13 @@ export default function Boost() {
         </div>
         {/* Top metric rows */}
         <div className="space-y-3">
-          <StatRow icon={<FaTelegramPlane size={24} fill="#efb81c"/>} label="Join Telegram" value="0.01 BCX"/>
-          <StatRow icon="user" label="On board 2 friends" value="0.02 BCX" />
+          <StatRow icon={<FaTelegramPlane size={24} fill="#efb81c"/>} label="Join Telegram" value="0.01 BCX" claimed={false}/>
+          <StatRow icon="user" label="On board 2 friends" value="0.02 BCX" claimed={false} />
         </div>
 
         {/* Action rows */}
         <div className="space-y-3">
-          <StatRow icon="check" label="On board 5 friends" value="0.05 BCX" />
+          <StatRow icon="check" label="On board 5 friends" value="0.05 BCX" claimed={false} />
           
         </div>
 
@@ -53,11 +55,15 @@ export default function Boost() {
       <h2 className="text-gray-100 text-base font-semibold mb-3 tracking-wide">Start here</h2>
 
       <div className="space-y-3">
-        {items.map((item, index) => {
-          const Icon = item.icon
-          const handleNavigate = () => {
-            if (item.url) window.location.href = item.url
-          }
+      {items.map((item, index) => {
+              const Icon = item.icon;
+              const handleNavigate = () => {
+                if (item.title === "What is BUYCEX?") {
+                  setShowStory(true); // ⬅️ open story overlay
+                  return;
+                }
+                if (item.url) window.location.href = item.url;
+              };
           return (
             <motion.div
               key={index}
@@ -97,6 +103,7 @@ export default function Boost() {
 
       <BottomNav />
       <SelectWallet open={wallet} onClose={() => setWallet(false)}/>
+      {showStory && <StoryProgress onClose={() => setShowStory(false)} />}
       <ImageModal open={open} onClose={() => setOpen(false)} src={bcx} title="" description={<span>You earned <span className="font-semibold text-xl">10</span> BCX Fragments!</span>} userHoldings={1922222}  details={<span>Keep farming every fragment strengthens your ownership power in Buycex.</span>} />
     </main>
   )

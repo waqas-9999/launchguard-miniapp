@@ -114,18 +114,83 @@ function App() {
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
 
+      // Configure Telegram Web App
       tg.expand(); // Forces full-screen
-      if (tg.disableVerticalSwipes) {
+      
+      // Disable vertical swipes that could minimize the app
+      if (typeof tg.disableVerticalSwipes === 'function') {
         tg.disableVerticalSwipes(); // Prevents swipe-down minimize
+      }
+      
+      // Try to disable other gestures if available
+      if (typeof (tg as any).disableHorizontalSwipes === 'function') {
+        (tg as any).disableHorizontalSwipes(); // Prevents swipe-left/right minimize
+      }
+      
+      if (typeof (tg as any).disablePullToRefresh === 'function') {
+        (tg as any).disablePullToRefresh();
+      }
+      
+      if (typeof (tg as any).setHeaderColor === 'function') {
+        (tg as any).setHeaderColor('#0B0C0E');
+      }
+      
+      if (typeof (tg as any).enableClosingConfirmation === 'function') {
+        (tg as any).enableClosingConfirmation();
+      }
+      
+      // Hide back button if available
+      if ((tg as any).BackButton && typeof (tg as any).BackButton.hide === 'function') {
+        (tg as any).BackButton.hide();
       }
     }
 
-    // Optional fallback: prevent touch propagation globally
-    const stopTouch = (e: TouchEvent) => e.stopPropagation();
-    document.addEventListener("touchstart", stopTouch, { passive: true });
+    // Prevent touch events that could trigger browser gestures
+    const preventTouch = (e: TouchEvent) => {
+      // Prevent default touch behaviors that could minimize the app
+      if (e.touches.length > 1) {
+        e.preventDefault(); // Prevent pinch zoom
+      }
+      
+      // Prevent swipe gestures
+      const touch = e.touches[0];
+      if (touch) {
+        const startX = touch.clientX;
+        const startY = touch.clientY;
+        
+        const handleTouchMove = (moveEvent: TouchEvent) => {
+          const moveTouch = moveEvent.touches[0];
+          if (moveTouch) {
+            const deltaX = Math.abs(moveTouch.clientX - startX);
+            const deltaY = Math.abs(moveTouch.clientY - startY);
+            
+            // Prevent swipe gestures that could minimize the app
+            if (deltaY > deltaX && deltaY > 50) {
+              moveEvent.preventDefault();
+            }
+          }
+        };
+        
+        const handleTouchEnd = () => {
+          document.removeEventListener('touchmove', handleTouchMove);
+          document.removeEventListener('touchend', handleTouchEnd);
+        };
+        
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd);
+      }
+    };
+
+    // Add touch event listeners
+    document.addEventListener("touchstart", preventTouch, { passive: false });
+    
+    // Prevent context menu on long press
+    const preventContextMenu = (e: Event) => e.preventDefault();
+    document.addEventListener('contextmenu', preventContextMenu);
 
     return () => {
-      document.removeEventListener("touchstart", stopTouch);
+      document.removeEventListener("touchstart", preventTouch);
+      document.removeEventListener('contextmenu', preventContextMenu);
     };
   }, []);
 

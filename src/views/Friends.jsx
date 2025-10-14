@@ -7,7 +7,7 @@ function Friends() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-black flex flex-col justify-between text-white relative overflow-hidden">
+    <div className="min-h-screen max-w-sm mx-auto bg-black flex flex-col justify-between text-white relative overflow-hidden">
       {/* Background gradients */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] via-black to-black" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#efb81c]/10 blur-[120px] rounded-full" />
