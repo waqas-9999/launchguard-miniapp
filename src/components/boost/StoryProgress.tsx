@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import BuycexBanner1 from "../../assets/img/home/BuycexBanner.png";
 import BuycexBanner2 from "../../assets/img/home/BuycexBanner-2.png";
 import BuycexBanner3 from "../../assets/img/home/BuycexBanner-3.png";
+import BuycexBanner4 from "../../assets/img/home/BuycexBanner-4.png";
 
 interface StoryProgressProps {
   onClose: () => void;
@@ -15,8 +16,7 @@ const slides = [
   { id: 1, image: BuycexBanner1 },
   { id: 2, image: BuycexBanner2 },
   { id: 3, image: BuycexBanner3 },
-  { id: 4, image: BuycexBanner1 },
-  { id: 5, image: BuycexBanner1 },
+  { id: 4, image: BuycexBanner4 },
 ];
 
 export default function StoryProgress({ onClose }: StoryProgressProps) {
@@ -27,6 +27,8 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
     if (current < slides.length - 1) {
       setCurrent((prev) => prev + 1);
     } else {
+      // On last slide, redirect to /get-bcx
+      navigate("/get-bcx");
       onClose();
     }
   };
@@ -84,7 +86,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
           onClick={handleNext}
           className="bg-white w-1/2 text-black px-6 py-2 rounded-lg font-semibold"
         >
-          {current === slides.length - 1 ? "Finish" : "Next"}
+          {current === slides.length - 1 ? "Get BCX" : "Next"}
         </button>
       </div>
     </div>

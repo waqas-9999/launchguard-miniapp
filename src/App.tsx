@@ -10,12 +10,14 @@ import {
 
 import { fetchReferralCode } from './utils/apis'
 import { setUser } from './store/wallet'
+import { telegramWebApp } from './utils/telegram'
 
 import WebglFluidAnimation from './components/WebglFluidAnimation'
 import { SelectTokenModalTarget } from './components/SelectTokenModal'
 import { ReferralModalTarget } from './components/ReferralModal'
 import { BuyWIthCardModalTarget } from './components/BuyWithCardModal'
 import AppLayout from './AppLayout'
+import TelegramStatus from './components/TelegramStatus'
 import { getReferralFromURL } from './utils/getReferrer'
 // @ts-ignore - JSX module shim
 import ScrollToTop from './components/global/ScrolTop.jsx'
@@ -111,39 +113,16 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp;
-
-      // Configure Telegram Web App
-      tg.expand(); // Forces full-screen
-      
-      // Disable vertical swipes that could minimize the app
-      if (typeof tg.disableVerticalSwipes === 'function') {
-        tg.disableVerticalSwipes(); // Prevents swipe-down minimize
-      }
-      
-      // Try to disable other gestures if available
-      if (typeof (tg as any).disableHorizontalSwipes === 'function') {
-        (tg as any).disableHorizontalSwipes(); // Prevents swipe-left/right minimize
-      }
-      
-      if (typeof (tg as any).disablePullToRefresh === 'function') {
-        (tg as any).disablePullToRefresh();
-      }
-      
-      if (typeof (tg as any).setHeaderColor === 'function') {
-        (tg as any).setHeaderColor('#0B0C0E');
-      }
-      
-      if (typeof (tg as any).enableClosingConfirmation === 'function') {
-        (tg as any).enableClosingConfirmation();
-      }
-      
-      // Hide back button if available
-      if ((tg as any).BackButton && typeof (tg as any).BackButton.hide === 'function') {
-        (tg as any).BackButton.hide();
-      }
-    }
+    // Initialize Telegram Web App
+    telegramWebApp.setupMiniApp();
+    
+    // Log the current state for debugging
+    console.log('Telegram Web App Status:', {
+      isAvailable: telegramWebApp.isAvailable(),
+      isProperMiniApp: telegramWebApp.isProperMiniApp(),
+      user: telegramWebApp.getUser(),
+      initData: telegramWebApp.getInitData() ? 'Present' : 'Missing'
+    });
 
     // Prevent touch events that could trigger browser gestures
     const preventTouch = (e: TouchEvent) => {
@@ -281,6 +260,9 @@ function App() {
       <SelectTokenModalTarget />
       <ReferralModalTarget />
       <BuyWIthCardModalTarget />
+      
+      {/* Telegram Status Debug Component - Remove in production */}
+      {/* <TelegramStatus show={process.env.NODE_ENV === 'development'} /> */}
     </Router>
     </div>
   )
