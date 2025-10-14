@@ -1483,7 +1483,7 @@
     this.canvasCtx = canvas.getContext('2d');
     this.image = spriteSheet;
     this.x = 0;
-    this.y = 5;
+    this.y = 10;
     this.currentDistance = 0;
     this.maxScore = 0;
     this.highScore = 0;
@@ -1579,11 +1579,19 @@
     } else {
     this.canvasCtx.translate(this.x, this.y);
     }
+    
+    // Draw the original digit
     this.canvasCtx.drawImage(this.image, sourceX, 0,
     sourceWidth, sourceHeight,
     targetX, targetY,
     targetWidth, targetHeight
     );
+    
+    // Apply yellow color overlay
+    this.canvasCtx.globalCompositeOperation = 'source-atop';
+    this.canvasCtx.fillStyle = '#efb81c';
+    this.canvasCtx.fillRect(targetX, targetY, targetWidth, targetHeight);
+    
     this.canvasCtx.restore();
     },
     /**
@@ -2701,7 +2709,7 @@ html[subframe] body {
   title.style.marginBottom = '10px';
 
   var info = document.createElement('div');
-  info.textContent = 'Daily Turns: 7';
+  info.textContent = 'Let\'s Play';
   info.style.opacity = '0.8';
   info.style.marginBottom = '16px';
 
