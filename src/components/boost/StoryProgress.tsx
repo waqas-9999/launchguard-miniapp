@@ -44,12 +44,19 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
   };
 
   return (
-    <div className="fixed max-w-md mx-auto inset-0 z-50 flex items-center justify-center bg-black overflow-hidden">
-      {/* Background image */}
-      <motion.div
-        key={slides[current].id}
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${slides[current].image})` }}
+    <div className="fixed w-full h-full max-w-md mx-auto inset-0 z-50 flex items-center justify-center bg-black overflow-hidden">
+      {/* Responsive background image */}
+      <motion.img
+        key={`img-${slides[current].id}`}
+        src={slides[current].image}
+        alt={`Slide ${slides[current].id}`}
+        className="absolute inset-0 w-full h-full object-contain object-center max-w-full max-h-full"
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+          objectPosition: 'center'
+        }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
