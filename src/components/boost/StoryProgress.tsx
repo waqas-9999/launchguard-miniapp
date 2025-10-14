@@ -37,6 +37,9 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
     if (slides[current].id === 3) {
       // Redirect to /dino for slide 3
       navigate("/dino");
+    } else if (current === slides.length - 1) {
+      // Redirect to /get-bcx for last slide
+      navigate("/get-bcx");
     } else {
       // Open website for other slides
       window.open("https://infinity.buycex.com/", "_blank");
@@ -86,14 +89,14 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
           onClick={handleLeftButton}
           className="bg-[#efb81c] font-semibold w-1/2 text-black px-6 py-2 rounded-lg"
         >
-          {slides[current].id === 3 ? "Play Dino" : "Visit website"}
+          {slides[current].id === 3 ? "Play Dino" : current === slides.length - 1 ? "Get BCX" : "Visit website"}
         </button>
 
         <button
           onClick={handleNext}
           className="bg-white w-1/2 text-black px-6 py-2 rounded-lg font-semibold"
         >
-          {current === slides.length - 1 ? "Get BCX" : "Next"}
+          {current === slides.length - 1 ? "Finish" : "Next"}
         </button>
       </div>
     </div>
