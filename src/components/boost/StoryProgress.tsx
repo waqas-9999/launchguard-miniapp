@@ -28,7 +28,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
       setCurrent((prev) => prev + 1);
     } else {
       // On last slide, redirect to /get-bcx
-      navigate("/get-bcx");
+      navigate("/boost");
       onClose();
     }
   };
