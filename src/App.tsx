@@ -17,6 +17,8 @@ import { ReferralModalTarget } from './components/ReferralModal'
 import { BuyWIthCardModalTarget } from './components/BuyWithCardModal'
 import AppLayout from './AppLayout'
 import { getReferralFromURL } from './utils/getReferrer'
+// @ts-ignore - JSX module shim
+import ScrollToTop from './components/global/ScrolTop.jsx'
 
 // Route-level code splitting
 const Home = lazy(() => import('./components/home/Home'))
@@ -27,6 +29,18 @@ const Transactions = lazy(() => import('./components/Transactions/TransactionsSu
 const Leaderboard = lazy(() => import('./components/leaderbord/LeaderboardPanel'))
 const ProjectUpdates = lazy(() => import('./components/Project/ProjectUpdates'))
 const Claim = lazy(() => import('./components/Claim/Claim'))
+// @ts-ignore - JSX module shim
+const Dino = lazy(() => import('./views/Dino.jsx'))
+// @ts-ignore - JSX module shim
+const Friends = lazy(() => import('./views/Friends.jsx'))
+// @ts-ignore - JSX module shim
+const LeaderboardNew = lazy(() => import('./views/Leaderboard.jsx'))
+// @ts-ignore - JSX module shim
+const Boost = lazy(() => import('./views/Home.jsx'))
+// @ts-ignore - JSX module shim
+const GetBcx = lazy(() => import('./views/GetBcx.jsx'))
+// @ts-ignore - JSX module shim
+const Transaction = lazy(() => import('./views/Transaction.jsx'))
 function App() {
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
@@ -96,13 +110,39 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+
+      tg.expand(); // Forces full-screen
+      if (tg.disableVerticalSwipes) {
+        tg.disableVerticalSwipes(); // Prevents swipe-down minimize
+      }
+    }
+
+    // Optional fallback: prevent touch propagation globally
+    const stopTouch = (e: TouchEvent) => e.stopPropagation();
+    document.addEventListener("touchstart", stopTouch, { passive: true });
+
+    return () => {
+      document.removeEventListener("touchstart", stopTouch);
+    };
+  }, []);
+
   return (
+    <div className="app-scroll">
     <Router>
       <Suspense fallback={null}>
+        <ScrollToTop />
         <Routes>
           {/* 
           <Route path="/home" element={<Home />} />*/}
-       
+       <Route path="/dino" element={<Dino />} />
+       <Route path="/friends" element={<Friends />} />
+       <Route path="/leaderboard-new" element={<LeaderboardNew />} />
+       <Route path="/boost" element={<Boost />} />
+       <Route path="/get-bcx" element={<GetBcx />} />
+       <Route path="/transaction" element={<Transaction />} />
 
           {/* Protected Routes */}
           {isConnected && hasEntered ? (
@@ -177,6 +217,7 @@ function App() {
       <ReferralModalTarget />
       <BuyWIthCardModalTarget />
     </Router>
+    </div>
   )
 }
 

@@ -389,3 +389,19 @@ body {
     background-position: 30px 30px;
   }
 }
+
+/* Utility to hide native scrollbars for a cleaner UI */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+.app-scroll {
+height: 100%;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+overscroll-behavior: none; /* Stops swipe-to-minimize */
+}

@@ -1,0 +1,106 @@
+import React, { useState } from "react";
+import BottomNav from "../components/boost/BottomNav";
+import { Gift, Copy } from "lucide-react";
+import InviteModal from "../components/global/InviteModal";
+
+function Friends() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-black flex flex-col justify-between text-white relative overflow-hidden">
+      {/* Background gradients */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] via-black to-black" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#efb81c]/10 blur-[120px] rounded-full" />
+
+      {/* Main Content */}
+      <div className="relative px-6 pt-10 pb-32">
+        {/* Header */}
+        <h1 className="text-3xl font-semibold text-center mb-8 tracking-wide">
+          Build your network
+        </h1>
+
+        {/* Gold Reward Box */}
+        <div className="bg-white/5 backdrop-blur-md border border-[#efb81c]/30 rounded-2xl p-5 flex items-center justify-between mb-10 shadow-[0_0_25px_rgba(239,184,28,0.2)]">
+          <div>
+            <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#efb81c] to-[#ffde70] font-semibold text-lg">
+              Earn BCX for every
+            </p>
+            <p className="text-gray-300 text-sm">Coin your friend buys</p>
+          </div>
+          <div className="bg-gradient-to-br from-[#efb81c] to-[#c99a16] p-3 rounded-xl shadow-[0_0_20px_rgba(239,184,28,0.4)]">
+            <Gift className="text-black w-7 h-7" />
+          </div>
+        </div>
+
+        {/* Reward Levels */}
+        <div className="relative pl-6">
+          <div className="absolute left-3 top-3 bottom-6 w-[2px] bg-gradient-to-b from-[#efb81c]/70 to-transparent" />
+
+          <div className="relative mb-10">
+            <div className="absolute -left-5 w-5 h-5 rounded-full bg-gradient-to-br from-[#efb81c] to-[#ffde70] shadow-[0_0_12px_rgba(239,184,28,0.8)]" />
+            <h2 className="font-semibold text-lg ml-3">
+              Earn{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#efb81c] to-[#ffde70]">
+                ✕ BCX 0.01
+              </span>
+            </h2>
+            <p className="text-gray-400 text-sm mt-1 ml-3">
+              For every friend who joins
+            </p>
+          </div>
+
+          <div className="relative">
+            <div className="absolute -left-5 w-5 h-5 rounded-full bg-gradient-to-br from-[#efb81c] to-[#ffde70] shadow-[0_0_12px_rgba(239,184,28,0.8)]" />
+            <h2 className="font-semibold text-lg ml-3">
+              Get Bonus{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#efb81c] to-[#ffde70]">
+                ✕
+              </span>
+            </h2>
+            <p className="text-gray-400 text-sm mt-1 ml-3">
+              For every friend your friend refers
+            </p>
+          </div>
+        </div>
+
+        {/* Invite Button */}
+        <div className="mt-14">
+          <button
+            onClick={() => setOpen(true)}
+            className="relative w-full bg-gradient-to-r from-[#efb81c] to-[#ffde70] text-black font-semibold py-3 rounded-lg overflow-hidden group shadow-[0_0_20px_rgba(239,184,28,0.4)] transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <span className="relative z-10">+ Invite a friend</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out" />
+          </button>
+        </div>
+        <div className="mt-14 space-y-8">
+
+          {/* Referral Earnings */}
+          <div className="bg-white/5 backdrop-blur-md border border-[#efb81c]/20 rounded-2xl p-5 shadow-[0_0_20px_rgba(239,184,28,0.15)]">
+            <h2 className="text-lg font-semibold mb-4 text-[#efb81c]">
+              Referral Earnings
+            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-gray-300">Total Earned</p>
+              <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#efb81c] to-[#ffde70] font-bold">
+                2.45 BCX
+              </p>
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-gray-300">Friends Referred</p>
+              <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#efb81c] to-[#ffde70] font-bold">
+                12
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Nav + Invite Modal */}
+      <BottomNav />
+      <InviteModal open={open} onClose={() => setOpen(false)} />
+    </div>
+  );
+}
+
+export default Friends;
