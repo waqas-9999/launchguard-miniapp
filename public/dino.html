@@ -69,6 +69,9 @@
     this.paused = false;
     this.resizeTimerId_ = null;
     this.playCount = 0;
+    // Turns and limits
+    this.turnsTotal = 7;
+    this.turnsLeft = 7;
     // Sound FX.
     this.audioBuffer = null;
     this.soundFx = {};
@@ -244,7 +247,7 @@
     */
     loadSounds: function() {
     if (!IS_IOS) {
-    this.audioContext = new AudioContext();
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     var resourceTemplate =
     document.getElementById(this.config.RESOURCE_TEMPLATE_ID).content;
     for (var sound in Runner.sounds) {
@@ -284,11 +287,12 @@
     this.setSpeed();
     this.containerEl = document.createElement('div');
     this.containerEl.className = Runner.classes.CONTAINER;
+    this.containerEl.style.position = 'relative';
     // Player canvas container.
     this.canvas = createCanvas(this.containerEl, this.dimensions.WIDTH,
     this.dimensions.HEIGHT, Runner.classes.PLAYER);
     this.canvasCtx = this.canvas.getContext('2d');
-    this.canvasCtx.fillStyle = '#f7f7f7';
+    this.canvasCtx.fillStyle = '#0b0c0e';
     this.canvasCtx.fill();
     Runner.updateCanvasScaling(this.canvas);
     // Horizon contains clouds, obstacles and the ground.
@@ -297,9 +301,29 @@
     // Distance meter
     this.distanceMeter = new DistanceMeter(this.canvas,
     this.images.TEXT_SPRITE, this.dimensions.WIDTH);
+    // Limit: Maximum score 1000
+    this.distanceMeter.config.MAX_DISTANCE_UNITS = 4; // up to 9999 displayed
+    this.distanceMeter.maxScore = 1000;
     // Draw t-rex
     this.tRex = new Trex(this.canvas, this.images.TREX);
     this.outerContainerEl.appendChild(this.containerEl);
+    // Turns badge
+    this.turnsBadge = document.createElement('div');
+    this.turnsBadge.style.position = 'absolute';
+    this.turnsBadge.style.top = '-26px';
+    this.turnsBadge.style.left = '0';
+    this.turnsBadge.style.zIndex = '999';
+    this.turnsBadge.style.padding = '2px 8px';
+    this.turnsBadge.style.fontSize = '12px';
+    this.turnsBadge.style.borderRadius = '12px';
+    this.turnsBadge.style.border = '1px solid rgba(239,184,28,0.2)';
+    this.turnsBadge.style.background = 'rgba(255,255,255,0.05)';
+    this.turnsBadge.style.color = '#efb81c';
+    this.turnsBadge.style.backdropFilter = 'blur(6px)';
+    this.turnsBadge.style.boxShadow = '0 0 12px rgba(239,184,28,0.15)';
+    this.turnsBadge.style.zIndex = '4';
+    this.turnsBadge.textContent = 'Turns: ' + this.turnsLeft + '/' + this.turnsTotal;
+    this.containerEl.appendChild(this.turnsBadge);
     if (IS_MOBILE) {
     this.createTouchController();
     }
@@ -599,6 +623,54 @@
     } else {
     this.gameOverPanel.draw();
     }
+    // Decrement turns and show start overlay if turns exhausted
+    if (this.turnsLeft > 0) {
+      this.turnsLeft--;
+    }
+    if (this.turnsLeft <= 0) {
+      // Hide retry button when out of turns
+      if (this.retryButton && this.retryButton.parentNode) {
+        this.retryButton.parentNode.removeChild(this.retryButton);
+        this.retryButton = null;
+      }
+      // Delay slightly to let crash render
+      setTimeout(function(){
+        if (window.__dinoShowOverlay) {
+          window.__dinoShowOverlay('Daily turns over');
+        }
+      }, 600);
+    }
+    // Create Retry button below the game over panel.
+    if (!this.retryButton) {
+      var btn = document.createElement('button');
+      btn.textContent = 'Retry';
+      btn.setAttribute('type', 'button');
+      btn.style.position = 'absolute';
+      btn.style.left = '50%';
+      btn.style.transform = 'translateX(-50%)';
+      btn.style.bottom = '-220px';
+      btn.style.padding = '0px 20px';
+      btn.style.borderRadius = '10px';
+      btn.style.border = '1px solid rgba(239,184,28,0.2)';
+      btn.style.background = 'rgba(255,255,255,0.05)';
+      btn.style.color = '#efb81c';
+      btn.style.fontWeight = '600';
+      btn.style.cursor = 'pointer';
+      btn.style.backdropFilter = 'blur(6px)';
+      btn.style.boxShadow = '0 0 20px rgba(239,184,28,0.15)';
+      btn.style.transition = 'all 150ms ease-in-out';
+      btn.addEventListener('mouseenter', function(){
+        btn.style.background = 'rgba(255,255,255,0.08)';
+        btn.style.boxShadow = '0 0 24px rgba(239,184,28,0.22)';
+      });
+      btn.addEventListener('mouseleave', function(){
+        btn.style.background = 'rgba(255,255,255,0.05)';
+        btn.style.boxShadow = '0 0 20px rgba(239,184,28,0.15)';
+      });
+      btn.addEventListener('click', this.restart.bind(this));
+      this.containerEl.appendChild(btn);
+      this.retryButton = btn;
+    }
     // Update the high score.
     if (this.distanceRan > this.highestScore) {
     this.highestScore = Math.ceil(this.distanceRan);
@@ -625,6 +697,10 @@
     restart: function() {
     if (!this.raqId) {
     this.playCount++;
+    // Stop if no turns left
+    if (this.turnsLeft <= 0) {
+      return;
+    }
     this.runningTime = 0;
     this.activated = true;
     this.crashed = false;
@@ -637,6 +713,15 @@
     this.horizon.reset();
     this.tRex.reset();
     this.playSound(this.soundFx.BUTTON_PRESS);
+    // Remove retry button if present
+    if (this.retryButton && this.retryButton.parentNode) {
+      this.retryButton.parentNode.removeChild(this.retryButton);
+      this.retryButton = null;
+    }
+    // Update turns badge
+    if (this.turnsBadge) {
+      this.turnsBadge.textContent = 'Turns: ' + this.turnsLeft + '/' + this.turnsTotal;
+    }
     this.update();
     }
     },
@@ -1281,10 +1366,17 @@
     sourceWidth *= 2;
     sourceHeight *= 2;
     }
+    // Draw original sprite
+    this.canvasCtx.save();
     this.canvasCtx.drawImage(this.image, sourceX, sourceY,
     sourceWidth, sourceHeight,
     this.xPos, this.yPos,
     this.config.WIDTH, this.config.HEIGHT);
+    // Tint the T-Rex to #efb81c
+    this.canvasCtx.globalCompositeOperation = 'source-atop';
+    this.canvasCtx.fillStyle = '#efb81c';
+    this.canvasCtx.fillRect(this.xPos, this.yPos, this.config.WIDTH, this.config.HEIGHT);
+    this.canvasCtx.restore();
     },
     /**
     * Sets a random time for the blink to happen.
@@ -1391,7 +1483,7 @@
     this.canvasCtx = canvas.getContext('2d');
     this.image = spriteSheet;
     this.x = 0;
-    this.y = 5;
+    this.y = 10;
     this.currentDistance = 0;
     this.maxScore = 0;
     this.highScore = 0;
@@ -1487,11 +1579,19 @@
     } else {
     this.canvasCtx.translate(this.x, this.y);
     }
+    
+    // Draw the original digit
     this.canvasCtx.drawImage(this.image, sourceX, 0,
     sourceWidth, sourceHeight,
     targetX, targetY,
     targetWidth, targetHeight
     );
+    
+    // Apply yellow color overlay
+    this.canvasCtx.globalCompositeOperation = 'source-atop';
+    this.canvasCtx.fillStyle = '#efb81c';
+    this.canvasCtx.fillRect(targetX, targetY, targetWidth, targetHeight);
+    
     this.canvasCtx.restore();
     },
     /**
@@ -1946,8 +2046,8 @@ a {
 }
 
 body {
-  background-color: #f7f7f7;
-  color: #585858;
+  background-color: #0b0c0e;
+  color: #e5e7eb;
   font-size: 125%;
 }
 
@@ -2483,7 +2583,7 @@ html[subframe] body {
   max-width: 600px;
   overflow: hidden;
   position: absolute;
-  top: 10px;
+  top: 80px;
   width: 44px;
   z-index: 2;
 }
@@ -2586,32 +2686,183 @@ html[subframe] body {
   </div>
 
   <script type="text/javascript">
-    if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
-      new Runner('.interstitial-wrapper');
-    } else {
-      document.getElementById("main-frame-notchrome").style.display="";
-	}
+    document.addEventListener('DOMContentLoaded', function () {
+      try {
+        var runner = new Runner('.interstitial-wrapper');
+        // Reusable start overlay
+        function showStartOverlay(message) {
+  var overlay = document.createElement('div');
+  overlay.style.position = 'absolute';
+  overlay.style.inset = '0';
+  overlay.style.display = 'flex';
+  overlay.style.flexDirection = 'column';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.background = 'rgba(11,12,14,0.9)';
+  overlay.style.color = '#e5e7eb';
+  overlay.style.zIndex = '3';
+
+  var title = document.createElement('div');
+  title.textContent = message ? message : 'Dino Runner';
+  title.style.fontWeight = '700';
+  title.style.fontSize = '18px';
+  title.style.marginBottom = '10px';
+
+  var info = document.createElement('div');
+  info.textContent = 'Let\'s Play';
+  info.style.opacity = '0.8';
+  info.style.marginBottom = '16px';
+
+  overlay.appendChild(title);
+  overlay.appendChild(info);
+
+  var countdownWrap = null;
+  var countdownText = null;
+  var countdownId = null;
+
+  // Store or get saved timestamp
+  const now = Date.now();
+  let resetTime = localStorage.getItem("dinoResetTime");
+
+  if (!resetTime || now > parseInt(resetTime)) {
+    // Set new 24-hour limit
+    resetTime = now + 24 * 60 * 60 * 1000;
+    localStorage.setItem("dinoResetTime", resetTime);
+  }
+
+  if (message) {
+    countdownWrap = document.createElement('div');
+    countdownWrap.style.display = 'flex';
+    countdownWrap.style.alignItems = 'center';
+    countdownWrap.style.gap = '10px';
+    countdownWrap.style.padding = '10px 14px';
+    countdownWrap.style.border = '1px solid rgba(239,184,28,0.2)';
+    countdownWrap.style.borderRadius = '12px';
+    countdownWrap.style.background = 'rgba(255,255,255,0.05)';
+    countdownWrap.style.backdropFilter = 'blur(6px)';
+    countdownWrap.style.boxShadow = '0 0 20px rgba(239,184,28,0.15)';
+    countdownWrap.style.marginBottom = '12px';
+
+    var clockDot = document.createElement('div');
+    clockDot.style.width = '10px';
+    clockDot.style.height = '10px';
+    clockDot.style.borderRadius = '9999px';
+    clockDot.style.background = '#efb81c';
+    clockDot.style.boxShadow = '0 0 10px rgba(239,184,28,0.6)';
+
+    countdownText = document.createElement('div');
+    countdownText.style.color = '#efb81c';
+    countdownText.style.fontWeight = '700';
+    countdownText.style.fontFamily = 'monospace';
+    countdownText.style.letterSpacing = '1px';
+    countdownText.style.fontSize = '16px';
+
+    countdownWrap.appendChild(clockDot);
+    countdownWrap.appendChild(countdownText);
+    overlay.appendChild(countdownWrap);
+
+    function updateCountdown() {
+      var ms = parseInt(resetTime) - Date.now();
+      if (ms <= 0) {
+        countdownText.textContent = "00:00:00";
+        clearInterval(countdownId);
+        localStorage.removeItem("dinoResetTime");
+        // Optionally reset turns here
+        info.textContent = "Daily Turns: 7 (Reset)";
+        return;
+      }
+
+      var sec = Math.floor(ms / 1000);
+      var h = Math.floor(sec / 3600);
+      var m = Math.floor((sec % 3600) / 60);
+      var s = sec % 60;
+      function pad(n) { return (n < 10 ? '0' : '') + n; }
+      countdownText.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+    }
+
+    updateCountdown();
+    countdownId = setInterval(updateCountdown, 1000);
+  }
+// Make Dino jump when clicking ANYWHERE on the screen
+document.addEventListener('click', function () {
+  if (!runner) return;
+  if (!runner.activated) return;
+  if (runner.crashed) return;
+
+  if (!runner.tRex.jumping) {
+    if (runner.soundFx && runner.soundFx.BUTTON_PRESS) {
+      runner.playSound(runner.soundFx.BUTTON_PRESS);
+    }
+    runner.tRex.startJump();
+  }
+});
+
+
+          var startBtn = document.createElement('button');
+          startBtn.textContent = message ? 'Come back tomorrow' : 'Start';
+          startBtn.style.padding = '0px 20px';
+          startBtn.style.borderRadius = '10px';
+          startBtn.style.position = 'absolute';
+          startBtn.style.bottom = '-220px';
+          startBtn.style.border = '1px solid rgba(239,184,28,0.2)';
+          startBtn.style.background = 'rgba(255,255,255,0.05)';
+          startBtn.style.color = '#efb81c';
+          startBtn.style.fontWeight = '600';
+          startBtn.style.cursor = 'pointer';
+          startBtn.style.backdropFilter = 'blur(6px)';
+          startBtn.style.boxShadow = '0 0 20px rgba(239,184,28,0.15)';
+          startBtn.style.transition = 'all 150ms ease-in-out';
+          overlay.appendChild(title);
+          overlay.appendChild(info);
+          if (countdownWrap) overlay.appendChild(countdownWrap);
+          overlay.appendChild(startBtn);
+          runner.containerEl.appendChild(overlay);
+          function begin() {
+            overlay.parentNode && overlay.parentNode.removeChild(overlay);
+            if (countdownId) { clearInterval(countdownId); countdownId = null; }
+            // Reset turns on new session
+            runner.turnsLeft = runner.turnsTotal;
+            if (!runner.activated) {
+              runner.loadSounds();
+              runner.activated = true;
+            }
+          }
+          startBtn.addEventListener('click', begin);
+        }
+        // expose for gameOver usage
+        window.__dinoShowOverlay = showStartOverlay;
+        // initial overlay
+        showStartOverlay();
+        // Also allow any click/touch to start/jump after overlay removed
+        function startOnAnyInput() {
+          if (overlay.parentNode) return; // wait until overlay removed
+          if (!runner.crashed) {
+            if (!runner.activated) {
+              runner.loadSounds();
+              runner.activated = true;
+            }
+            if (!runner.tRex.jumping) {
+              if (runner.soundFx && runner.soundFx.BUTTON_PRESS) {
+                runner.playSound(runner.soundFx.BUTTON_PRESS);
+              }
+              runner.tRex.startJump();
+            }
+          }
+        }
+        document.addEventListener('mousedown', startOnAnyInput, { passive: true });
+        document.addEventListener('touchstart', startOnAnyInput, { passive: true });
+      } catch (e) {
+        console && console.error && console.error('Dino init error', e);
+      }
+    });
   </script>
 
-  <div class="onlyforchrome">
-    <div id="socialbutts" class="addthis_toolbox addthis_default_style" style="text-align:center; padding-top:65px;">
-      <table border="0" style="margin:0 auto;"><tr>
-			<td><div
-				class="fb-like"
-				data-share="false"
-				data-width="150"
-				data-show-faces="false">
-			</div></td>
-			<td style="padding-left:15px;"><div class="g-plusone" data-size="medium" data-href="http://apps.thecodepost.org/trex/trex.html"></div></td>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></td>
-	  </tr></table>
-    </div>
-  </div>
 
     <script type="text/javascript">
     if (navigator.userAgent.toLowerCase().indexOf('chrome') <= -1) {
 	  hideClass(".onlyforchrome");
 	}
+  
   </script>
 	  
 
