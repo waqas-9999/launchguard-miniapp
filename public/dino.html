@@ -291,7 +291,8 @@
     // Player canvas container.
     this.canvas = createCanvas(this.containerEl, this.dimensions.WIDTH,
     this.dimensions.HEIGHT, Runner.classes.PLAYER);
-    this.canvasCtx = this.canvas.getContext('2d');
+    this.canvasCtx = this.canvas.getContext('2d', { alpha: false });
+    this.canvasCtx.imageSmoothingEnabled = false;
     this.canvasCtx.fillStyle = '#0b0c0e';
     this.canvasCtx.fill();
     Runner.updateCanvasScaling(this.canvas);
@@ -438,6 +439,7 @@
     this.drawPending = false;
     var now = getTimeStamp();
     var deltaTime = now - (this.time || now);
+    if (deltaTime > 100) deltaTime = 100;
     this.time = now;
     if (this.activated) {
     this.clearCanvas();
@@ -764,8 +766,8 @@
     Runner.updateCanvasScaling = function(canvas, opt_width, opt_height) {
     var context = canvas.getContext('2d');
     // Query the various pixel ratios
-    var devicePixelRatio = Math.floor(window.devicePixelRatio) || 1;
-    var backingStoreRatio = Math.floor(context.webkitBackingStorePixelRatio) || 1;
+    var devicePixelRatio = window.devicePixelRatio || 1;
+    var backingStoreRatio = context.webkitBackingStorePixelRatio || 1;
     var ratio = devicePixelRatio / backingStoreRatio;
     // Upscale the canvas if the two ratios don't match
     if (devicePixelRatio !== backingStoreRatio) {
@@ -1120,7 +1122,7 @@
     */
     update: function(deltaTime, speed) {
     if (!this.remove) {
-    this.xPos -= Math.floor((speed * FPS / 1000) * deltaTime);
+    this.xPos -= (speed * FPS / 1000) * deltaTime;
     this.draw();
     if (!this.isVisible()) {
     this.remove = true;
@@ -1856,7 +1858,7 @@
     * @param {number} speed
     */
     update: function(deltaTime, speed) {
-    var increment = Math.floor(speed * (FPS / 1000) * deltaTime);
+    var increment = speed * (FPS / 1000) * deltaTime;
     if (this.xPos[0] <= 0) {
     this.updateXPos(0, increment);
     } else {
