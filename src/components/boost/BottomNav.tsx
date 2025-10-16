@@ -2,26 +2,46 @@
 
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Users, Trophy, Settings, LucideInfinity } from "lucide-react";
+import { Home, Users, Trophy, LucideInfinity } from "lucide-react";
 import { GiDinosaurRex } from "react-icons/gi";
-import { IoMdInfinite } from "react-icons/io";
+import { useEffect, useState } from "react";
 
 export default function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  // ✅ Detect when keyboard is open (on Telegram & mobile browsers)
+  useEffect(() => {
+    const visualViewport = window.visualViewport;
+
+    function handleResize() {
+      if (visualViewport) {
+        const heightDiff = window.innerHeight - visualViewport.height;
+        // If viewport height shrinks >150px → keyboard likely open
+        setIsKeyboardVisible(heightDiff > 150);
+      }
+    }
+
+    visualViewport?.addEventListener("resize", handleResize);
+    return () => visualViewport?.removeEventListener("resize", handleResize);
+  }, []);
 
   const items = [
     { icon: Home, label: "Boost", url: "/boost" },
     { icon: Trophy, label: "Leaderboard", url: "/leaderboard-new" },
     { icon: GiDinosaurRex, label: "Dino", url: "/dino" },
     { icon: Users, label: "Friends", url: "/friends" },
-    { icon: LucideInfinity , label: "Get BCX", url: "/get-bcx" },
+    { icon: LucideInfinity, label: "Get BCX", url: "/get-bcx" },
   ];
 
   return (
     <motion.nav
       initial={{ y: 0, opacity: 1 }}
-      animate={{ y: 0, opacity: 1 }}
+      animate={{
+        y: isKeyboardVisible ? 100 : 0, // move down offscreen when keyboard shows
+        opacity: isKeyboardVisible ? 0 : 1,
+      }}
       transition={{ type: "spring", stiffness: 120, damping: 15 }}
       aria-label="Bottom navigation"
       className="fixed inset-x-0 bottom-2 z-50 mx-auto w-[94%] max-w-sm overflow-hidden rounded-3xl border border-gray-800/70 bg-gradient-to-br from-[#0B0C0E]/90 via-[#111214]/95 to-[#0E0F11]/90 px-5 py-3 shadow-[0_0_25px_rgba(255,255,255,0.05)] backdrop-blur-xl"
@@ -37,7 +57,7 @@ export default function BottomNav() {
             <motion.li
               key={label}
               whileTap={{ scale: 0.92 }}
-              onClick={() => navigate(url)} // ✅ works in v6+
+              onClick={() => navigate(url)}
               className="flex flex-col items-center gap-1 cursor-pointer"
             >
               <div
