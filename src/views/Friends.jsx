@@ -2,9 +2,14 @@ import React, { useState } from "react";
 import BottomNav from "../components/boost/BottomNav";
 import { Gift, Copy } from "lucide-react";
 import InviteModal from "../components/global/InviteModal";
+import toast from "react-hot-toast";
 
 function Friends() {
   const [open, setOpen] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(referralLink);
+    toast.success("Link copied!");
+  };
 
   return (
     <div className="min-h-screen max-w-sm mx-auto bg-black flex flex-col justify-between text-white relative overflow-hidden">

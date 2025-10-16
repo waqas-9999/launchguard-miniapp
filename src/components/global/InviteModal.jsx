@@ -3,9 +3,19 @@
 import { FaShare } from "react-icons/fa"
 import { IoCopy } from "react-icons/io5"
 import { motion, AnimatePresence } from "framer-motion"
+import Toast from "./Toast";
+import { useState } from "react";
 
 export default function InviteModal({ open, onClose }) {
+  const [showToast, setShowToast] = useState(false);
+  const referralLink = "https://buycex.com/signup?ref=waqas123"; // example
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(referralLink);
+    setShowToast(true);
+  };
   return (
+    <>
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
@@ -59,6 +69,7 @@ export default function InviteModal({ open, onClose }) {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleCopy}
                 className="flex items-center justify-center gap-3 w-full py-4 
                   rounded-xl font-semibold text-black 
                   bg-gradient-to-r from-yellow-400 to-yellow-300
@@ -81,5 +92,7 @@ export default function InviteModal({ open, onClose }) {
         </div>
       )}
     </AnimatePresence>
+    <Toast message="Link copied!" show={showToast} onClose={() => setShowToast(false)} />
+    </>
   )
 }

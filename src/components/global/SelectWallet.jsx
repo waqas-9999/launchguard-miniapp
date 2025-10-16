@@ -1,6 +1,6 @@
 "use client"
 
-import { FaShare } from "react-icons/fa"
+import { FaShare, FaWallet } from "react-icons/fa"
 import { IoCopy } from "react-icons/io5"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useRef, useEffect } from 'react'
@@ -64,7 +64,10 @@ export default function SelectWallet({ open, onClose }) {
             <div className="mb-6" ref={menuRef}>
               <div className="flex items-center gap-3">
                 <div className="flex-1">
-                  <div className="text-gray-300 text-sm mb-2">Chain</div>
+                  <div className="flex items-center justify-between gap-2 text-gray-300 text-sm mb-2">
+                  <div className="text-gray-300 text-sm">Chain</div>
+                  <button className="bg-primary text-sm text-black font-semibold px-3 py-1.5 rounded-md flex items-center gap-2"><FaWallet className="w-4 h-4" />Wallet</button>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setOpenMenu(v => !v)}

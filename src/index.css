@@ -444,3 +444,34 @@ input, textarea {
   -ms-user-select: text;
   user-select: text;
 }
+
+@keyframes slideDown {
+  0% {
+    transform: translate(-50%, -20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Centered toast drop-in (no translateX used) */
+@keyframes toastDrop {
+  0% {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-toastDrop {
+  animation: toastDrop 0.25s ease-out;
+}

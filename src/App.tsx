@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
+import { Toaster } from "react-hot-toast";
 import { useDispatch } from 'react-redux'
 import {
   BrowserRouter as Router,
@@ -176,6 +177,7 @@ function App() {
   return (
     <div className="app-scroll">
     <Router>
+    <Toaster position="top-center" reverseOrder={false} />
       <Suspense fallback={null}>
         <ScrollToTop />
         <Routes>
