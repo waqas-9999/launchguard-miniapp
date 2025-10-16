@@ -292,6 +292,7 @@
     this.canvas = createCanvas(this.containerEl, this.dimensions.WIDTH,
     this.dimensions.HEIGHT, Runner.classes.PLAYER);
     this.canvasCtx = this.canvas.getContext('2d');
+    this.canvasCtx.imageSmoothingEnabled = false;
     this.canvasCtx.fillStyle = '#0b0c0e';
     this.canvasCtx.fill();
     Runner.updateCanvasScaling(this.canvas);
@@ -319,8 +320,9 @@
     this.turnsBadge.style.border = '1px solid rgba(239,184,28,0.2)';
     this.turnsBadge.style.background = 'rgba(255,255,255,0.05)';
     this.turnsBadge.style.color = '#efb81c';
-    this.turnsBadge.style.backdropFilter = 'blur(6px)';
-    this.turnsBadge.style.boxShadow = '0 0 12px rgba(239,184,28,0.15)';
+    // Remove heavy effects for smoother performance
+    // this.turnsBadge.style.backdropFilter = 'blur(6px)';
+    // this.turnsBadge.style.boxShadow = '0 0 12px rgba(239,184,28,0.15)';
     this.turnsBadge.style.zIndex = '4';
     this.turnsBadge.textContent = 'Turns: ' + this.turnsLeft + '/' + this.turnsTotal;
     this.containerEl.appendChild(this.turnsBadge);
@@ -656,16 +658,14 @@
       btn.style.color = '#efb81c';
       btn.style.fontWeight = '600';
       btn.style.cursor = 'pointer';
-      btn.style.backdropFilter = 'blur(6px)';
-      btn.style.boxShadow = '0 0 20px rgba(239,184,28,0.15)';
+      // btn.style.backdropFilter = 'blur(6px)';
+      // btn.style.boxShadow = '0 0 20px rgba(239,184,28,0.15)';
       btn.style.transition = 'all 150ms ease-in-out';
       btn.addEventListener('mouseenter', function(){
         btn.style.background = 'rgba(255,255,255,0.08)';
-        btn.style.boxShadow = '0 0 24px rgba(239,184,28,0.22)';
       });
       btn.addEventListener('mouseleave', function(){
         btn.style.background = 'rgba(255,255,255,0.05)';
-        btn.style.boxShadow = '0 0 20px rgba(239,184,28,0.15)';
       });
       btn.addEventListener('click', this.restart.bind(this));
       this.containerEl.appendChild(btn);
@@ -763,23 +763,16 @@
     */
     Runner.updateCanvasScaling = function(canvas, opt_width, opt_height) {
     var context = canvas.getContext('2d');
-    // Query the various pixel ratios
-    var devicePixelRatio = Math.floor(window.devicePixelRatio) || 1;
-    var backingStoreRatio = Math.floor(context.webkitBackingStorePixelRatio) || 1;
-    var ratio = devicePixelRatio / backingStoreRatio;
-    // Upscale the canvas if the two ratios don't match
-    if (devicePixelRatio !== backingStoreRatio) {
+    context.imageSmoothingEnabled = false;
+    // Prefer native pixel size to avoid expensive high-DPI upscaling
+    // and keep crisp pixel-art by disabling smoothing.
+    context.imageSmoothingEnabled = false;
     var oldWidth = opt_width || canvas.width;
     var oldHeight = opt_height || canvas.height;
-    canvas.width = oldWidth * ratio;
-    canvas.height = oldHeight * ratio;
+    canvas.width = oldWidth;
+    canvas.height = oldHeight;
     canvas.style.width = oldWidth + 'px';
     canvas.style.height = oldHeight + 'px';
-    // Scale the context to counter the fact that we've manually scaled
-    // our canvas element.
-    context.scale(ratio, ratio);
-    return true;
-    }
     return false;
     };
     /**

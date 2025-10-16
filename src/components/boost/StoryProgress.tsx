@@ -4,10 +4,9 @@ import { useNavigate } from "react-router-dom";
 
 // Import your images for each story
 import BuycexBanner1 from "../../assets/img/home/BuycexBanner.png";
-import BuycexBanner2 from "../../assets/img/home/BuycexBanner-2.png";
+import BuycexBanner5 from "../../assets/img/home/BuycexBanner-5.png";
 import BuycexBanner3 from "../../assets/img/home/BuycexBanner-3.png";
 import BuycexBanner4 from "../../assets/img/home/BuycexBanner-4.png";
-import BuycexBanner5 from "../../assets/img/home/BuycexBanner-5.png";
 
 interface StoryProgressProps {
   onClose: () => void;
@@ -15,10 +14,9 @@ interface StoryProgressProps {
 
 const slides = [
   { id: 1, image: BuycexBanner1 },
-  { id: 2, image: BuycexBanner2 },
+  { id: 2, image: BuycexBanner5 },
   { id: 3, image: BuycexBanner3 },
   { id: 4, image: BuycexBanner4 },
-  { id: 5, image: BuycexBanner5 },
 ];
 
 export default function StoryProgress({ onClose }: StoryProgressProps) {
