@@ -6,25 +6,55 @@ import { Home, Users, Trophy, LucideInfinity } from "lucide-react";
 import { GiDinosaurRex } from "react-icons/gi";
 import { useEffect, useState } from "react";
 
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp?: {
+        onEvent?: (event: string, callback: (data?: any) => void) => void;
+        offEvent?: (event: string, callback?: (data?: any) => void) => void;
+        viewportHeight?: number;
+        viewportStableHeight?: number;
+        ready?: () => void;
+        expand?: () => void;
+      };
+    };
+  }
+}
+
 export default function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-  // ✅ Detect when keyboard is open (on Telegram & mobile browsers)
   useEffect(() => {
-    const visualViewport = window.visualViewport;
+    const tg = window.Telegram?.WebApp;
 
-    function handleResize() {
-      if (visualViewport) {
-        const heightDiff = window.innerHeight - visualViewport.height;
-        // If viewport height shrinks >150px → keyboard likely open
-        setIsKeyboardVisible(heightDiff > 150);
+    // ✅ Telegram Mini App viewport listener
+    const handleTelegramViewportChange = (data?: any) => {
+      if (!tg) return;
+      if (data?.isStateStable && tg.viewportHeight && tg.viewportStableHeight) {
+        const keyboardOpen = tg.viewportHeight < tg.viewportStableHeight - 100;
+        setIsKeyboardVisible(keyboardOpen);
+      } else {
+        setIsKeyboardVisible(false);
       }
-    }
+    };
 
+    tg?.onEvent?.("viewportChanged", handleTelegramViewportChange);
+
+    // ✅ Fallback for normal browsers
+    const visualViewport = window.visualViewport;
+    const handleResize = () => {
+      if (!visualViewport) return;
+      const diff = window.innerHeight - visualViewport.height;
+      setIsKeyboardVisible(diff > 150);
+    };
     visualViewport?.addEventListener("resize", handleResize);
-    return () => visualViewport?.removeEventListener("resize", handleResize);
+
+    return () => {
+      tg?.offEvent?.("viewportChanged", handleTelegramViewportChange);
+      visualViewport?.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   const items = [
@@ -39,7 +69,7 @@ export default function BottomNav() {
     <motion.nav
       initial={{ y: 0, opacity: 1 }}
       animate={{
-        y: isKeyboardVisible ? 100 : 0, // move down offscreen when keyboard shows
+        y: isKeyboardVisible ? 100 : 0,
         opacity: isKeyboardVisible ? 0 : 1,
       }}
       transition={{ type: "spring", stiffness: 120, damping: 15 }}
@@ -61,27 +91,26 @@ export default function BottomNav() {
               className="flex flex-col items-center gap-1 cursor-pointer"
             >
               <div
-                className={
-                  "flex items-center justify-center rounded-full border transition-all duration-300 " +
-                  (isDino ? "h-14 w-14 -mt-2" : "h-11 w-11") +
-                  (isActive
+                className={`flex items-center justify-center rounded-full border transition-all duration-300 ${
+                  isDino ? "h-14 w-14 -mt-2" : "h-11 w-11"
+                } ${
+                  isActive
                     ? " border-yellow-400/40 bg-gradient-to-br from-yellow-400 to-amber-300 shadow-[0_0_20px_rgba(250,204,21,0.3)]"
-                    : " border-gray-800 bg-gradient-to-br from-gray-800/80 to-gray-900/90 hover:from-gray-700 hover:to-gray-800")
-                }
+                    : " border-gray-800 bg-gradient-to-br from-gray-800/80 to-gray-900/90 hover:from-gray-700 hover:to-gray-800"
+                }`}
               >
                 <Icon
-                  className={
-                    "transition-colors duration-300 " +
-                    (isDino ? "h-6 w-6" : "h-5 w-5") +
-                    (isActive ? " text-black" : " text-gray-300")
-                  }
+                  className={`transition-colors duration-300 ${
+                    isDino ? "h-6 w-6" : "h-5 w-5"
+                  } ${isActive ? "text-black" : "text-gray-300"}`}
                 />
               </div>
               <span
-                className={
-                  "text-[11px] font-medium transition-colors duration-300 " +
-                  (isActive ? "text-yellow-400" : "text-gray-400 hover:text-gray-300")
-                }
+                className={`text-[11px] font-medium transition-colors duration-300 ${
+                  isActive
+                    ? "text-yellow-400"
+                    : "text-gray-400 hover:text-gray-300"
+                }`}
               >
                 {label}
               </span>
