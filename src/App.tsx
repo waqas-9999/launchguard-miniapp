@@ -180,81 +180,25 @@ function App() {
     <Toaster position="top-center" reverseOrder={false} />
       <Suspense fallback={null}>
         <ScrollToTop />
-        <Routes>
-          {/* 
-          <Route path="/home" element={<Home />} />*/}
-       <Route path="/dino" element={<Dino />} />
-       <Route path="/friends" element={<Friends />} />
-       <Route path="/leaderboard-new" element={<LeaderboardNew />} />
-       <Route path="/boost" element={<Boost />} />
-       <Route path="/get-bcx" element={<GetBcx />} />
-       <Route path="/transaction" element={<Transaction />} />
+     <Routes>
+  {/* Presale Route */}
+  <Route path="/presale" element={<PresaleEntry />} />
 
-          {/* Protected Routes */}
-          {isConnected && hasEntered ? (
-            <>
-              <Route path="/" element={<Navigate to="/dashboard" />} />
+  {/* Other public routes */}
+  <Route path="/dino" element={<Dino />} />
+  <Route path="/friends" element={<Friends />} />
+  <Route path="/leaderboard-new" element={<LeaderboardNew />} />
+  <Route path="/boost" element={<Boost />} />
+  <Route path="/get-bcx" element={<GetBcx />} />
+  <Route path="/transaction" element={<Transaction />} />
 
-              <Route
-                path="/dashboard"
-                element={
-                  <AppLayout>
-                    <Dashboard />
-                  </AppLayout>
-                }
-              />
+  {/* Root redirects to presale */}
+  <Route path="/" element={<Navigate to="/presale" replace />} />
 
-              <Route
-                path="/buy"
-                element={
-                  <AppLayout>
-                    <BuyNow />
-                  </AppLayout>
-                }
-              />
+  {/* Fallback for unknown paths */}
+  <Route path="*" element={<Navigate to="/presale" replace />} />
+</Routes>
 
-              <Route
-                path="/transactions"
-                element={
-                  <AppLayout>
-                    <Transactions />
-                  </AppLayout>
-                }
-              />
-
-              <Route
-                path="/leaderboard"
-                element={
-                  <AppLayout>
-                    <Leaderboard />
-                  </AppLayout>
-                }
-              />
-
-              <Route
-                path="/updates"
-                element={
-                  <AppLayout>
-                    <ProjectUpdates />
-                  </AppLayout>
-                }
-                
-              />
-               <Route
-                path="/claim"
-                element={
-                  <AppLayout>
-                    <Claim />
-                  </AppLayout>
-                }
-                
-              />
-            </>
-          ) : (
-            // Not connected => show PresaleEntry
-            <Route path="*" element={<PresaleEntry />} />
-          )}
-        </Routes>
       </Suspense>
 
       {/* Global UI (non-Web3Modal) */}

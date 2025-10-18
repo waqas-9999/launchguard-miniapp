@@ -11,12 +11,16 @@ import SelectWallet from "../components/global/SelectWallet";
 import StoryProgress from "../components/boost/StoryProgress";
 import { useAccount } from "wagmi";
 import axios from "axios";
+import { useWeb3Modal } from "@web3modal/wagmi/react";
+
 
 function cn(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Boost() {
+  const { open: openWeb3Modal } = useWeb3Modal();
+
   const { address, isConnected } = useAccount();
 
   const displayAddress = address
@@ -27,6 +31,8 @@ export default function Boost() {
   const [wallet, setWallet] = useState(false);
   const [showStory, setShowStory] = useState(false);
   const [userData, setUserData] = useState(null);
+const [errorOpen, setErrorOpen] = useState(false);
+const [errorMessage, setErrorMessage] = useState("");
 
   // ✅ Fetch or create wallet when connected
   useEffect(() => {
@@ -41,19 +47,39 @@ export default function Boost() {
     }
   }, [isConnected, address]);
 
+  // refresh user data every 10 seconds
+useEffect(() => {
+  if (isConnected && address) {
+    const interval = setInterval(() => {
+      axios.post("http://localhost:5000/api/wallet", { walletAddress: address })
+        .then(res => setUserData(res.data.wallet))
+        .catch(console.error);
+    }, 10000);
+    return () => clearInterval(interval);
+  }
+}, [isConnected, address]);
+
+
   // ✅ Handle task completion
-  const handleCompleteTask = async (taskName) => {
-    try {
-      const res = await axios.post("http://localhost:5000/api/complete-task", {
-        walletAddress: address,
-        taskName,
-      });
-      setUserData(res.data.wallet);
-      console.log("✅ Task completed:", res.data.wallet);
-    } catch (err) {
-      console.error("❌ Error completing task:", err);
-    }
-  };
+const handleCompleteTask = async (taskName) => {
+  try {
+    const res = await axios.post("http://localhost:5000/api/complete-task", {
+      walletAddress: address,
+      taskName,
+    });
+
+    setUserData({
+      ...res.data.wallet,
+      latestEarnedReward: res.data.earnedReward,
+    });
+
+    setOpen(true); // open modal dynamically after earning
+    console.log("✅ Task completed:", res.data.wallet);
+  } catch (err) {
+    console.error("❌ Error completing task:", err);
+  }
+};
+
 
   const items = [
     { icon: TriangleAlert, title: "What is BUYCEX?", subtitle: "Intro" },
@@ -76,29 +102,79 @@ export default function Boost() {
               trailing={<FaAngleRight />}
             />
           </div>
-          <div className="flex-1">
-            <StatRow
-              trailing={<FaAngleRight />}
-              onClick={() => setWallet(true)}
-              hideIcon
-              preserveIconSpace={false}
-              label={<span className="text-[#81858c] font-normal">{displayAddress}</span>}
-            />
-          </div>
+         <div className="flex-1">
+  <StatRow
+    trailing={<FaAngleRight />}
+    onClick={() => {
+      if (isConnected) {
+        setWallet(true); // open SelectWallet modal
+      } else {
+        openWeb3Modal(); // open wallet connect modal
+      }
+    }}
+    hideIcon
+    preserveIconSpace={false}
+    label={<span className="text-[#81858c] font-normal">{displayAddress}</span>}
+  />
+</div>
+
         </div>
 
         {/* ✅ Dynamic Task List */}
         <div className="space-y-3">
-          {userData?.tasks?.map((task, index) => (
-            <StatRow
-              key={index}
-              icon={<FaTelegramPlane size={24} fill="#efb81c" />}
-              label={task.name}
-              value={`${task.reward} BCX`}
-              claimed={task.completed}
-              onClick={() => !task.completed && handleCompleteTask(task.name)}
-            />
-          ))}
+ {userData?.tasks?.map((task, index) => {
+  let requirementMet = true;
+  let requirementText = "";
+
+  // 🔍 Frontend condition checks
+  switch (task.name) {
+    case "Join Telegram":
+      requirementMet = userData?.telegramConnected; // you can set this when Telegram login succeeds
+      requirementText = "You need to join our Telegram group first.";
+      break;
+    case "On board 2 friends":
+      requirementMet = userData?.friendsReferred >= 2;
+      requirementText = "Invite at least 2 friends to unlock this reward.";
+      break;
+    case "On board 5 friends":
+      requirementMet = userData?.friendsReferred >= 5;
+      requirementText = "Invite at least 5 friends to unlock this reward.";
+      break;
+    default:
+      requirementMet = true;
+      break;
+  }
+
+  const handleClick = () => {
+    if (!isConnected) {
+      openWeb3Modal();
+      return;
+    }
+
+    if (!requirementMet && !task.completed) {
+      setErrorMessage(requirementText);
+      setErrorOpen(true);
+      return;
+    }
+
+    if (!task.completed) handleCompleteTask(task.name);
+  };
+
+  return (
+    <StatRow
+      key={index}
+      icon={<FaTelegramPlane size={24} fill="#efb81c" />}
+      label={task.name}
+      value={`${task.reward} BCX`}
+      claimed={task.completed}
+      onClick={handleClick}
+      className={!requirementMet && !task.completed ? "opacity-50 cursor-not-allowed" : ""}
+    />
+  );
+})}
+
+
+
         </div>
 
         {/* Info Section */}
@@ -156,23 +232,17 @@ export default function Boost() {
       <BottomNav />
       <SelectWallet open={wallet} onClose={() => setWallet(false)} />
       {showStory && <StoryProgress onClose={() => setShowStory(false)} />}
-      <ImageModal
-        open={open}
-        onClose={() => setOpen(false)}
-        src={bcx}
-        title=""
-        description={
-          <span>
-            You earned <span className="font-semibold text-xl">10</span> BCX Fragments!
-          </span>
-        }
-        userHoldings={1922222}
-        details={
-          <span>
-            Keep farming — every fragment strengthens your ownership power in Buycex.
-          </span>
-        }
-      />
+    <ImageModal
+  open={errorOpen}
+  onClose={() => setErrorOpen(false)}
+  src={bcx}
+  title="Task Locked"
+  description={<span className="text-red-400">{errorMessage}</span>}
+  userHoldings={userData?.totalReward?.toFixed(2) || 0}
+  details={<span>Complete the requirement first to earn this reward.</span>}
+/>
+
+
     </main>
   );
 }
