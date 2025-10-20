@@ -111,14 +111,14 @@
     BG_CLOUD_SPEED: 0.2,
     BOTTOM_PAD: 10,
     CLEAR_TIME: 3000,
-    CLOUD_FREQUENCY: 0.5,
+    CLOUD_FREQUENCY: 0.35,
     GAMEOVER_CLEAR_TIME: 750,
-    GAP_COEFFICIENT: 0.6,
+    GAP_COEFFICIENT: 0.7,
     GRAVITY: 0.6,
     INITIAL_JUMP_VELOCITY: 12,
     MAX_CLOUDS: 6,
     MAX_OBSTACLE_LENGTH: 3,
-    MAX_SPEED: 12,
+    MAX_SPEED: 10,
     MIN_JUMP_HEIGHT: 35,
     MOBILE_SPEED_COEFFICIENT: 1.2,
     RESOURCE_TEMPLATE_ID: 'audio-resources',
@@ -292,6 +292,7 @@
     this.canvas = createCanvas(this.containerEl, this.dimensions.WIDTH,
     this.dimensions.HEIGHT, Runner.classes.PLAYER);
     this.canvasCtx = this.canvas.getContext('2d');
+    this.canvasCtx.imageSmoothingEnabled = false;
     this.canvasCtx.fillStyle = '#0b0c0e';
     this.canvasCtx.fill();
     Runner.updateCanvasScaling(this.canvas);
@@ -319,8 +320,9 @@
     this.turnsBadge.style.border = '1px solid rgba(239,184,28,0.2)';
     this.turnsBadge.style.background = 'rgba(255,255,255,0.05)';
     this.turnsBadge.style.color = '#efb81c';
-    this.turnsBadge.style.backdropFilter = 'blur(6px)';
-    this.turnsBadge.style.boxShadow = '0 0 12px rgba(239,184,28,0.15)';
+    // Remove heavy effects for smoother performance
+    // this.turnsBadge.style.backdropFilter = 'blur(6px)';
+    // this.turnsBadge.style.boxShadow = '0 0 12px rgba(239,184,28,0.15)';
     this.turnsBadge.style.zIndex = '4';
     this.turnsBadge.textContent = 'Turns: ' + this.turnsLeft + '/' + this.turnsTotal;
     this.containerEl.appendChild(this.turnsBadge);
@@ -656,16 +658,14 @@
       btn.style.color = '#efb81c';
       btn.style.fontWeight = '600';
       btn.style.cursor = 'pointer';
-      btn.style.backdropFilter = 'blur(6px)';
-      btn.style.boxShadow = '0 0 20px rgba(239,184,28,0.15)';
+      // btn.style.backdropFilter = 'blur(6px)';
+      // btn.style.boxShadow = '0 0 20px rgba(239,184,28,0.15)';
       btn.style.transition = 'all 150ms ease-in-out';
       btn.addEventListener('mouseenter', function(){
         btn.style.background = 'rgba(255,255,255,0.08)';
-        btn.style.boxShadow = '0 0 24px rgba(239,184,28,0.22)';
       });
       btn.addEventListener('mouseleave', function(){
         btn.style.background = 'rgba(255,255,255,0.05)';
-        btn.style.boxShadow = '0 0 20px rgba(239,184,28,0.15)';
       });
       btn.addEventListener('click', this.restart.bind(this));
       this.containerEl.appendChild(btn);
@@ -763,23 +763,16 @@
     */
     Runner.updateCanvasScaling = function(canvas, opt_width, opt_height) {
     var context = canvas.getContext('2d');
-    // Query the various pixel ratios
-    var devicePixelRatio = Math.floor(window.devicePixelRatio) || 1;
-    var backingStoreRatio = Math.floor(context.webkitBackingStorePixelRatio) || 1;
-    var ratio = devicePixelRatio / backingStoreRatio;
-    // Upscale the canvas if the two ratios don't match
-    if (devicePixelRatio !== backingStoreRatio) {
+    context.imageSmoothingEnabled = false;
+    // Prefer native pixel size to avoid expensive high-DPI upscaling
+    // and keep crisp pixel-art by disabling smoothing.
+    context.imageSmoothingEnabled = false;
     var oldWidth = opt_width || canvas.width;
     var oldHeight = opt_height || canvas.height;
-    canvas.width = oldWidth * ratio;
-    canvas.height = oldHeight * ratio;
+    canvas.width = oldWidth;
+    canvas.height = oldHeight;
     canvas.style.width = oldWidth + 'px';
     canvas.style.height = oldHeight + 'px';
-    // Scale the context to counter the fact that we've manually scaled
-    // our canvas element.
-    context.scale(ratio, ratio);
-    return true;
-    }
     return false;
     };
     /**
@@ -850,6 +843,7 @@
     function GameOverPanel(canvas, textSprite, restartImg, dimensions) {
     this.canvas = canvas;
     this.canvasCtx = canvas.getContext('2d');
+    this.canvasCtx.imageSmoothingEnabled = false;
     this.canvasDimensions = dimensions;
     this.textSprite = textSprite;
     this.restartImg = restartImg;
@@ -1205,6 +1199,7 @@
     function Trex(canvas, image) {
     this.canvas = canvas;
     this.canvasCtx = canvas.getContext('2d');
+    this.canvasCtx.imageSmoothingEnabled = false;
     this.image = image;
     this.xPos = 0;
     this.yPos = 0;
@@ -1483,7 +1478,7 @@
     this.canvasCtx = canvas.getContext('2d');
     this.image = spriteSheet;
     this.x = 0;
-    this.y = 5;
+    this.y = 10;
     this.currentDistance = 0;
     this.maxScore = 0;
     this.highScore = 0;
@@ -1579,11 +1574,19 @@
     } else {
     this.canvasCtx.translate(this.x, this.y);
     }
+    
+    // Draw the original digit
     this.canvasCtx.drawImage(this.image, sourceX, 0,
     sourceWidth, sourceHeight,
     targetX, targetY,
     targetWidth, targetHeight
     );
+    
+    // Apply yellow color overlay
+    this.canvasCtx.globalCompositeOperation = 'source-atop';
+    this.canvasCtx.fillStyle = '#efb81c';
+    this.canvasCtx.fillRect(targetX, targetY, targetWidth, targetHeight);
+    
     this.canvasCtx.restore();
     },
     /**
@@ -1688,6 +1691,7 @@
     function Cloud(canvas, cloudImg, containerWidth) {
     this.canvas = canvas;
     this.canvasCtx = this.canvas.getContext('2d');
+    this.canvasCtx.imageSmoothingEnabled = false;
     this.image = cloudImg;
     this.containerWidth = containerWidth;
     this.xPos = containerWidth;
@@ -1769,6 +1773,7 @@
     this.image = bgImg;
     this.canvas = canvas;
     this.canvasCtx = canvas.getContext('2d');
+    this.canvasCtx.imageSmoothingEnabled = false;
     this.sourceDimensions = {};
     this.dimensions = HorizonLine.dimensions;
     this.sourceXPos = [0, this.dimensions.WIDTH];
@@ -1901,11 +1906,11 @@
     * @enum {number}
     */
     Horizon.config = {
-    BG_CLOUD_SPEED: 0.2,
+    BG_CLOUD_SPEED: 0.15,
     BUMPY_THRESHOLD: .3,
-    CLOUD_FREQUENCY: .5,
+    CLOUD_FREQUENCY: .35,
     HORIZON_HEIGHT: 16,
-    MAX_CLOUDS: 6
+    MAX_CLOUDS: 4
     };
     Horizon.prototype = {
     /**
@@ -2701,7 +2706,7 @@ html[subframe] body {
   title.style.marginBottom = '10px';
 
   var info = document.createElement('div');
-  info.textContent = 'Daily Turns: 7';
+  info.textContent = 'Let\'s Play';
   info.style.opacity = '0.8';
   info.style.marginBottom = '16px';
 
@@ -2825,6 +2830,183 @@ document.addEventListener('click', function () {
         window.__dinoShowOverlay = showStartOverlay;
         // initial overlay
         showStartOverlay();
+
+        // Info button + modal (rules & rewards) - keep in iframe (can be disabled if using React modal)
+        (function initInfoUI(){
+          var infoBtn = document.createElement('button');
+          infoBtn.type = 'button';
+          infoBtn.setAttribute('aria-label', 'Game info');
+          infoBtn.style.position = 'fixed';
+          infoBtn.style.display = 'none';
+          infoBtn.style.right = '16px';
+          infoBtn.style.bottom = '116px';
+          infoBtn.style.zIndex = '52';
+          infoBtn.style.height = '44px';
+          infoBtn.style.width = '44px';
+          infoBtn.style.padding = '0';
+          infoBtn.style.borderRadius = '9999px';
+          infoBtn.style.border = '1px solid rgba(239,184,28,0.28)';
+          infoBtn.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))';
+          infoBtn.style.color = '#efb81c';
+          infoBtn.style.fontWeight = '800';
+          infoBtn.style.fontSize = '18px';
+          infoBtn.style.lineHeight = '44px';
+          infoBtn.style.textAlign = 'center';
+          infoBtn.style.cursor = 'pointer';
+          infoBtn.textContent = '?';
+          infoBtn.addEventListener('mouseenter', function(){ infoBtn.style.background = 'rgba(255,255,255,0.08)'; });
+          infoBtn.addEventListener('mouseleave', function(){ infoBtn.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))'; });
+
+          var overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.inset = '0';
+          overlay.style.background = 'rgba(0,0,0,0.6)';
+          overlay.style.display = 'none';
+          overlay.style.zIndex = '50';
+
+          var modal = document.createElement('div');
+          modal.setAttribute('role', 'dialog');
+          modal.setAttribute('aria-modal', 'true');
+          modal.style.position = 'fixed';
+          modal.style.left = '50%';
+          modal.style.top = '50%';
+          modal.style.transform = 'translate(-50%, -50%)';
+          modal.style.maxWidth = '520px';
+          modal.style.width = 'calc(100% - 32px)';
+          modal.style.maxHeight = '70vh';
+          modal.style.overflow = 'auto';
+          modal.style.padding = '18px 18px';
+          modal.style.borderRadius = '18px';
+          modal.style.border = '1px solid rgba(239,184,28,0.22)';
+          modal.style.background = 'linear-gradient(180deg, #0b0c0e, #0d0e12)';
+          modal.style.color = '#e5e7eb';
+          modal.style.boxShadow = '0 12px 38px rgba(0,0,0,0.45)';
+          modal.style.display = 'none';
+          modal.style.zIndex = '52';
+
+          var closeBtn = document.createElement('button');
+          closeBtn.type = 'button';
+          closeBtn.textContent = '×';
+          closeBtn.setAttribute('aria-label', 'Close');
+          closeBtn.style.position = 'absolute';
+          closeBtn.style.top = '8px';
+          closeBtn.style.right = '10px';
+          closeBtn.style.height = '28px';
+          closeBtn.style.width = '28px';
+          closeBtn.style.borderRadius = '9999px';
+          closeBtn.style.border = '1px solid rgba(239,184,28,0.25)';
+          closeBtn.style.background = 'transparent';
+          closeBtn.style.color = '#efb81c';
+          closeBtn.style.cursor = 'pointer';
+          closeBtn.addEventListener('mouseenter', function(){ closeBtn.style.background = 'rgba(239,184,28,0.08)'; });
+          closeBtn.addEventListener('mouseleave', function(){ closeBtn.style.background = 'transparent'; });
+
+          var headerWrap = document.createElement('div');
+          headerWrap.style.display = 'flex';
+          headerWrap.style.alignItems = 'center';
+          headerWrap.style.gap = '10px';
+          headerWrap.style.marginBottom = '10px';
+
+          var dot = document.createElement('div');
+          dot.style.width = '10px';
+          dot.style.height = '10px';
+          dot.style.borderRadius = '9999px';
+          dot.style.background = '#efb81c';
+          dot.style.boxShadow = '0 0 12px rgba(239,184,28,0.6)';
+
+          var title = document.createElement('div');
+          title.textContent = 'How to Play';
+          title.style.fontWeight = '800';
+          title.style.fontSize = '18px';
+          title.style.color = '#efb81c';
+
+          headerWrap.appendChild(dot);
+          headerWrap.appendChild(title);
+
+          var playList = document.createElement('div');
+          playList.style.fontSize = '14px';
+          playList.style.lineHeight = '1.6';
+          playList.style.marginBottom = '14px';
+          playList.innerHTML = (
+            '<div>• Tap Start to begin the run.</div>'+
+            '<div>• Tap or click anywhere on the screen to jump over obstacles.</div>'+
+            '<div>• Avoid hitting cacti, rocks, or flying creatures — each hit ends the game.</div>'+
+            '<div>• The longer you survive, the higher your score grows.</div>'
+          );
+
+          var divider = document.createElement('div');
+          divider.style.height = '1px';
+          divider.style.background = 'rgba(239,184,28,0.2)';
+          divider.style.margin = '10px 0 12px 0';
+
+          var rewardsHeader = document.createElement('div');
+          rewardsHeader.style.display = 'flex';
+          rewardsHeader.style.alignItems = 'center';
+          rewardsHeader.style.gap = '10px';
+          rewardsHeader.style.margin = '0 0 8px 0';
+
+          var dot2 = document.createElement('div');
+          dot2.style.width = '10px';
+          dot2.style.height = '10px';
+          dot2.style.borderRadius = '9999px';
+          dot2.style.background = '#efb81c';
+          dot2.style.boxShadow = '0 0 12px rgba(239,184,28,0.6)';
+
+          var rewardsTitle = document.createElement('div');
+          rewardsTitle.textContent = 'Rewards';
+          rewardsTitle.style.fontWeight = '800';
+          rewardsTitle.style.fontSize = '18px';
+          rewardsTitle.style.color = '#efb81c';
+
+          rewardsHeader.appendChild(dot2);
+          rewardsHeader.appendChild(rewardsTitle);
+
+          var rewardsBody = document.createElement('div');
+          rewardsBody.style.fontSize = '14px';
+          rewardsBody.style.lineHeight = '1.6';
+          rewardsBody.innerHTML = (
+            '<div>• Get 0.1 BCX for every 100 points you score.</div>'+
+            '<div>• Only full 100-point milestones count.</div>'+
+            '<div style="margin-top:6px; font-weight:700;">Example:</div>'+
+            '<div>100 pts = 0.1 BCX</div>'+
+            '<div>200 pts = 0.2 BCX</div>'+
+            '<div>300 pts = 0.3 BCX</div>'+
+            '<div style="margin-top:6px;">If you crash before the next 100 points (e.g. 150 pts), you keep your last reward only.</div>'+
+            '<div>BCX adds automatically each time you hit a milestone.</div>'
+          );
+
+          var note = document.createElement('div');
+          note.style.marginTop = '12px';
+          note.style.fontSize = '12px';
+          note.style.opacity = '0.8';
+          note.innerHTML = 'Note: This game is built for fun and learning purposes only.<br/>'+
+                           'Scores and rewards are for entertainment within the Buycex ecosystem.';
+
+          modal.appendChild(closeBtn);
+          modal.appendChild(headerWrap);
+          modal.appendChild(playList);
+          modal.appendChild(divider);
+          modal.appendChild(rewardsHeader);
+          modal.appendChild(rewardsBody);
+          modal.appendChild(note);
+
+          function openModal(){
+            overlay.style.display = 'block';
+            modal.style.display = 'block';
+          }
+          function closeModal(){
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+          }
+
+          infoBtn.addEventListener('click', openModal);
+          overlay.addEventListener('click', closeModal);
+          closeBtn.addEventListener('click', closeModal);
+
+          document.body.appendChild(infoBtn);
+          document.body.appendChild(overlay);
+          document.body.appendChild(modal);
+        })();
         // Also allow any click/touch to start/jump after overlay removed
         function startOnAnyInput() {
           if (overlay.parentNode) return; // wait until overlay removed

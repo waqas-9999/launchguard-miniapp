@@ -22,17 +22,22 @@ export default function Boost() {
   const { open: openWeb3Modal } = useWeb3Modal();
 
   const { address, isConnected } = useAccount();
-
-  const displayAddress = address
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : "Not connected";
-
   const [open, setOpen] = useState(false);
   const [wallet, setWallet] = useState(false);
   const [showStory, setShowStory] = useState(false);
   const [userData, setUserData] = useState(null);
 const [errorOpen, setErrorOpen] = useState(false);
 const [errorMessage, setErrorMessage] = useState("");
+
+  const displayAddress = address
+    ? `${address.slice(0, 6)}...${address.slice(-4)}`
+    : "Not connected";
+// ✅ Prefer username, fallback to first name
+const telegramDisplayName = userData?.telegramUsername
+  ? `@${userData.telegramUsername}`
+  : userData?.telegramFirstName || "";
+
+
 
   // ✅ Fetch or create wallet when connected
   useEffect(() => {
@@ -46,6 +51,28 @@ const [errorMessage, setErrorMessage] = useState("");
         .catch((err) => console.error("❌ Error saving wallet:", err));
     }
   }, [isConnected, address]);
+  // ✅ Auto-link Telegram user when inside Telegram WebApp
+useEffect(() => {
+  if (!isConnected || !address) return;
+
+  const tg = window.Telegram?.WebApp;
+  const telegramUser = tg?.initDataUnsafe?.user;
+
+  if (telegramUser) {
+    axios.post("http://localhost:5000/api/link-telegram", {
+      walletAddress: address,
+      telegramData: telegramUser,
+    })
+    .then((res) => {
+      console.log("✅ Telegram linked to wallet:", res.data.wallet);
+      setUserData(res.data.wallet);
+    })
+    .catch((err) => {
+      console.error("❌ Telegram link error:", err);
+    });
+  }
+}, [isConnected, address]);
+
 
   // refresh user data every 10 seconds
 useEffect(() => {
@@ -103,19 +130,27 @@ const handleCompleteTask = async (taskName) => {
             />
           </div>
          <div className="flex-1">
-  <StatRow
-    trailing={<FaAngleRight />}
-    onClick={() => {
-      if (isConnected) {
-        setWallet(true); // open SelectWallet modal
-      } else {
-        openWeb3Modal(); // open wallet connect modal
-      }
-    }}
-    hideIcon
-    preserveIconSpace={false}
-    label={<span className="text-[#81858c] font-normal">{displayAddress}</span>}
-  />
+ <StatRow
+  trailing={<FaAngleRight />}
+  onClick={() => {
+    if (isConnected) {
+      setWallet(true);
+    } else {
+      openWeb3Modal();
+    }
+  }}
+  hideIcon
+  preserveIconSpace={false}
+  label={
+    <div className="flex flex-col leading-tight">
+      <span className="text-[#81858c] font-normal">{displayAddress}</span>
+      {telegramDisplayName && (
+        <span className="text-xs text-gray-500">{telegramDisplayName}</span>
+      )}
+    </div>
+  }
+/>
+
 </div>
 
         </div>

@@ -1,0 +1,1 @@
+import{F as o,r as c}from"./index-CrAQh-3d.js";function e(n){return n.state.chainId}function i(n,t){const{onChange:r}=t;return n.subscribe(a=>a.chainId,r)}function u(n={}){const t=o(n);return c.useSyncExternalStore(r=>i(t,{onChange:r}),()=>e(t),()=>e(t))}export{u};

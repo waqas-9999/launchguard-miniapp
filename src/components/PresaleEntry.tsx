@@ -20,6 +20,8 @@ const PresaleEntry = () => {
       const tg = (window as any).Telegram?.WebApp;
       const user = tg?.initDataUnsafe?.user;
       const initData = tg?.initData; // signed payload
+      console.log("📦 Sending initData to backend:", initData);
+
       if (user) {
         setTelegramUser(user);
         setIsTelegram(true); // mark as Telegram
