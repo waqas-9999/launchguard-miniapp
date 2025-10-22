@@ -13,6 +13,8 @@ import { useAccount } from "wagmi";
 import axios from "axios";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 
+// ✅ Your backend base URL
+const BACKEND_URL = "https://isochronous-packable-sherly.ngrok-free.dev";
 
 function cn(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -20,30 +22,28 @@ function cn(...classes) {
 
 export default function Boost() {
   const { open: openWeb3Modal } = useWeb3Modal();
-
   const { address, isConnected } = useAccount();
+
   const [open, setOpen] = useState(false);
   const [wallet, setWallet] = useState(false);
   const [showStory, setShowStory] = useState(false);
   const [userData, setUserData] = useState(null);
-const [errorOpen, setErrorOpen] = useState(false);
-const [errorMessage, setErrorMessage] = useState("");
+  const [errorOpen, setErrorOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const displayAddress = address
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
     : "Not connected";
-// ✅ Prefer username, fallback to first name
-const telegramDisplayName = userData?.telegramUsername
-  ? `@${userData.telegramUsername}`
-  : userData?.telegramFirstName || "";
 
-
+  const telegramDisplayName = userData?.telegramUsername
+    ? `@${userData.telegramUsername}`
+    : userData?.telegramFirstName || "";
 
   // ✅ Fetch or create wallet when connected
   useEffect(() => {
     if (isConnected && address) {
       axios
-        .post("http://localhost:5000/api/wallet", { walletAddress: address })
+        .post(`${BACKEND_URL}/api/wallet`, { walletAddress: address })
         .then((res) => {
           console.log("✅ Wallet data:", res.data.wallet);
           setUserData(res.data.wallet);
@@ -51,62 +51,62 @@ const telegramDisplayName = userData?.telegramUsername
         .catch((err) => console.error("❌ Error saving wallet:", err));
     }
   }, [isConnected, address]);
+
   // ✅ Auto-link Telegram user when inside Telegram WebApp
-useEffect(() => {
-  if (!isConnected || !address) return;
+  useEffect(() => {
+    if (!isConnected || !address) return;
 
-  const tg = window.Telegram?.WebApp;
-  const telegramUser = tg?.initDataUnsafe?.user;
+    const tg = window.Telegram?.WebApp;
+    const telegramUser = tg?.initDataUnsafe?.user;
 
-  if (telegramUser) {
-    axios.post("http://localhost:5000/api/link-telegram", {
-      walletAddress: address,
-      telegramData: telegramUser,
-    })
-    .then((res) => {
-      console.log("✅ Telegram linked to wallet:", res.data.wallet);
-      setUserData(res.data.wallet);
-    })
-    .catch((err) => {
-      console.error("❌ Telegram link error:", err);
-    });
-  }
-}, [isConnected, address]);
+    if (telegramUser) {
+      axios
+        .post(`${BACKEND_URL}/api/link-telegram`, {
+          walletAddress: address,
+          telegramData: telegramUser,
+        })
+        .then((res) => {
+          console.log("✅ Telegram linked to wallet:", res.data.wallet);
+          setUserData(res.data.wallet);
+        })
+        .catch((err) => {
+          console.error("❌ Telegram link error:", err);
+        });
+    }
+  }, [isConnected, address]);
 
-
-  // refresh user data every 10 seconds
-useEffect(() => {
-  if (isConnected && address) {
-    const interval = setInterval(() => {
-      axios.post("http://localhost:5000/api/wallet", { walletAddress: address })
-        .then(res => setUserData(res.data.wallet))
-        .catch(console.error);
-    }, 10000);
-    return () => clearInterval(interval);
-  }
-}, [isConnected, address]);
-
+  // ✅ Refresh user data every 10 seconds
+  useEffect(() => {
+    if (isConnected && address) {
+      const interval = setInterval(() => {
+        axios
+          .post(`${BACKEND_URL}/api/wallet`, { walletAddress: address })
+          .then((res) => setUserData(res.data.wallet))
+          .catch(console.error);
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [isConnected, address]);
 
   // ✅ Handle task completion
-const handleCompleteTask = async (taskName) => {
-  try {
-    const res = await axios.post("http://localhost:5000/api/complete-task", {
-      walletAddress: address,
-      taskName,
-    });
+  const handleCompleteTask = async (taskName) => {
+    try {
+      const res = await axios.post(`${BACKEND_URL}/api/complete-task`, {
+        walletAddress: address,
+        taskName,
+      });
 
-    setUserData({
-      ...res.data.wallet,
-      latestEarnedReward: res.data.earnedReward,
-    });
+      setUserData({
+        ...res.data.wallet,
+        latestEarnedReward: res.data.earnedReward,
+      });
 
-    setOpen(true); // open modal dynamically after earning
-    console.log("✅ Task completed:", res.data.wallet);
-  } catch (err) {
-    console.error("❌ Error completing task:", err);
-  }
-};
-
+      setOpen(true); // open modal dynamically after earning
+      console.log("✅ Task completed:", res.data.wallet);
+    } catch (err) {
+      console.error("❌ Error completing task:", err);
+    }
+  };
 
   const items = [
     { icon: TriangleAlert, title: "What is BUYCEX?", subtitle: "Intro" },
@@ -118,105 +118,95 @@ const handleCompleteTask = async (taskName) => {
     <main className="mx-auto max-w-sm px-4 pb-28 pt-4">
       <div className="space-y-4">
         <Hero />
+
+        {/* 🪙 Wallet & Balance */}
         <div className="flex justify-between gap-4">
           <div className="flex-1">
             <StatRow
-              icon={<img src={bcx} alt="BCX" className="" />}
+              icon={<img src={bcx} alt="BCX" />}
               label={userData ? `${userData.totalReward.toFixed(2)} BCX` : "0 BCX"}
-              value=""
-              hint=""
               onClick={() => setOpen(true)}
               trailing={<FaAngleRight />}
             />
           </div>
-         <div className="flex-1">
- <StatRow
-  trailing={<FaAngleRight />}
-  onClick={() => {
-    if (isConnected) {
-      setWallet(true);
-    } else {
-      openWeb3Modal();
-    }
-  }}
-  hideIcon
-  preserveIconSpace={false}
-  label={
-    <div className="flex flex-col leading-tight">
-      <span className="text-[#81858c] font-normal">{displayAddress}</span>
-      {telegramDisplayName && (
-        <span className="text-xs text-gray-500">{telegramDisplayName}</span>
-      )}
-    </div>
-  }
-/>
 
-</div>
-
+          <div className="flex-1">
+            <StatRow
+              trailing={<FaAngleRight />}
+              onClick={() => {
+                if (isConnected) setWallet(true);
+                else openWeb3Modal();
+              }}
+              hideIcon
+              preserveIconSpace={false}
+              label={
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[#81858c] font-normal">{displayAddress}</span>
+                  {telegramDisplayName && (
+                    <span className="text-xs text-gray-500">{telegramDisplayName}</span>
+                  )}
+                </div>
+              }
+            />
+          </div>
         </div>
 
         {/* ✅ Dynamic Task List */}
         <div className="space-y-3">
- {userData?.tasks?.map((task, index) => {
-  let requirementMet = true;
-  let requirementText = "";
+          {userData?.tasks?.map((task, index) => {
+            let requirementMet = true;
+            let requirementText = "";
 
-  // 🔍 Frontend condition checks
-  switch (task.name) {
-    case "Join Telegram":
-      requirementMet = userData?.telegramConnected; // you can set this when Telegram login succeeds
-      requirementText = "You need to join our Telegram group first.";
-      break;
-    case "On board 2 friends":
-      requirementMet = userData?.friendsReferred >= 2;
-      requirementText = "Invite at least 2 friends to unlock this reward.";
-      break;
-    case "On board 5 friends":
-      requirementMet = userData?.friendsReferred >= 5;
-      requirementText = "Invite at least 5 friends to unlock this reward.";
-      break;
-    default:
-      requirementMet = true;
-      break;
-  }
+            switch (task.name) {
+              case "Join Telegram":
+                requirementMet = userData?.telegramConnected;
+                requirementText = "You need to join our Telegram group first.";
+                break;
+              case "On board 2 friends":
+                requirementMet = userData?.friendsReferred >= 2;
+                requirementText = "Invite at least 2 friends to unlock this reward.";
+                break;
+              case "On board 5 friends":
+                requirementMet = userData?.friendsReferred >= 5;
+                requirementText = "Invite at least 5 friends to unlock this reward.";
+                break;
+              default:
+                requirementMet = true;
+                break;
+            }
 
-  const handleClick = () => {
-    if (!isConnected) {
-      openWeb3Modal();
-      return;
-    }
+            const handleClick = () => {
+              if (!isConnected) {
+                openWeb3Modal();
+                return;
+              }
 
-    if (!requirementMet && !task.completed) {
-      setErrorMessage(requirementText);
-      setErrorOpen(true);
-      return;
-    }
+              if (!requirementMet && !task.completed) {
+                setErrorMessage(requirementText);
+                setErrorOpen(true);
+                return;
+              }
 
-    if (!task.completed) handleCompleteTask(task.name);
-  };
+              if (!task.completed) handleCompleteTask(task.name);
+            };
 
-  return (
-    <StatRow
-      key={index}
-      icon={<FaTelegramPlane size={24} fill="#efb81c" />}
-      label={task.name}
-      value={`${task.reward} BCX`}
-      claimed={task.completed}
-      onClick={handleClick}
-      className={!requirementMet && !task.completed ? "opacity-50 cursor-not-allowed" : ""}
-    />
-  );
-})}
-
-
-
+            return (
+              <StatRow
+                key={index}
+                icon={<FaTelegramPlane size={24} fill="#efb81c" />}
+                label={task.name}
+                value={`${task.reward} BCX`}
+                claimed={task.completed}
+                onClick={handleClick}
+                className={!requirementMet && !task.completed ? "opacity-50 cursor-not-allowed" : ""}
+              />
+            );
+          })}
         </div>
 
         {/* Info Section */}
         <div className="bg-gradient-to-br from-[#0B0C0E] via-[#121316] to-[#0E0F11] border border-gray-800/60 rounded-2xl p-4 shadow-[0_0_10px_rgba(255,255,255,0.03)] backdrop-blur-sm max-w-md mx-auto">
-          <h2 className="text-gray-100 text-base font-semibold mb-3 tracking-wide">
-            Start here
-          </h2>
+          <h2 className="text-gray-100 text-base font-semibold mb-3 tracking-wide">Start here</h2>
 
           <div className="space-y-3">
             {items.map((item, index) => {
@@ -267,17 +257,16 @@ const handleCompleteTask = async (taskName) => {
       <BottomNav />
       <SelectWallet open={wallet} onClose={() => setWallet(false)} />
       {showStory && <StoryProgress onClose={() => setShowStory(false)} />}
-    <ImageModal
-  open={errorOpen}
-  onClose={() => setErrorOpen(false)}
-  src={bcx}
-  title="Task Locked"
-  description={<span className="text-red-400">{errorMessage}</span>}
-  userHoldings={userData?.totalReward?.toFixed(2) || 0}
-  details={<span>Complete the requirement first to earn this reward.</span>}
-/>
 
-
+      <ImageModal
+        open={errorOpen}
+        onClose={() => setErrorOpen(false)}
+        src={bcx}
+        title="Task Locked"
+        description={<span className="text-red-400">{errorMessage}</span>}
+        userHoldings={userData?.totalReward?.toFixed(2) || 0}
+        details={<span>Complete the requirement first to earn this reward.</span>}
+      />
     </main>
   );
 }

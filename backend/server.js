@@ -6,6 +6,7 @@ import crypto from 'crypto';
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(cors({ origin: "*" }));
 
 mongoose.connect('mongodb://localhost:27017/launchguard', {
   useNewUrlParser: true,
@@ -14,13 +15,13 @@ mongoose.connect('mongodb://localhost:27017/launchguard', {
 
 app.use(cors({
   origin: [
-    "http://localhost:5173",
-    "https://kora-brotherless-unofficiously.ngrok-free.dev",
-    "https://t.me",
+    "http://localhost:5173", // your local React app
+    "https://isochronous-packable-sherly.ngrok-free.dev",
+    "https://kora-brotherless-unofficiously.ngrok-free.dev" // your ngrok link
   ],
-  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
-
 // --- Task Schema ---
 const TaskSchema = new mongoose.Schema({
   name: String,
@@ -403,6 +404,29 @@ app.post('/api/referral-join', async (req, res) => {
     res.status(500).json({ success: false, error: "Server error" });
   }
 });
+// --- ✅ Auto-login: find wallet by Telegram ID ---
+app.post("/api/auto-login", async (req, res) => {
+  try {
+    const { telegramId } = req.body;
+    if (!telegramId) return res.status(400).json({ success: false, error: "Missing telegramId" });
+
+    const wallet = await Wallet.findOne({ telegramId });
+    if (!wallet) return res.json({ success: false, message: "No linked wallet found" });
+
+    res.json({
+      success: true,
+      walletAddress: wallet.walletAddress,
+      telegram: {
+        firstName: wallet.telegramFirstName,
+        username: wallet.telegramUsername,
+      },
+    });
+  } catch (err) {
+    console.error("Auto-login error:", err);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
 
 
 app.listen(5000, () => console.log('🚀 Server running on port 5000'));

@@ -14,6 +14,7 @@ function Leaderboard() {
         const endpoint = activeTab === 'rewards'
           ? 'http://localhost:5000/api/leaderboard/rewards'
           : 'http://localhost:5000/api/leaderboard/holders';
+          console.log("Fetching from:", endpoint);
         const res = await axios.get(endpoint);
         const wallets = res.data.wallets || [];
 

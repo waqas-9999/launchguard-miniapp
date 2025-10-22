@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import buycexlogo from "../assets/img/BUYCEX-INFINITY.png";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { useAccount } from "wagmi";
+import axios from "axios";
+
+const BACKEND_URL = "https://isochronous-packable-sherly.ngrok-free.dev"; // ✅ new backend
 
 const PresaleEntry = () => {
   const navigate = useNavigate();
@@ -11,56 +14,145 @@ const PresaleEntry = () => {
 
   const [telegramUser, setTelegramUser] = useState<any>(null);
   const [isTelegram, setIsTelegram] = useState(false);
+  const [isTelegramMobile, setIsTelegramMobile] = useState(false);
+  const [isAutoLogged, setIsAutoLogged] = useState(false);
 
+  // 🔹 Redirect safely to Boost
+  const redirectToBoost = () => {
+    if (isTelegram && isTelegramMobile) {
+      const tg = window.Telegram?.WebApp;
+      tg?.openLink?.(`${window.location.origin}/boost`);
+    } else {
+      navigate("/boost", { replace: true });
+    }
+  };
+
+  // 🧩 Detect Telegram WebApp
   useEffect(() => {
-    let timeoutId: number | null = null;
+    const tg = window.Telegram?.WebApp;
+    const mobile = tg && /Mobile/i.test(navigator.userAgent);
+    setIsTelegram(!!tg);
+    setIsTelegramMobile(!!mobile);
+  }, []);
+
+  // 🚀 Initialize Telegram login
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
     const controller = new AbortController();
 
-    const handleTelegramReady = () => {
-      const tg = (window as any).Telegram?.WebApp;
-      const user = tg?.initDataUnsafe?.user;
-      const initData = tg?.initData; // signed payload
-      console.log("📦 Sending initData to backend:", initData);
+    const initTelegram = () => {
+      const tg = window.Telegram?.WebApp;
+      if (!tg) {
+        setTimeout(initTelegram, 500);
+        return;
+      }
 
-      if (user) {
+      tg.ready?.();
+      tg.expand?.();
+
+      const user = tg.initDataUnsafe?.user;
+      const initData = tg.initData;
+
+      if (user && user.first_name) {
         setTelegramUser(user);
-        setIsTelegram(true); // mark as Telegram
+        setIsTelegram(true);
         localStorage.setItem("telegramUser", JSON.stringify(user));
 
-        // redirect after 2 seconds
-        timeoutId = window.setTimeout(() => {
-          navigate("/boost", { replace: true });
-        }, 2000);
-
-        // send to backend in background
-        const backendUrl = `${window.location.protocol}//110.38.69.202:5000/api/telegram-login`;
-        fetch(backendUrl, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ initData }), // only send the signed payload
-  signal: controller.signal,
-})
-
+        // ✅ Send Telegram login info to backend
+        fetch(`${BACKEND_URL}/api/telegram-login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData }),
+          signal: controller.signal,
+        })
           .then((res) => res.json())
           .then((data) => {
             if (!data.success) console.error("Telegram login failed:", data);
+            else autoLoginSync(data.user.telegramId);
           })
           .catch((err) => {
-            if ((err as any).name !== "AbortError") console.error(err);
+            if (err.name !== "AbortError") console.error(err);
           });
+
+        // Redirect after login
+        timeoutId = setTimeout(() => redirectToBoost(), 1000);
+      } else {
+        const cachedUser = localStorage.getItem("telegramUser");
+        if (cachedUser) {
+          const parsedUser = JSON.parse(cachedUser);
+          setTelegramUser(parsedUser);
+          setIsTelegram(true);
+          autoLoginSync(parsedUser.id);
+          timeoutId = setTimeout(() => redirectToBoost(), 1000);
+        }
       }
     };
 
-    const tgReady = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
-    if (tgReady) handleTelegramReady();
-    else (window as any).Telegram?.WebApp?.onEvent?.("ready", handleTelegramReady);
+    window.addEventListener("TelegramWebAppReady", initTelegram);
+    setTimeout(initTelegram, 1000);
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
       controller.abort();
-      (window as any).Telegram?.WebApp?.offEvent?.("ready", handleTelegramReady);
+      window.removeEventListener("TelegramWebAppReady", initTelegram);
     };
-  }, [navigate]);
+  }, []);
+
+  // 🔗 Link wallet ↔ Telegram
+  useEffect(() => {
+    if (!isConnected || !address) return;
+    const telegramUser = JSON.parse(localStorage.getItem("telegramUser") || "null");
+    if (!telegramUser) return;
+
+    axios
+      .post(`${BACKEND_URL}/api/link-telegram`, {
+        walletAddress: address,
+        telegramData: telegramUser,
+      })
+      .then((res) => console.log("✅ Linked wallet ↔ Telegram:", res.data))
+      .catch((err) => console.error("❌ Link failed:", err));
+  }, [isConnected, address]);
+
+  // 🌟 Auto-login sync
+  const autoLoginSync = async (telegramId: string) => {
+    if (isAutoLogged) return;
+    try {
+      const res = await axios.post(`${BACKEND_URL}/api/auto-login`, {
+        telegramId,
+      });
+      if (res.data?.walletAddress) {
+        console.log("🔁 Auto-login synced:", res.data.walletAddress);
+        setIsAutoLogged(true);
+      }
+    } catch (err) {
+      console.error("Auto-login failed:", err);
+    }
+  };
+
+  // 🧭 Handle wallet connect
+  const handleConnectWallet = async () => {
+    if (isTelegramMobile) {
+      const tg = window.Telegram?.WebApp;
+      const msg =
+        "Wallet connection isn’t supported inside Telegram.\n\nTap ⋮ → ‘Open in Browser’ to connect your wallet.";
+      tg?.showAlert ? tg.showAlert(msg) : alert(msg);
+      return;
+    }
+
+    try {
+      await openWeb3Modal();
+    } catch (err) {
+      console.error("WalletConnect failed:", err);
+    }
+  };
+
+  // ⏩ Redirect connected users
+  useEffect(() => {
+    if (isConnected && !isTelegram) {
+      localStorage.setItem("hasEntered", "true");
+      setTimeout(() => redirectToBoost(), 500);
+    }
+  }, [isConnected, isTelegram]);
 
   return (
     <div className="flex h-screen items-center justify-center bg-black text-white">
@@ -78,22 +170,6 @@ const PresaleEntry = () => {
 
         <hr className="border-t border-white/10 my-4" />
 
-        {/* Show wallet button only if not Telegram */}
-        {!isTelegram && !isConnected && (
-          <button
-            onClick={() => openWeb3Modal()}
-            className="px-6 py-2 bg-gradient-to-r from-yellow-400 to-[#1a1b2f] text-white rounded font-semibold hover:opacity-90 transition"
-          >
-            Connect Wallet
-          </button>
-        )}
-
-        {/* Optional: show connected address */}
-        {!isTelegram && isConnected && (
-          <p className="text-green-400 mt-2">
-            Connected as {address?.slice(0, 6)}...{address?.slice(-4)}
-          </p>
-        )}
       </div>
     </div>
   );
