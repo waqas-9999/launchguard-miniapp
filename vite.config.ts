@@ -64,8 +64,10 @@ export default defineConfig({
   },
   esbuild: { drop: ["console", "debugger"] },
 
-  server: {
-    host: true,
-    allowedHosts: ["token.buycex.com"],
+   server: {
+    host: '0.0.0.0',
+    port: 5173,
+    allowedHosts: ['token.buycex.com', '.ngrok-free.dev'],
   },
+
 });

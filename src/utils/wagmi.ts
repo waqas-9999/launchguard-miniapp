@@ -11,11 +11,11 @@ export const wagmiConfig = defaultWagmiConfig({
   projectId,
   chains,
   metadata: {
-    name: 'Buycex Presale',
-    description: 'Buycex presale dApp',
-    url: typeof window !== 'undefined' ? window.location.origin : 'https://example.com',
-    icons: ['https://your-domain.com/icon.png']
-  }
+    name: "Buycex Presale",
+    description: "Buycex Token Presale Portal",
+    url: "https://kora-brotherless-unofficiously.ngrok-free.dev",
+    icons: ["https://your-icon-link.png"],
+  },
 })
 
 /** 🔒 Hide Email/Social row ("Auth") in Web3Modal using inline CSS */
