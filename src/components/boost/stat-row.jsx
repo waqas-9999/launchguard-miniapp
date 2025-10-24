@@ -43,7 +43,7 @@ export function StatRow({ icon, label, value, hint, muted = false, onClick, hide
       )}
     >
       {/* Subtle gradient accent */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-yellow-400/5 via-transparent to-violet-600/10 pointer-events-none" />
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-green-400/5 via-transparent to-violet-600/10 pointer-events-none" />
 
       <div className={cn("relative flex items-center z-10", preserveIconSpace ? "gap-3" : "gap-2")}>
         {/* Icon slot: optionally keep size for alignment or remove entirely when hideIcon=true and preserveIconSpace=false */}

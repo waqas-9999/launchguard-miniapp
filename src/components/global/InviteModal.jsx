@@ -58,8 +58,8 @@ export default function InviteModal({ open, onClose }) {
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center justify-center gap-3 w-full py-4 
                   rounded-xl font-semibold text-black 
-                  bg-gradient-to-r from-yellow-400 to-yellow-300
-                  shadow-[0_0_20px_#facc15aa] hover:shadow-[0_0_30px_#facc15cc] 
+                  bg-white
+                  shadow-[0_0_20px_rgba(34,197,94,0.6)] 
                   transition-all"
               >
                 <FaShare className="text-black" />
@@ -72,8 +72,8 @@ export default function InviteModal({ open, onClose }) {
                 onClick={handleCopy}
                 className="flex items-center justify-center gap-3 w-full py-4 
                   rounded-xl font-semibold text-black 
-                  bg-gradient-to-r from-yellow-400 to-yellow-300
-                  shadow-[0_0_20px_#facc15aa] hover:shadow-[0_0_30px_#facc15cc]
+                  bg-white
+                  shadow-[0_0_20px_rgba(34,197,94,0.6)]
                   transition-all"
               >
                 <IoCopy className="text-black" />

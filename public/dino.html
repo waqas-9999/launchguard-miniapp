@@ -319,7 +319,7 @@
     this.turnsBadge.style.borderRadius = '12px';
     this.turnsBadge.style.border = '1px solid rgba(239,184,28,0.2)';
     this.turnsBadge.style.background = 'rgba(255,255,255,0.05)';
-    this.turnsBadge.style.color = '#efb81c';
+    this.turnsBadge.style.color = '#fffff';
     // Remove heavy effects for smoother performance
     // this.turnsBadge.style.backdropFilter = 'blur(6px)';
     // this.turnsBadge.style.boxShadow = '0 0 12px rgba(239,184,28,0.15)';
@@ -655,7 +655,7 @@
       btn.style.borderRadius = '10px';
       btn.style.border = '1px solid rgba(239,184,28,0.2)';
       btn.style.background = 'rgba(255,255,255,0.05)';
-      btn.style.color = '#efb81c';
+      btn.style.color = '#fffff';
       btn.style.fontWeight = '600';
       btn.style.cursor = 'pointer';
       // btn.style.backdropFilter = 'blur(6px)';
@@ -1367,9 +1367,9 @@
     sourceWidth, sourceHeight,
     this.xPos, this.yPos,
     this.config.WIDTH, this.config.HEIGHT);
-    // Tint the T-Rex to #efb81c
+    // Tint the T-Rex to #fffff
     this.canvasCtx.globalCompositeOperation = 'source-atop';
-    this.canvasCtx.fillStyle = '#efb81c';
+    this.canvasCtx.fillStyle = '#82ad4b';
     this.canvasCtx.fillRect(this.xPos, this.yPos, this.config.WIDTH, this.config.HEIGHT);
     this.canvasCtx.restore();
     },
@@ -1584,7 +1584,7 @@
     
     // Apply yellow color overlay
     this.canvasCtx.globalCompositeOperation = 'source-atop';
-    this.canvasCtx.fillStyle = '#efb81c';
+    this.canvasCtx.fillStyle = '#82ad4b';
     this.canvasCtx.fillRect(targetX, targetY, targetWidth, targetHeight);
     
     this.canvasCtx.restore();
@@ -2744,11 +2744,11 @@ html[subframe] body {
     clockDot.style.width = '10px';
     clockDot.style.height = '10px';
     clockDot.style.borderRadius = '9999px';
-    clockDot.style.background = '#efb81c';
+    clockDot.style.background = '#fffff';
     clockDot.style.boxShadow = '0 0 10px rgba(239,184,28,0.6)';
 
     countdownText = document.createElement('div');
-    countdownText.style.color = '#efb81c';
+    countdownText.style.color = '#fffff';
     countdownText.style.fontWeight = '700';
     countdownText.style.fontFamily = 'monospace';
     countdownText.style.letterSpacing = '1px';
@@ -2803,7 +2803,7 @@ document.addEventListener('click', function () {
           startBtn.style.bottom = '-220px';
           startBtn.style.border = '1px solid rgba(239,184,28,0.2)';
           startBtn.style.background = 'rgba(255,255,255,0.05)';
-          startBtn.style.color = '#efb81c';
+          startBtn.style.color = '#fffff';
           startBtn.style.fontWeight = '600';
           startBtn.style.cursor = 'pointer';
           startBtn.style.backdropFilter = 'blur(6px)';
@@ -2847,7 +2847,7 @@ document.addEventListener('click', function () {
           infoBtn.style.borderRadius = '9999px';
           infoBtn.style.border = '1px solid rgba(239,184,28,0.28)';
           infoBtn.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))';
-          infoBtn.style.color = '#efb81c';
+          infoBtn.style.color = '#fffff';
           infoBtn.style.fontWeight = '800';
           infoBtn.style.fontSize = '18px';
           infoBtn.style.lineHeight = '44px';
@@ -2896,7 +2896,7 @@ document.addEventListener('click', function () {
           closeBtn.style.borderRadius = '9999px';
           closeBtn.style.border = '1px solid rgba(239,184,28,0.25)';
           closeBtn.style.background = 'transparent';
-          closeBtn.style.color = '#efb81c';
+          closeBtn.style.color = '#fffff';
           closeBtn.style.cursor = 'pointer';
           closeBtn.addEventListener('mouseenter', function(){ closeBtn.style.background = 'rgba(239,184,28,0.08)'; });
           closeBtn.addEventListener('mouseleave', function(){ closeBtn.style.background = 'transparent'; });
@@ -2911,14 +2911,14 @@ document.addEventListener('click', function () {
           dot.style.width = '10px';
           dot.style.height = '10px';
           dot.style.borderRadius = '9999px';
-          dot.style.background = '#efb81c';
+          dot.style.background = '#fffff';
           dot.style.boxShadow = '0 0 12px rgba(239,184,28,0.6)';
 
           var title = document.createElement('div');
           title.textContent = 'How to Play';
           title.style.fontWeight = '800';
           title.style.fontSize = '18px';
-          title.style.color = '#efb81c';
+          title.style.color = '#fffff';
 
           headerWrap.appendChild(dot);
           headerWrap.appendChild(title);
@@ -2949,14 +2949,14 @@ document.addEventListener('click', function () {
           dot2.style.width = '10px';
           dot2.style.height = '10px';
           dot2.style.borderRadius = '9999px';
-          dot2.style.background = '#efb81c';
+          dot2.style.background = '#fffff';
           dot2.style.boxShadow = '0 0 12px rgba(239,184,28,0.6)';
 
           var rewardsTitle = document.createElement('div');
           rewardsTitle.textContent = 'Rewards';
           rewardsTitle.style.fontWeight = '800';
           rewardsTitle.style.fontSize = '18px';
-          rewardsTitle.style.color = '#efb81c';
+          rewardsTitle.style.color = '#fffff';
 
           rewardsHeader.appendChild(dot2);
           rewardsHeader.appendChild(rewardsTitle);

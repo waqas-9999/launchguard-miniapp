@@ -18,8 +18,8 @@ function Dino() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Game info"
-        className="fixed left-4 bottom-28 z-[60] h-11 w-11 rounded-full border border-yellow-400/30 
-          bg-white/5 text-yellow-400 font-extrabold text-lg"
+        className="fixed left-4 bottom-28 z-[60] h-11 w-11 rounded-full border border-[#82ad4b]/30 
+          bg-white/5 text-[#82ad4b] font-extrabold text-lg"
       >
         ?
       </button>

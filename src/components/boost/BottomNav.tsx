@@ -6,6 +6,7 @@ import { Home, Users, Trophy } from "lucide-react";
 import coinDino from "../../assets/img/coin-dino.png";
 import { GiDinosaurRex } from "react-icons/gi";
 import { useEffect, useState } from "react";
+import { FaWallet } from "react-icons/fa";
 
 declare global {
   interface Window {
@@ -61,7 +62,7 @@ export default function BottomNav() {
     { icon: Trophy, label: "Leaderboard", url: "/leaderboard-new" },
     { icon: GiDinosaurRex, label: "Dino", url: "/dino" },
     { icon: Users, label: "Friends", url: "/friends" },
-    { icon: "coinDino", label: "Get BCX", url: "/get-bcx" },
+    { icon: FaWallet, label: "Wallet", url: "/get-bcx" },
   ];
 
   return (
@@ -73,9 +74,9 @@ export default function BottomNav() {
       }}
       transition={{ type: "spring", stiffness: 120, damping: 15 }}
       aria-label="Bottom navigation"
-      className="fixed inset-x-0 bottom-2 z-50 mx-auto w-[94%] max-w-sm overflow-hidden rounded-3xl border border-gray-800/70 bg-gradient-to-br from-[#0B0C0E]/90 via-[#111214]/95 to-[#0E0F11]/90 px-5 py-3 shadow-[0_0_25px_rgba(255,255,255,0.05)] backdrop-blur-xl"
+      className="fixed inset-x-0 bottom-2 z-50 mx-auto w-[94%] max-w-sm overflow-hidden rounded-3xl border border-gray-800/70 bg-gradient-to-br from-[#0B0C0E]/90 via-[#111214]/95 to-[#0E0F11]/90 px-5 py-3 backdrop-blur-xl"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 via-transparent to-violet-700/10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 via-transparent to-violet-700/10 pointer-events-none" />
 
       <ul className="relative z-10 grid grid-cols-5 items-center">
         {items.map(({ icon: Icon, label, url }, idx) => {
@@ -90,16 +91,15 @@ export default function BottomNav() {
               className="flex flex-col items-center gap-1 cursor-pointer"
             >
               <div
-                className={`flex items-center justify-center rounded-full border transition-all duration-300 ${
-                  isDino ? "h-14 w-14 -mt-2" : "h-11 w-11"
-                } ${
-                  isActive
+                className={`flex items-center justify-center rounded-full border transition-all duration-300 ${isDino ? "h-14 w-14 -mt-2" : "h-11 w-11"
+                  } ${isActive
                     ? isDino
-                      ? "border-green-400/40 bg-[#82ad4b] shadow-[0_0_20px_rgba(74,222,128,0.4)]"
-                      : "border-yellow-400/40 bg-white shadow-[0_0_20px_rgba(250,204,21,0.3)]"
+                      ? "border-green-400/40 bg-[#82ad4b] shadow-[0_0_20px_rgba(34,197,94,0.6)]" // ✅ brighter green glow
+                      : "border-green-400/40 bg-white shadow-[0_0_20px_rgba(34,197,94,0.4)]"   // ✅ green shadow for normal icons too
                     : "border-gray-800 bg-gradient-to-br from-gray-800/80 to-gray-900/90 hover:from-gray-700 hover:to-gray-800"
-                }`}
+                  }`}
               >
+
                 {label === "Get BCX" ? (
                   <img
                     src={coinDino}
@@ -108,20 +108,18 @@ export default function BottomNav() {
                   />
                 ) : (
                   <Icon
-                    className={`transition-colors duration-300 ${
-                      isDino ? "h-6 w-6" : "h-5 w-5"
-                    } ${isActive ? "text-black" : "text-gray-300"}`}
+                    className={`transition-colors duration-300 ${isDino ? "h-6 w-6" : "h-5 w-5"
+                      } ${isActive ? "text-black" : "text-gray-300"}`}
                   />
                 )}
               </div>
               <span
-                className={`text-[11px] font-medium transition-colors duration-300 ${
-                  isActive
+                className={`text-[11px] font-medium transition-colors duration-300 ${isActive
                     ? isDino
                       ? "text-[#82ad4b]"
                       : "text-white"
                     : "text-gray-400 hover:text-gray-300"
-                }`}
+                  }`}
               >
                 {label}
               </span>

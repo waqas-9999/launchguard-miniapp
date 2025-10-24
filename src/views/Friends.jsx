@@ -12,28 +12,28 @@ function Friends() {
     totalReward: 0,
     friendsReferred: 0,
   });
+
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const referrer = params.get("code");
+    const params = new URLSearchParams(window.location.search);
+    const referrer = params.get("code");
 
-  if (referrer) {
-    axios.post("https://kora-brotherless-unofficiously.ngrok-free.dev/api/referral-join", {
-      referrer,
-      telegramId: window.Telegram.WebApp.initDataUnsafe?.user?.id,
-      telegramFirstName: window.Telegram.WebApp.initDataUnsafe?.user?.first_name,
-      telegramUsername: window.Telegram.WebApp.initDataUnsafe?.user?.username,
-      telegramPhotoUrl: window.Telegram.WebApp.initDataUnsafe?.user?.photo_url
-    })
-    .then(res => {
-      if (res.data.success) toast.success("Joined via referral!");
-      else toast.error(res.data.error);
-    })
-    .catch(() => toast.error("Error joining referral"));
-  }
-}, []);
+    if (referrer) {
+      axios
+        .post("https://kora-brotherless-unofficiously.ngrok-free.dev/api/referral-join", {
+          referrer,
+          telegramId: window.Telegram.WebApp.initDataUnsafe?.user?.id,
+          telegramFirstName: window.Telegram.WebApp.initDataUnsafe?.user?.first_name,
+          telegramUsername: window.Telegram.WebApp.initDataUnsafe?.user?.username,
+          telegramPhotoUrl: window.Telegram.WebApp.initDataUnsafe?.user?.photo_url,
+        })
+        .then((res) => {
+          if (res.data.success) toast.success("Joined via referral!");
+          else toast.error(res.data.error);
+        })
+        .catch(() => toast.error("Error joining referral"));
+    }
+  }, []);
 
-
-  // ✅ Get wallet from backend (Telegram or connected wallet)
   const fetchUserWallet = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/current-wallet");
@@ -48,7 +48,6 @@ function Friends() {
     }
   };
 
-  // ✅ Fetch referral stats for this wallet
   const fetchReferralData = async (address) => {
     try {
       const res = await axios.get(
@@ -60,12 +59,10 @@ function Friends() {
     }
   };
 
-  // ✅ Auto-load user wallet on mount
   useEffect(() => {
     fetchUserWallet();
   }, []);
 
-  // ✅ Handle referral link join (when visiting /referral?code=...)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const referrer = params.get("code");
@@ -74,7 +71,7 @@ function Friends() {
     if (referrer && !joinedWallet) {
       axios
         .post("http://localhost:5000/api/wallet", {
-          walletAddress: `temp_${Date.now()}`, // temp placeholder until actual wallet is connected
+          walletAddress: `temp_${Date.now()}`,
           referrer,
         })
         .then((res) => {
@@ -114,9 +111,9 @@ function Friends() {
   };
 
   return (
-    <div className="min-h-screen max-w-sm mx-auto bg-black flex flex-col justify-between text-white relative overflow-hidden">
+    <div className="min-h-screen max-w-md mx-auto bg-black flex flex-col justify-between text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] via-black to-black" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#efb81c]/10 blur-[120px] rounded-full" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-white/10 blur-[120px] rounded-full" />
 
       <div className="relative px-6 pt-10 pb-32">
         <h1 className="text-3xl font-semibold text-center mb-8 tracking-wide">
@@ -124,30 +121,30 @@ function Friends() {
         </h1>
 
         {/* Reward Box */}
-        <div className="bg-white/5 backdrop-blur-md border border-[#efb81c]/30 rounded-2xl p-5 flex items-center justify-between mb-10 shadow-[0_0_25px_rgba(239,184,28,0.2)]">
+        <div className="bg-white/5 backdrop-blur-md border border-white/30 rounded-2xl p-5 flex items-center justify-between mb-10 shadow-[0_0_25px_rgba(255,255,255,0.2)]">
           <div>
-            <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#efb81c] to-[#ffde70] font-semibold text-lg">
-              Earn BCX for every
+            <p className="text-transparent bg-clip-text bg-white font-semibold text-lg">
+              Earn IMDINO for every
             </p>
             <p className="text-gray-300 text-sm">Coin your friend buys</p>
           </div>
-          <div className="bg-gradient-to-br from-[#efb81c] to-[#c99a16] p-3 rounded-xl shadow-[0_0_20px_rgba(239,184,28,0.4)]">
+          <div className="bg-gradient-to-br from-white to-gray-300 p-3 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.4)]">
             <Gift className="text-black w-7 h-7" />
           </div>
         </div>
 
         {/* Referral link */}
-        <div className="mt-10 bg-white/5 p-4 rounded-xl flex items-center justify-between border border-[#efb81c]/20">
+        <div className="mt-10 bg-white/5 p-4 rounded-xl flex items-center justify-between border border-white/20">
           <span className="truncate text-gray-300 text-xs">{referralLink}</span>
           <button onClick={handleCopy}>
-            <Copy className="w-5 h-5 text-[#efb81c]" />
+            <Copy className="w-5 h-5 text-white" />
           </button>
         </div>
 
         <div className="mt-8">
           <button
             onClick={() => setOpen(true)}
-            className="w-full bg-gradient-to-r from-[#efb81c] to-[#ffde70] text-black font-semibold py-3 rounded-lg shadow-[0_0_20px_rgba(239,184,28,0.4)] hover:scale-[1.02] transition-transform"
+            className="w-full bg-gradient-to-r from-white to-gray-200 text-black font-semibold py-3 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.02] transition-transform"
           >
             + Invite a friend
           </button>
@@ -155,19 +152,19 @@ function Friends() {
 
         {/* Earnings */}
         <div className="mt-14 space-y-8">
-          <div className="bg-white/5 border border-[#efb81c]/20 rounded-2xl p-5 shadow-[0_0_20px_rgba(239,184,28,0.15)]">
-            <h2 className="text-lg font-semibold mb-4 text-[#efb81c]">
+          <div className="bg-white/5 border border-white/20 rounded-2xl p-5 shadow-[0_0_20px_rgba(255,255,255,0.15)]">
+            <h2 className="text-lg font-semibold mb-4 text-white">
               Referral Earnings
             </h2>
             <div className="flex items-center justify-between mb-3">
               <p className="text-gray-300">Total Earned</p>
-              <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#efb81c] to-[#ffde70] font-bold">
-                {referralData.totalReward.toFixed(2)} BCX
+              <p className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 font-bold">
+                {referralData.totalReward.toFixed(2)} IMDINO
               </p>
             </div>
             <div className="flex items-center justify-between">
               <p className="text-gray-300">Friends Referred</p>
-              <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#efb81c] to-[#ffde70] font-bold">
+              <p className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 font-bold">
                 {referralData.friendsReferred}
               </p>
             </div>
