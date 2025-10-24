@@ -16,20 +16,24 @@ function Transaction() {
   ]
 
   return (
-    <div className="min-h-screen max-w-sm mx-auto bg-black pb-20">
+    <div className="min-h-screen max-w-md mx-auto bg-black pb-20">
       {/* Header */}
-      <div className="bg-white/5 backdrop-blur-md border-b border-[#efb81c]/20 p-4">
-        <Link to="/get-bcx"><button className="flex items-center mb-2 text-[#efb81c]"><FaAngleLeft className='mt-0.5'/>Back</button></Link>
+      <div className="bg-white/5 backdrop-blur-md border-b border-white/20 p-4">
+        <Link to="/get-bcx">
+          <button className="flex items-center mb-2 text-white">
+            <FaAngleLeft className="mt-0.5" /> Back
+          </button>
+        </Link>
         <h1 className="text-2xl font-bold text-white">Transaction History</h1>
-        
+
         {/* Total Completed Transactions */}
-        <div className="mt-4 p-4 bg-white/5 backdrop-blur-md border border-[#efb81c]/20 rounded-2xl shadow-[0_0_20px_rgba(239,184,28,0.15)]">
+        <div className="mt-4 p-4 bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-[0_0_20px_rgba(0,255,0,0.15)]">
           <div className="text-sm text-gray-300">Total Completed Transactions</div>
           <div className="text-3xl font-bold text-white">8</div>
         </div>
 
         {/* Total Transactions Amount */}
-        <div className="mt-3 p-4 bg-white/5 backdrop-blur-md border border-[#efb81c]/20 rounded-2xl shadow-[0_0_20px_rgba(239,184,28,0.15)]">
+        <div className="mt-3 p-4 bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-[0_0_20px_rgba(0,255,0,0.15)]">
           <div className="text-sm text-gray-300">Total Transactions Amount</div>
           <div className="text-lg font-semibold text-white">$0.0253 BNB</div>
         </div>
@@ -39,9 +43,9 @@ function Transaction() {
       <div className="p-4">
         <div className="space-y-3">
           {transactions.map((transaction) => (
-            <div 
-              key={transaction.id} 
-              className="bg-white/5 backdrop-blur-md border border-[#efb81c]/20 rounded-2xl p-4 shadow-[0_0_20px_rgba(239,184,28,0.15)]"
+            <div
+              key={transaction.id}
+              className="bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl p-4 shadow-[0_0_20px_rgba(0,255,0,0.15)]"
             >
               {/* Header with Order ID and Time */}
               <div className="flex justify-between items-start mb-3">
@@ -67,7 +71,7 @@ function Transaction() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-400">Amount:</span>
-                  <span className="text-sm font-medium text-[#efb81c]">{transaction.amount}</span>
+                  <span className="text-sm font-medium text-white">{transaction.amount}</span>
                 </div>
               </div>
             </div>
