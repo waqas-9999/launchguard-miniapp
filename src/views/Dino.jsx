@@ -1,45 +1,32 @@
-import React from 'react';
+import BottomNav from "../components/boost/BottomNav";
+import React, { useState } from "react";
+import GameInfoModal from "../components/global/GameInfoModal";
 
-import Resources from './Resources.jsx';
-import DinoScript from './DinoScript.jsx';
-import DinoStyle from './DinoStyle.jsx';
+function Dino() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="w-full h-screen bg-black flex flex-col">
+      <iframe
+        title="Dino Game"
+        src="/dino.html"
+        className="flex-1 w-full border-0"
+        sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups"
+      ></iframe>
 
-import './Dino.css';
-import BottomNav from '../components/boost/BottomNav';
+      {/* Floating info button for React layer (outside iframe) */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Game info"
+        className="fixed left-4 bottom-28 z-[60] h-11 w-11 rounded-full border border-yellow-400/30 
+          bg-white/5 text-yellow-400 font-extrabold text-lg"
+      >
+        ?
+      </button>
 
-class Dino extends React.Component {
-  appendDinoScript() {
-    let dinoScriptContainer = document.createElement("script");
-    dinoScriptContainer.appendChild(document.createTextNode(DinoScript)); 
-    this.startDiv.appendChild(dinoScriptContainer);
-  }
+      <GameInfoModal open={open} onClose={() => setOpen(false)} />
+      <BottomNav />
+    </div>
+)};
 
-  appendRunnerScript() {
-    let runnerScriptContainer = document.createElement("script");
-    runnerScriptContainer.appendChild(document.createTextNode(`new Runner('.interstitial-wrapper');`)); 
-
-    this.endDiv.appendChild(runnerScriptContainer);
-  }
-
-  componentDidMount() {
-    this.appendDinoScript();
-
-    this.appendRunnerScript();
-  }
-
-    render() {
-        return (
-          <div ref={el => (this.startDiv = el)}>
-            <style>{DinoStyle}</style>
-            <div id="main-frame-error" className="interstitial-wrapper">
-              <Resources />
-              <BottomNav/>
-              <div ref={el => (this.endDiv = el)}>
-              </div>
-            </div>
-          </div>
-        );
-    }
-}
-
-export default Dino;
+export default Dino

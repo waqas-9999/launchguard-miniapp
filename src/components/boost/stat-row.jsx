@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 function cn(...classes) {
   return classes.filter(Boolean).join(" ")
 }
-import { CheckCircle, Pickaxe, User2, Zap, LocateFixed  } from "lucide-react"
+import { CheckCircle, Pickaxe, User2, Zap, LocateFixed } from "lucide-react"
 import { isValidElement, cloneElement } from "react"
 
 const icons = {
@@ -48,7 +48,14 @@ export function StatRow({ icon, label, value, hint, muted = false, onClick, hide
       <div className={cn("relative flex items-center z-10", preserveIconSpace ? "gap-3" : "gap-2")}>
         {/* Icon slot: optionally keep size for alignment or remove entirely when hideIcon=true and preserveIconSpace=false */}
         {!hideIcon ? (
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 ring-1 ring-gray-700 shadow-inner">
+          <div
+            className={cn(
+              "flex h-9 w-9 items-center justify-center rounded-xl",
+              iconElement?.props?.src?.includes("coin-dino")
+                ? "" // 🧩 remove border/background for CoinDino image
+                : "bg-gradient-to-br from-gray-800 to-gray-900 ring-1 ring-gray-700 shadow-inner"
+            )}
+          >
             {IconComponent ? (
               <IconComponent
                 className={cn(
@@ -57,7 +64,6 @@ export function StatRow({ icon, label, value, hint, muted = false, onClick, hide
                 )}
               />
             ) : iconElement ? (
-              // preserve element's props but ensure sizing if not provided
               cloneElement(iconElement, {
                 className: cn(iconElement.props.className, "w-7"),
               })
@@ -66,6 +72,7 @@ export function StatRow({ icon, label, value, hint, muted = false, onClick, hide
         ) : (
           preserveIconSpace ? <div className="h-9 w-9" aria-hidden /> : null
         )}
+
 
         {/* Label */}
         <span
@@ -95,11 +102,11 @@ export function StatRow({ icon, label, value, hint, muted = false, onClick, hide
                   {/* Animated ring */}
                   <motion.div
                     className="absolute inset-0 rounded-full border-2 border-white"
-                    animate={{ 
+                    animate={{
                       scale: [1, 1.1, 1],
                       opacity: [0.3, 0.8, 0.3]
                     }}
-                    transition={{ 
+                    transition={{
                       duration: 2,
                       repeat: Infinity,
                       ease: "easeInOut"
@@ -108,7 +115,7 @@ export function StatRow({ icon, label, value, hint, muted = false, onClick, hide
                 </span>
               ) : (
                 <>
-                
+
                 </>
               )}
             </div>

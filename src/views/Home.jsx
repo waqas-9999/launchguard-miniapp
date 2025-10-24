@@ -141,7 +141,7 @@ if (loading) {
           <div className="flex-1">
             <StatRow
               icon={<img src={bcx} alt="BCX" />}
-              label={userData ? `${userData.totalReward.toFixed(2)} BCX` : "0 BCX"}
+              label={userData ? `${userData.totalReward.toFixed(2)} IMDINO` : "0 IMDINO"}
               onClick={() => setOpen(true)}
               trailing={<FaAngleRight />}
             />
@@ -212,7 +212,7 @@ if (loading) {
                 key={index}
                 icon={<FaTelegramPlane size={24} fill="#ffffff" />}
                 label={task.name}
-                value={`${task.reward} BCX`}
+                value={`${task.reward} IMDINO`}
                 claimed={task.completed}
                 onClick={handleClick}
                 className={!requirementMet && !task.completed ? "opacity-50 cursor-not-allowed" : ""}
