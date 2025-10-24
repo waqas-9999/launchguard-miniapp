@@ -18,8 +18,8 @@ const WalletButton = ({ onCloseSidebar, className = "" }) => {
       onClick={handleClick}
       className={`flex items-center justify-center gap-3 w-full py-4 
         rounded-xl font-semibold text-black 
-        bg-gradient-to-r from-yellow-400 to-yellow-300
-        shadow-[0_0_20px_#facc15aa] hover:shadow-[0_0_30px_#facc15cc] 
+        bg-white
+        shadow-[0_0_20px_#fffff] hover:shadow-[0_0_30px_#ffffff] 
         transition-all ${className}`}
     >
       {isConnected ? (

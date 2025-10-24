@@ -1,7 +1,7 @@
 import { Hero } from "../components/boost/hero-section";
 import { StatRow } from "../components/boost/stat-row";
 import BottomNav from "../components/boost/BottomNav";
-import bcx from "../assets/img/home/BUYCEX-INFINITY.png";
+import bcx from "../assets/img/coin-dino.png";
 import ImageModal from "../components/global/ImageModal";
 import { useState, useEffect } from "react";
 import { FaAngleRight, FaTelegramPlane } from "react-icons/fa";
@@ -12,6 +12,7 @@ import StoryProgress from "../components/boost/StoryProgress";
 import { useAccount } from "wagmi";
 import axios from "axios";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
+import Dino from "../../public/dino-2.gif" 
 
 // ✅ Your backend base URL
 const BACKEND_URL = "https://isochronous-packable-sherly.ngrok-free.dev";
@@ -23,6 +24,7 @@ function cn(...classes) {
 export default function Boost() {
   const { open: openWeb3Modal } = useWeb3Modal();
   const { address, isConnected } = useAccount();
+  const [loading, setLoading] = useState(true);
 
   const [open, setOpen] = useState(false);
   const [wallet, setWallet] = useState(false);
@@ -51,6 +53,13 @@ export default function Boost() {
         .catch((err) => console.error("❌ Error saving wallet:", err));
     }
   }, [isConnected, address]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // ✅ Auto-link Telegram user when inside Telegram WebApp
   useEffect(() => {
@@ -109,11 +118,19 @@ export default function Boost() {
   };
 
   const items = [
-    { icon: TriangleAlert, title: "What is BUYCEX?", subtitle: "Intro" },
-    { icon: ShoppingCart, title: "Get BCX", subtitle: "Swap crypto to BCX", url: "/get-bcx" },
+    { icon: TriangleAlert, title: "What is IMDINO?", subtitle: "Intro" },
+    { icon: ShoppingCart, title: "Get IMDINO", subtitle: "Swap IMDINO", url: "/get-bcx" },
     { icon: FileText, title: "Whitepaper", subtitle: "Literally" },
   ];
 
+    // 🦖 Add this block before the main return()
+if (loading) {
+  return (
+    <div className="flex items-center justify-center h-screen bg-black">
+      <img src={Dino} alt="Loading..." className="w-52 h-52 animate-bounce" />
+    </div>
+  );
+}
   return (
     <main className="mx-auto max-w-sm px-4 pb-28 pt-4">
       <div className="space-y-4">
@@ -193,7 +210,7 @@ export default function Boost() {
             return (
               <StatRow
                 key={index}
-                icon={<FaTelegramPlane size={24} fill="#efb81c" />}
+                icon={<FaTelegramPlane size={24} fill="#ffffff" />}
                 label={task.name}
                 value={`${task.reward} BCX`}
                 claimed={task.completed}
@@ -212,7 +229,7 @@ export default function Boost() {
             {items.map((item, index) => {
               const Icon = item.icon;
               const handleNavigate = () => {
-                if (item.title === "What is BUYCEX?") {
+                if (item.title === "What is IMDINO?") {
                   setShowStory(true);
                   return;
                 }
@@ -237,7 +254,7 @@ export default function Boost() {
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-yellow-400/5 via-transparent to-violet-600/10 pointer-events-none" />
                   <div className="relative flex items-center gap-3 z-10">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 ring-1 ring-gray-700 shadow-inner">
-                      <Icon className="w-6 h-6 text-yellow-400 drop-shadow-[0_0_6px_#facc15aa]" />
+                      <Icon className="w-6 h-6 text-white drop-shadow-[0_0_6px_#facc15aa]" />
                     </div>
                     <div>
                       <div className="text-gray-100 text-sm font-medium tracking-wide">

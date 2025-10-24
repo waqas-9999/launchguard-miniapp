@@ -56,8 +56,13 @@ function Leaderboard() {
       {/* Header */}
       <div className="relative overflow-hidden">
         <div className="relative flex flex-col items-center z-10 text-center pt-8 pb-6 px-4">
-          <img src={trophy} alt="trophy" className="w-28 drop-shadow-[0_0_15px_rgba(239,184,28,0.6)]" />
-          <h1 className="text-3xl font-black tracking-[0.08em] mt-3 bg-gradient-to-b from-[#fff6d0] via-[#efb81c] to-[#c89614] bg-clip-text text-transparent drop-shadow-[0_2px_25px_rgba(239,184,28,0.4)]">
+        <img
+  src={trophy}
+  alt="trophy"
+  className="w-28 drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]"
+/>
+
+          <h1 className="text-3xl font-black tracking-[0.08em] mt-3 bg-white bg-clip-text text-transparent">
             Leaderboard
           </h1>
         </div>
@@ -69,7 +74,7 @@ function Leaderboard() {
           <button
             onClick={() => setActiveTab('rewards')}
             className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl transition-all ${activeTab === 'rewards'
-              ? 'bg-gradient-to-r from-yellow-400 to-amber-300 text-black shadow-lg'
+              ? 'bg-white text-black shadow-lg'
               : 'text-gray-400 hover:text-white hover:bg-gray-700/50'}`}
           >
             <Award className="h-4 w-4" />
@@ -78,7 +83,7 @@ function Leaderboard() {
           <button
             onClick={() => setActiveTab('holders')}
             className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl transition-all ${activeTab === 'holders'
-              ? 'bg-gradient-to-r from-yellow-400 to-amber-300 text-black shadow-lg'
+              ? 'bg-white text-black shadow-lg'
               : 'text-gray-400 hover:text-white hover:bg-gray-700/50'}`}
           >
             <Users className="h-4 w-4" />

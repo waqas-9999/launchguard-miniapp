@@ -168,7 +168,7 @@ export default function SelectWallet({ open, onClose }) {
     onClick={confirm}
     className="flex items-center justify-center gap-3 w-full py-4 
       rounded-xl font-semibold text-black 
-      bg-gradient-to-r from-yellow-400 to-yellow-300
+      bg-white
       shadow-[0_0_20px_#facc15aa] hover:shadow-[0_0_30px_#facc15cc] 
       transition-all"
   >

@@ -94,7 +94,7 @@ export function StatRow({ icon, label, value, hint, muted = false, onClick, hide
                   {value}
                   {/* Animated ring */}
                   <motion.div
-                    className="absolute inset-0 rounded-full border-2 border-yellow-400"
+                    className="absolute inset-0 rounded-full border-2 border-white"
                     animate={{ 
                       scale: [1, 1.1, 1],
                       opacity: [0.3, 0.8, 0.3]

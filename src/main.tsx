@@ -13,6 +13,7 @@ import { Provider } from 'react-redux'
 import { store } from './store'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import * as serviceWorker from './demo/serviceWorker.js'
 
 const queryClient = new QueryClient()
 
@@ -37,3 +38,5 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     </Provider>
   </React.StrictMode>
 )
+
+serviceWorker.unregister();

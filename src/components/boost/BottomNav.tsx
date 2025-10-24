@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Users, Trophy, LucideInfinity } from "lucide-react";
+import { Home, Users, Trophy } from "lucide-react";
+import coinDino from "../../assets/img/coin-dino.png";
 import { GiDinosaurRex } from "react-icons/gi";
 import { useEffect, useState } from "react";
 
@@ -29,7 +30,6 @@ export default function BottomNav() {
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
 
-    // ✅ Telegram Mini App viewport listener
     const handleTelegramViewportChange = (data?: any) => {
       if (!tg) return;
       if (data?.isStateStable && tg.viewportHeight && tg.viewportStableHeight) {
@@ -42,7 +42,6 @@ export default function BottomNav() {
 
     tg?.onEvent?.("viewportChanged", handleTelegramViewportChange);
 
-    // ✅ Fallback for normal browsers
     const visualViewport = window.visualViewport;
     const handleResize = () => {
       if (!visualViewport) return;
@@ -62,7 +61,7 @@ export default function BottomNav() {
     { icon: Trophy, label: "Leaderboard", url: "/leaderboard-new" },
     { icon: GiDinosaurRex, label: "Dino", url: "/dino" },
     { icon: Users, label: "Friends", url: "/friends" },
-    { icon: LucideInfinity, label: "Get BCX", url: "/get-bcx" },
+    { icon: "coinDino", label: "Get BCX", url: "/get-bcx" },
   ];
 
   return (
@@ -95,20 +94,32 @@ export default function BottomNav() {
                   isDino ? "h-14 w-14 -mt-2" : "h-11 w-11"
                 } ${
                   isActive
-                    ? " border-yellow-400/40 bg-gradient-to-br from-yellow-400 to-amber-300 shadow-[0_0_20px_rgba(250,204,21,0.3)]"
-                    : " border-gray-800 bg-gradient-to-br from-gray-800/80 to-gray-900/90 hover:from-gray-700 hover:to-gray-800"
+                    ? isDino
+                      ? "border-green-400/40 bg-[#82ad4b] shadow-[0_0_20px_rgba(74,222,128,0.4)]"
+                      : "border-yellow-400/40 bg-white shadow-[0_0_20px_rgba(250,204,21,0.3)]"
+                    : "border-gray-800 bg-gradient-to-br from-gray-800/80 to-gray-900/90 hover:from-gray-700 hover:to-gray-800"
                 }`}
               >
-                <Icon
-                  className={`transition-colors duration-300 ${
-                    isDino ? "h-6 w-6" : "h-5 w-5"
-                  } ${isActive ? "text-black" : "text-gray-300"}`}
-                />
+                {label === "Get BCX" ? (
+                  <img
+                    src={coinDino}
+                    alt="coin dino"
+                    className="h-6 w-6 object-contain"
+                  />
+                ) : (
+                  <Icon
+                    className={`transition-colors duration-300 ${
+                      isDino ? "h-6 w-6" : "h-5 w-5"
+                    } ${isActive ? "text-black" : "text-gray-300"}`}
+                  />
+                )}
               </div>
               <span
                 className={`text-[11px] font-medium transition-colors duration-300 ${
                   isActive
-                    ? "text-yellow-400"
+                    ? isDino
+                      ? "text-[#82ad4b]"
+                      : "text-white"
                     : "text-gray-400 hover:text-gray-300"
                 }`}
               >
