@@ -11,6 +11,8 @@
   --color-primary: #efb81c;
   --color-secondary: #1a1a1a;
   --color-accent: #efb81c;
+  --font-heading: "Press Start 2P", cursive;
+  --font-body: "Fredoka One", cursive;
 }
 
 * {
@@ -29,9 +31,20 @@ html, body {
 }
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   background: var(--color-bg);
   color: var(--color-text);
+}
+
+/* Gamified typography - headings use Press Start 2P (retro game font), body uses Fredoka One (playful) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  letter-spacing: 0.05em;
 }
 
 a {
@@ -474,4 +487,19 @@ input, textarea {
 
 .animate-toastDrop {
   animation: toastDrop 0.25s ease-out;
+}
+
+/* 🎯 Only apply Dino fonts to elements inside .font-dino */
+.font-dino {
+  font-family: "Fredoka One", sans-serif;
+}
+
+.font-dino h1,
+.font-dino h2,
+.font-dino h3,
+.font-dino h4,
+.font-dino h5,
+.font-dino h6 {
+  font-family: "Press Start 2P", cursive;
+  letter-spacing: 0.05em;
 }

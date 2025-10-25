@@ -42,7 +42,7 @@ const LeaderboardNew = lazy(() => import('./views/Leaderboard.jsx'))
 const Boost = lazy(() => import('./views/Home.jsx'))
 // @ts-ignore - JSX module shim
 const GetBcx = lazy(() => import('./views/GetBcx.jsx'))
-const LandingMini = lazy(() => import('./views/Landing-mini.jsx'))
+const LandingMini = lazy(() => import('./views/Landing-mini.js'))
 // @ts-ignore - JSX module shim
 const Transaction = lazy(() => import('./views/Transaction.jsx'))
 function App() {
