@@ -127,7 +127,7 @@ export default function Boost() {
 if (loading) {
   return (
     <div className="flex items-center justify-center h-screen bg-black">
-      <img src={Dino} alt="Loading..." className="w-52 h-52 animate-bounce" />
+      <img src={Dino} alt="Loading..." className="w-52 h-56 animate-bounce" />
     </div>
   );
 }

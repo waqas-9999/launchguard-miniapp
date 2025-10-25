@@ -42,6 +42,7 @@ const LeaderboardNew = lazy(() => import('./views/Leaderboard.jsx'))
 const Boost = lazy(() => import('./views/Home.jsx'))
 // @ts-ignore - JSX module shim
 const GetBcx = lazy(() => import('./views/GetBcx.jsx'))
+const LandingMini = lazy(() => import('./views/Landing-mini.jsx'))
 // @ts-ignore - JSX module shim
 const Transaction = lazy(() => import('./views/Transaction.jsx'))
 function App() {
@@ -185,6 +186,7 @@ function App() {
   <Route path="/presale" element={<PresaleEntry />} />
 
   {/* Other public routes */}
+  <Route path="/landing" element={<LandingMini />} />
   <Route path="/dino" element={<Dino />} />
   <Route path="/friends" element={<Friends />} />
   <Route path="/leaderboard-new" element={<LeaderboardNew />} />
