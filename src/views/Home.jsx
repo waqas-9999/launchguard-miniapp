@@ -119,7 +119,6 @@ export default function Boost() {
 
   const items = [
     { icon: TriangleAlert, title: "What is IMDINO?", subtitle: "Intro" },
-    { icon: ShoppingCart, title: "Get IMDINO", subtitle: "Swap IMDINO", url: "/get-bcx" },
     { icon: FileText, title: "Whitepaper", subtitle: "Literally" },
   ];
 
