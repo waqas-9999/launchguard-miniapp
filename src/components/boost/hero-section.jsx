@@ -3,6 +3,7 @@
 import { useRef } from "react"
 import slider1 from '../../assets/img/home/slider-1.webp'
 import DinoVideo from "../../../public/dino-video.mp4"
+import { Link } from "react-router-dom"
 
 export function Hero() {
   const scrollerRef = useRef(null)
@@ -26,13 +27,13 @@ export function Hero() {
     />
     <div className="absolute inset-0 flex flex-col items-start justify-end p-6 bg-gradient-to-t from-black/60 to-transparent">
       
-      <div
-        onClick={() => window.open("https://t.me/Iamdino_bot", "_blank")}
+      <Link
+        to="/dino"
         className="mt-4 inline-flex z-30 items-center gap-2 rounded-md px-6 py-2 text-sm font-semibold"
         style={{ background: '#82ad4b', color: '#080808' }}
       >
         Play
-      </div>
+      </Link>
     </div>
   </div>
 </section>

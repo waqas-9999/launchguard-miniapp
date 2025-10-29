@@ -210,6 +210,9 @@ export default function LandingMini() {
             <a href="#how-to-play" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
               HOW TO PLAY
             </a>
+            <a href="#roadmap" className="block hover:text-green-300 font-bold py-2">
+              ROADMAP
+            </a>
             <a href="#about" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
               ABOUT I AM DINO
             </a>

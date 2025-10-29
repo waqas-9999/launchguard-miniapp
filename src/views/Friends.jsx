@@ -134,12 +134,12 @@ function Friends() {
         </div>
 
         {/* Referral link */}
-        <div className="mt-10 bg-white/5 p-4 rounded-xl flex items-center justify-between border border-white/20">
+        {/* <div className="mt-10 bg-white/5 p-4 rounded-xl flex items-center justify-between border border-white/20">
           <span className="truncate text-gray-300 text-xs">{referralLink}</span>
           <button onClick={handleCopy}>
             <Copy className="w-5 h-5 text-white" />
           </button>
-        </div>
+        </div> */}
 
         <div className="mt-8">
           <button
