@@ -53,7 +53,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
         key={`img-${slides[current].id}`}
         src={slides[current].image}
         alt={`Slide ${slides[current].id}`}
-        className="absolute mx-auto inset-0 w-full h-full object-contain object-center max-w-full max-h-full"
+        className="absolute no-scrollbar mx-auto inset-0 w-full h-full object-contain object-center max-w-full max-h-full"
         style={{
           width: '400px',
           height: '100%',
@@ -71,7 +71,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
         {slides.map((_, i) => (
           <div
             key={i}
-            className="flex-1 bg-gray-700 h-1 rounded-full overflow-hidden"
+            className="flex-1 bg-gray-700 h-1 rounded-full scro"
           >
             <motion.div
               className="h-full bg-white"

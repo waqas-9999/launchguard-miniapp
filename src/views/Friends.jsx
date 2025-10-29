@@ -126,7 +126,7 @@ function Friends() {
             <p className="text-transparent bg-clip-text bg-white font-semibold text-lg">
               Earn IMDINO for every
             </p>
-            <p className="text-gray-300 text-sm">Coin your friend buys</p>
+            <p className="text-gray-300 text-sm">friends join, and rule the jungle!</p>
           </div>
           <div className="bg-gradient-to-br from-white to-gray-300 p-3 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.4)]">
             <Gift className="text-black w-7 h-7" />
