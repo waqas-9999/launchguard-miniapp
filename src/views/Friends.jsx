@@ -112,8 +112,8 @@ function Friends() {
 
   return (
     <div className="min-h-screen max-w-md mx-auto bg-black flex flex-col justify-between text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] via-black to-black" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-white/10 blur-[120px] rounded-full" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0e0f11] via-black to-black" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#82ad4b]/15 blur-[120px] rounded-full" />
 
       <div className="relative px-6 pt-10 pb-32">
         <h1 className="text-3xl font-semibold text-center mb-8 tracking-wide">
@@ -121,14 +121,14 @@ function Friends() {
         </h1>
 
         {/* Reward Box */}
-        <div className="bg-white/5 backdrop-blur-md border border-white/30 rounded-2xl p-5 flex items-center justify-between mb-10 shadow-[0_0_25px_rgba(255,255,255,0.2)]">
+        <div className="bg-[#82ad4b]/10 backdrop-blur-md border border-[#82ad4b]/40 rounded-2xl p-5 flex items-center justify-between mb-10 shadow-[0_0_25px_rgba(130,173,75,0.35)]">
           <div>
-            <p className="text-transparent bg-clip-text bg-white font-semibold text-lg">
+            <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#a8d86c] to-[#82ad4b] font-semibold text-lg">
               Earn IMDINO for every
             </p>
-            <p className="text-gray-300 text-sm">friends join, and rule the jungle!</p>
+            <p className="text-[#cfe6a8] text-sm">friends join, and rule the jungle!</p>
           </div>
-          <div className="bg-gradient-to-br from-white to-gray-300 p-3 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+          <div className="bg-gradient-to-br from-[#a8d86c] to-[#82ad4b] p-3 rounded-xl shadow-[0_0_20px_rgba(130,173,75,0.55)]">
             <Gift className="text-black w-7 h-7" />
           </div>
         </div>
@@ -144,7 +144,7 @@ function Friends() {
         <div className="mt-8">
           <button
             onClick={() => setOpen(true)}
-            className="w-full bg-gradient-to-r from-white to-gray-200 text-black font-semibold py-3 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.4)] hover:scale-[1.02] transition-transform"
+            className="w-full bg-gradient-to-r from-[#a8d86c] to-[#82ad4b] text-black font-semibold py-3 rounded-lg shadow-[0_0_22px_rgba(130,173,75,0.55)] hover:scale-[1.02] transition-transform"
           >
             + Invite a friend
           </button>
@@ -152,19 +152,19 @@ function Friends() {
 
         {/* Earnings */}
         <div className="mt-14 space-y-8">
-          <div className="bg-white/5 border border-white/20 rounded-2xl p-5 shadow-[0_0_20px_rgba(255,255,255,0.15)]">
+          <div className="bg-[#82ad4b]/10 border border-[#82ad4b]/35 rounded-2xl p-5 shadow-[0_0_20px_rgba(130,173,75,0.35)]">
             <h2 className="text-lg font-semibold mb-4 text-white">
               Referral Earnings
             </h2>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-gray-300">Total Earned</p>
-              <p className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 font-bold">
+              <p className="text-[#cfe6a8]">Total Earned</p>
+              <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#a8d86c] to-[#82ad4b] font-bold">
                 {referralData.totalReward.toFixed(2)} IMDINO
               </p>
             </div>
             <div className="flex items-center justify-between">
-              <p className="text-gray-300">Friends Referred</p>
-              <p className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 font-bold">
+              <p className="text-[#cfe6a8]">Friends Referred</p>
+              <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#a8d86c] to-[#82ad4b] font-bold">
                 {referralData.friendsReferred}
               </p>
             </div>
