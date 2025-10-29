@@ -164,25 +164,25 @@ export default function LandingMini() {
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-sm border-b-4 border-green-400">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4 flex justify-between items-center">
-          <div className="flex items-center gap-1 sm:gap-2">
+          <Link to="/landing" className="flex items-center gap-1 sm:gap-2">
             <div className="text-2xl sm:text-3xl">🦖</div>
             <h2 className="text-lg sm:text-xl lg:text-2xl font-dino font-black text-white" style={{ textShadow: "0 0 10px rgba(34, 197, 94, 0.5)" }}>
               I AM DINO
             </h2>
-          </div>
+          </Link>
 
           <div className="hidden md:flex gap-6 lg:gap-8">
             <a href="#quests" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
               QUESTS
             </a>
-            <a href="#achievements" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
-              ACHIEVEMENTS
+            <a href="#how-to-play" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
+              HOW TO PLAY
             </a>
             <a href="#roadmap" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
               ROADMAP
             </a>
             <a href="#about" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
-              ABOUT
+              ABOUT I AM DINO
             </a>
           </div>
 
@@ -207,17 +207,11 @@ export default function LandingMini() {
             <a href="#quests" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
               QUESTS
             </a>
-            <a href="#achievements" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
-              ACHIEVEMENTS
-            </a>
-            <a href="#leaderboard" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
-              LEADERBOARD
-            </a>
-            <a href="#roadmap" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
-              ROADMAP
+            <a href="#how-to-play" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
+              HOW TO PLAY
             </a>
             <a href="#about" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
-              ABOUT
+              ABOUT I AM DINO
             </a>
             <a href="https://t.me/Iamdino_bot" target="_blank" className="w-full flex items-center justify-center flex-1 text-center px-6 py-3 border-2 border-green-400 text-white bg-green-500 rounded-lg hover:bg-green-400 hover:text-black transition font-bold mt-4">
               PLAY NOW
@@ -304,53 +298,6 @@ export default function LandingMini() {
         </div>
       </section>
 
-      {/* Daily Quests Section */}
-      <section id="quests" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-green-500/10 border-y-4 border-green-400">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <Target size={24} className="text-green-300 sm:w-8 sm:h-8 hidden md:block" />
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center md:text-left mx-auto" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
-              DAILY QUESTS
-            </h2>
-          </div>
-          <p className="text-sm sm:text-base text-gray-300 mb-8 sm:mb-12 font-bold text-center sm:text-left">Complete quests to earn points and level up!</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            {quests.map((quest) => {
-              const isCompleted = completedQuests.includes(quest.id)
-              return (
-                <div
-                  key={quest.id}
-                  className={`p-4 sm:p-6 border-4 rounded-lg transition ${isCompleted
-                    ? "bg-green-500/30 border-green-400"
-                    : "bg-black border-green-400 hover:border-green-300"
-                    }`}
-                >
-                  <div className="flex items-start justify-between mb-3 sm:mb-4">
-                    <div className="text-3xl sm:text-4xl">{quest.icon}</div>
-                    <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 bg-green-500/40 border-2 border-green-400 rounded-lg">
-                      <Zap size={14} className="text-green-300 sm:w-4 sm:h-4" />
-                      <span className="text-xs sm:text-sm font-black text-green-300">+{quest.points}</span>
-                    </div>
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-black text-white mb-3 sm:mb-4">{quest.title}</h3>
-                  <button
-                    onClick={() => handleCompleteQuest(quest.id, quest.points)}
-                    disabled={isCompleted}
-                    className={`w-full py-2 sm:py-3 rounded-lg font-black transition border-2 text-sm sm:text-base ${isCompleted
-                      ? "bg-green-500/30 text-green-300 border-green-400 cursor-default"
-                      : "bg-green-500 text-black hover:bg-green-400 border-green-400"
-                      }`}
-                  >
-                    {isCompleted ? "✓ COMPLETED" : "COMPLETE QUEST"}
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
       {/* About Section */}
       <section id="about" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 sm:gap-12 items-start md:items-center">
@@ -402,8 +349,8 @@ export default function LandingMini() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             <Calendar size={24} className="text-green-300 sm:w-8 sm:h-8 hidden md:block" />
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center md:text-left mx-auto" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
-              DINOSAUR ROADMAP
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center md:text-left mx-auto md:mx-0" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
+              DINO ROADMAP
             </h2>
           </div>
           <p className="text-sm sm:text-base text-gray-300 mb-8 sm:mb-12 font-bold text-center sm:text-left">Witness the evolution of I AM DINO from hatchling to apex predator!</p>
@@ -495,13 +442,60 @@ export default function LandingMini() {
         </div>
       </section>
 
+      {/* Daily Quests Section */}
+      <section id="quests" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-green-500/10 border-y-4 border-green-400">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <Target size={24} className="text-green-300 sm:w-8 sm:h-8 hidden md:block" />
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center md:text-left mx-auto md:mx-0" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
+              DAILY QUESTS
+            </h2>
+          </div>
+          <p className="text-sm sm:text-base text-gray-300 mb-8 sm:mb-12 font-bold text-center sm:text-left">Complete quests to earn points and level up!</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            {quests.map((quest) => {
+              const isCompleted = completedQuests.includes(quest.id)
+              return (
+                <div
+                  key={quest.id}
+                  className={`p-4 sm:p-6 border-4 rounded-lg transition ${isCompleted
+                    ? "bg-green-500/30 border-green-400"
+                    : "bg-black border-green-400 hover:border-green-300"
+                    }`}
+                >
+                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                    <div className="text-3xl sm:text-4xl">{quest.icon}</div>
+                    <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 bg-green-500/40 border-2 border-green-400 rounded-lg">
+                      <Zap size={14} className="text-green-300 sm:w-4 sm:h-4" />
+                      <span className="text-xs sm:text-sm font-black text-green-300">+{quest.points}</span>
+                    </div>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black text-white mb-3 sm:mb-4">{quest.title}</h3>
+                  <button
+                    onClick={() => handleCompleteQuest(quest.id, quest.points)}
+                    disabled={isCompleted}
+                    className={`w-full py-2 sm:py-3 rounded-lg font-black transition border-2 text-sm sm:text-base ${isCompleted
+                      ? "bg-green-500/30 text-green-300 border-green-400 cursor-default"
+                      : "bg-green-500 text-black hover:bg-green-400 border-green-400"
+                      }`}
+                  >
+                    {isCompleted ? "✓ COMPLETED" : "COMPLETE QUEST"}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* How to Play Section */}
       <section id="how-to-play" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-black border-y-4 border-green-400">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             <Zap size={28} className="text-green-300 sm:w-8 sm:h-8 hidden md:block" />
             <h2
-              className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center md:text-left mx-auto"
+              className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center md:text-left mx-auto md:mx-0"
               style={{
                 textShadow: "0 0 10px rgba(34,197,94,0.5)",
                 fontFamily: "var(--font-heading)",
