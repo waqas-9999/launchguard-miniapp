@@ -309,7 +309,7 @@ export default function LandingMini() {
             <img
               src={Dino2}
               alt="Loading..."
-              className="w-72 md:w-96 h-56 md:h-72 transform -scale-x-100"
+              className="w-72 md:w-96 h-56 md:h-72"
             />
 
           </div>
