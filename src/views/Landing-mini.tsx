@@ -603,7 +603,7 @@ export default function LandingMini() {
               <ul className="space-y-1 sm:space-y-2 text-gray-400 text-xs sm:text-sm">
                 <li>
                   <a href="#" className="hover:text-green-300 transition font-bold">
-                    Whitepaper
+                  The Jungle Paper
                   </a>
                 </li>
                 <li>
