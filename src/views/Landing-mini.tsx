@@ -164,12 +164,12 @@ export default function LandingMini() {
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-sm border-b-4 border-green-400">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4 flex justify-between items-center">
-          <Link to="/landing" className="flex items-center gap-1 sm:gap-2">
+          <a href="#home" className="flex items-center gap-1 sm:gap-2">
             <div className="text-2xl sm:text-3xl">🦖</div>
             <h2 className="text-lg sm:text-xl lg:text-2xl font-dino font-black text-white" style={{ textShadow: "0 0 10px rgba(34, 197, 94, 0.5)" }}>
               I AM DINO
             </h2>
-          </Link>
+          </a>
 
           <div className="hidden md:flex gap-6 lg:gap-8">
             <a href="#quests" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
@@ -221,6 +221,7 @@ export default function LandingMini() {
       </nav>
 
       <section
+      id="home"
         className="pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-20 px-3 sm:px-4 relative overflow-hidden"
         style={{
           backgroundImage: `linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)`,

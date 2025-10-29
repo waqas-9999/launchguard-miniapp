@@ -119,7 +119,7 @@ export default function Boost() {
 
   const items = [
     { icon: TriangleAlert, title: "What is IMDINO?", subtitle: "Intro" },
-    { icon: FileText, title: "Whitepaper", subtitle: "Literally" },
+    { icon: FileText, title: "The Jungle Paper", subtitle: "Literally" },
   ];
 
     // 🦖 Add this block before the main return()
