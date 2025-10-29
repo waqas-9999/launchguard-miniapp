@@ -5,6 +5,8 @@ import { Menu, X, ExternalLink, Twitter, MessageCircle, Compass, Gem, Zap, Troph
 import Dino from "../../public/dino-2.gif"
 import Dino2 from "../../public/dino-3.gif"
 import { Link } from "react-router-dom"
+import dinoCoin from "../../src/assets/img/coin-dino.png"
+import { RiTelegram2Fill, RiTwitterXFill } from "react-icons/ri"
 
 export default function LandingMini() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -14,10 +16,10 @@ export default function LandingMini() {
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([])
 
   const quests = [
-    { id: "follow", title: "Follow on X", points: 100, icon: "🐦" },
-    { id: "join-discord", title: "Join telegram", points: 150, icon: "💬" },
-    { id: "share", title: "Share with Friends", points: 200, icon: "🔗" },
-    { id: "hold", title: "Play IMDINO", points: 500, icon: "💎" },
+    { id: "follow", title: "Follow on X", points: 100, icon: RiTwitterXFill },
+    { id: "join-discord", title: "Join telegram", points: 150, icon: RiTelegram2Fill },
+    { id: "share", title: "Share with Friends", points: 200, icon: "🔗"  },
+    { id: "hold", title: "Play IMDINO", points: 500, icon: dinoCoin },
   ]
 
   const achievements = [
@@ -65,7 +67,7 @@ export default function LandingMini() {
       title: "Dino Genesis",
       status: "completed",
       items: [
-        "Fair Launch",
+        "Born From Digital Jungle",
         "Community Building",
         "Website & Social Launch",
         "First 1,000 Holders"
@@ -100,7 +102,7 @@ export default function LandingMini() {
       items: [
         "Multi-chain Expansion",
         "Advanced Game Features",
-        "Dino Metaverse Integration",
+        "Vibe and HODL",
         "Global Tournament System"
       ]
     }
@@ -354,7 +356,7 @@ export default function LandingMini() {
           <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             <Calendar size={24} className="text-green-300 sm:w-8 sm:h-8 hidden md:block" />
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center md:text-left mx-auto md:mx-0" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
-              DINO ROADMAP
+              DINO JUNGLEMAP
             </h2>
           </div>
           <p className="text-sm sm:text-base text-gray-300 mb-8 sm:mb-12 font-bold text-center sm:text-left">Witness the evolution of I AM DINO from hatchling to apex predator!</p>
@@ -469,7 +471,20 @@ export default function LandingMini() {
                     }`}
                 >
                   <div className="flex items-start justify-between mb-3 sm:mb-4">
-                    <div className="text-3xl sm:text-4xl">{quest.icon}</div>
+                    <div className="text-3xl sm:text-4xl">
+                      {typeof quest.icon === "string" ? (
+                        (quest.icon as string).includes(".png") ? (
+                          <img src={quest.icon as string} alt="quest" className="w-8 h-8 sm:w-10 sm:h-10" />
+                        ) : (
+                          <span>{quest.icon}</span>
+                        )
+                      ) : (
+                        (() => {
+                          const IconComp = quest.icon as React.ComponentType<{ className?: string }>
+                          return <IconComp className="w-8 h-8 sm:w-10 sm:h-10" />
+                        })()
+                      )}
+                    </div>
                     <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 bg-green-500/40 border-2 border-green-400 rounded-lg">
                       <Zap size={14} className="text-green-300 sm:w-4 sm:h-4" />
                       <span className="text-xs sm:text-sm font-black text-green-300">+{quest.points}</span>

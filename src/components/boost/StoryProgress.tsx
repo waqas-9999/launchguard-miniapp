@@ -7,6 +7,7 @@ import BuycexBanner1 from "../../assets/img/home/BuycexBanner.png";
 import BuycexBanner5 from "../../assets/img/home/BuycexBanner-5.png";
 import BuycexBanner3 from "../../assets/img/home/BuycexBanner-3.png";
 import BuycexBanner4 from "../../assets/img/home/BuycexBanner-4.png";
+import BuycexBanner6 from "../../assets/img/home/BuycexBanner-6.png";
 
 interface StoryProgressProps {
   onClose: () => void;
@@ -17,6 +18,7 @@ const slides = [
   { id: 2, image: BuycexBanner5 },
   { id: 3, image: BuycexBanner3 },
   { id: 4, image: BuycexBanner4 },
+  { id: 5, image: BuycexBanner6 },
 ];
 
 export default function StoryProgress({ onClose }: StoryProgressProps) {
@@ -39,7 +41,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
       navigate("/dino");
     } else if (current === slides.length - 1) {
       // Redirect to /get-bcx for last slide
-      navigate("/get-bcx");
+      navigate("/dino");
     } else {
       // Open website for other slides
       window.open("/landing", "_blank");
@@ -89,7 +91,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
           onClick={handleLeftButton}
           className="bg-[#82ad4b] font-semibold w-1/2 text-black px-6 py-2 rounded-lg"
         >
-          {slides[current].id === 3 ? "Play Dino" : current === slides.length - 1 ? "Get BCX" : "Visit website"}
+          {slides[current].id === 3 ? "Play Dino" : current === slides.length - 1 ? "Play Now" : "Visit website"}
         </button>
 
         <button
