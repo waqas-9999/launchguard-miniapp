@@ -14,10 +14,10 @@ export default function LandingMini() {
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([])
 
   const quests = [
-    { id: "follow", title: "Follow on Twitter", points: 100, icon: "🐦" },
-    { id: "join-discord", title: "Join Discord", points: 150, icon: "💬" },
+    { id: "follow", title: "Follow on X", points: 100, icon: "🐦" },
+    { id: "join-discord", title: "Join telegram", points: 150, icon: "💬" },
     { id: "share", title: "Share with Friends", points: 200, icon: "🔗" },
-    { id: "hold", title: "Hold 1M $IMDINO", points: 500, icon: "💎" },
+    { id: "hold", title: "Play IMDINO", points: 500, icon: "💎" },
   ]
 
   const achievements = [
@@ -305,7 +305,7 @@ export default function LandingMini() {
             <img
               src={Dino2}
               alt="Loading..."
-              className="w-64 md:w-96 h-56 md:h-72 transform -scale-x-100"
+              className="w-72 md:w-96 h-56 md:h-72 transform -scale-x-100"
             />
 
           </div>
@@ -473,14 +473,13 @@ export default function LandingMini() {
                   </div>
                   <h3 className="text-lg sm:text-xl font-black text-white mb-3 sm:mb-4">{quest.title}</h3>
                   <button
-                    onClick={() => handleCompleteQuest(quest.id, quest.points)}
-                    disabled={isCompleted}
+                    onClick={() => window.open("https://t.me/Iamdino_bot", "_blank")}
                     className={`w-full py-2 sm:py-3 rounded-lg font-black transition border-2 text-sm sm:text-base ${isCompleted
                       ? "bg-green-500/30 text-green-300 border-green-400 cursor-default"
                       : "bg-green-500 text-black hover:bg-green-400 border-green-400"
                       }`}
                   >
-                    {isCompleted ? "✓ COMPLETED" : "COMPLETE QUEST"}
+                    COMPLETE QUEST
                   </button>
                 </div>
               )
@@ -615,26 +614,6 @@ export default function LandingMini() {
                 <li>
                   <a href="#" className="hover:text-green-300 transition font-bold">
                     Audit
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-black text-white mb-3 sm:mb-4 text-sm sm:text-base">LEGAL</h4>
-              <ul className="space-y-1 sm:space-y-2 text-gray-400 text-xs sm:text-sm">
-                <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Terms
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Privacy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Disclaimer
                   </a>
                 </li>
               </ul>
