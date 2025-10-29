@@ -53,11 +53,11 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
         key={`img-${slides[current].id}`}
         src={slides[current].image}
         alt={`Slide ${slides[current].id}`}
-        className="absolute inset-0 w-full h-full object-contain object-center max-w-full max-h-full"
+        className="absolute mx-auto inset-0 w-full h-full object-contain object-center max-w-full max-h-full"
         style={{
-          width: '100%',
+          width: '400px',
           height: '100%',
-          objectFit: 'cover',
+          objectFit: 'fill',
           objectPosition: 'center'
         }}
         initial={{ opacity: 0 }}
