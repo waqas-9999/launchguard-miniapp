@@ -42,7 +42,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
       navigate("/get-bcx");
     } else {
       // Open website for other slides
-      window.open("https://infinity.buycex.com/", "_blank");
+      window.open("/landing", "_blank");
     }
   };
 
@@ -57,7 +57,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
         style={{
           width: '100%',
           height: '100%',
-          objectFit: 'contain',
+          objectFit: 'fill',
           objectPosition: 'center'
         }}
         initial={{ opacity: 0 }}
@@ -87,7 +87,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
       <div className="absolute bottom-6 w-full max-w-sm mx-auto px-6 z-20 flex gap-4">
         <button
           onClick={handleLeftButton}
-          className="bg-[#efb81c] font-semibold w-1/2 text-black px-6 py-2 rounded-lg"
+          className="bg-[#82ad4b] font-semibold w-1/2 text-black px-6 py-2 rounded-lg"
         >
           {slides[current].id === 3 ? "Play Dino" : current === slides.length - 1 ? "Get BCX" : "Visit website"}
         </button>
