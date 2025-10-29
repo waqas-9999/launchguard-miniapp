@@ -625,16 +625,7 @@ export default function LandingMini() {
                   The Jungle Paper
                   </a>
                 </li>
-                <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Contract
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Audit
-                  </a>
-                </li>
+               
               </ul>
             </div>
           </div>
