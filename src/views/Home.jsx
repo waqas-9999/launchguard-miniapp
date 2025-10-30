@@ -135,19 +135,19 @@ export default function Boost() {
 
   const items = [
     { icon: TriangleAlert, title: "What is IMDINO?", subtitle: "Intro" },
-    { icon: FileText, title: "Whitepaper", subtitle: "Literally" },
+    { icon: FileText, title: "The Jungle Paper", subtitle: "Literally" },
   ];
 
     // 🦖 Add this block before the main return()
 if (loading) {
   return (
-    <div className="flex items-center justify-center h-screen bg-black">
+    <div className="flex items-center justify-center h-screen bg-black overflow-x-hidden overflow-y-auto no-scrollbar">
       <img src={Dino} alt="Loading..." className="w-52 h-56 animate-bounce" />
     </div>
   );
 }
   return (
-    <main className="mx-auto max-w-sm px-4 pb-28 pt-4">
+    <main className="mx-auto max-w-sm px-4 pb-28 pt-4 overflow-x-hidden overflow-y-auto no-scrollbar">
       <div className="space-y-4">
         <Hero />
 

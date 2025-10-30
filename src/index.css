@@ -30,6 +30,16 @@ html, body {
   /* Prevent horizontal scrolling */
 }
 
+/* Hide scrollbars globally while preserving scroll functionality */
+html, body {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
 body {
   font-family: var(--font-body);
   background: var(--color-bg);
