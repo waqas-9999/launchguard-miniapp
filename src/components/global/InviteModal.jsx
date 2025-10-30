@@ -6,14 +6,46 @@ import { motion, AnimatePresence } from "framer-motion"
 import Toast from "./Toast";
 import { useState } from "react";
 
-export default function InviteModal({ open, onClose }) {
+export default function InviteModal({ open, onClose, referralLink, onShare }) {
   const [showToast, setShowToast] = useState(false);
-  const referralLink = "https://buycex.com/signup?ref=waqas123"; // example
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(referralLink);
-    setShowToast(true);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(referralLink);
+      setShowToast(true);
+    } catch (err) {
+      console.warn("Clipboard blocked, using fallback:", err);
+      const textArea = document.createElement("textarea");
+      textArea.value = referralLink;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setShowToast(true);
+    }
   };
+
+  const handleShare = () => {
+    if (onShare) {
+      onShare();
+    } else {
+      // Fallback share functionality
+      const shareText = `Join me on LaunchGuard and earn IMDINO tokens! 🚀`;
+      
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.openTelegramLink(
+          `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(shareText)}`
+        );
+      } else if (navigator.share) {
+        navigator.share({
+          title: 'Join LaunchGuard',
+          text: shareText,
+          url: referralLink
+        }).catch(err => console.log('Share failed:', err));
+      }
+    }
+  };
+
   return (
     <>
     <AnimatePresence>
@@ -47,8 +79,14 @@ export default function InviteModal({ open, onClose }) {
                 Invite Friends
               </h2>
               <p className="text-gray-500 text-sm mt-1">
-                Choose how you’d like to invite your friend
+                Choose how you'd like to invite your friend
               </p>
+            </div>
+
+            {/* Referral Link Display */}
+            <div className="mb-6 bg-white/5 p-3 rounded-lg border border-white/10">
+              <p className="text-xs text-gray-400 mb-1">Your referral link:</p>
+              <p className="text-xs text-gray-300 truncate">{referralLink || "Loading..."}</p>
             </div>
 
             {/* Actions */}
@@ -56,14 +94,15 @@ export default function InviteModal({ open, onClose }) {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleShare}
                 className="flex items-center justify-center gap-3 w-full py-4 
                   rounded-xl font-semibold text-black 
                   bg-white
-                  shadow-[0_0_20px_rgba(34,197,94,0.6)] 
+                  shadow-[0_0_20px_rgba(255,255,255,0.4)] 
                   transition-all"
               >
                 <FaShare className="text-black" />
-                Send Invite
+                Send Invite via Telegram
               </motion.button>
 
               <motion.button
@@ -73,7 +112,7 @@ export default function InviteModal({ open, onClose }) {
                 className="flex items-center justify-center gap-3 w-full py-4 
                   rounded-xl font-semibold text-black 
                   bg-white
-                  shadow-[0_0_20px_rgba(34,197,94,0.6)]
+                  shadow-[0_0_20px_rgba(255,255,255,0.4)]
                   transition-all"
               >
                 <IoCopy className="text-black" />

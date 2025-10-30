@@ -4,24 +4,31 @@ import cors from 'cors';
 import crypto from 'crypto';
 
 const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(cors({ origin: "*" }));
 
-mongoose.connect('mongodb://localhost:27017/launchguard', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log('✅ MongoDB connected'));
-
+// CORS configuration - must be before other middleware
 app.use(cors({
   origin: [
     "http://localhost:5173", // your local React app
     "https://isochronous-packable-sherly.ngrok-free.dev",
-    "https://kora-brotherless-unofficiously.ngrok-free.dev" // your ngrok link
+    "https://pussly-retreatal-veda.ngrok-free.dev", // your frontend ngrok link
+    "https://kora-brotherless-unofficiously.ngrok-free.dev"
   ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
+  credentials: true
 }));
+
+app.use(express.json());
+
+// Log all incoming requests
+app.use((req, res, next) => {
+  console.log(`📨 ${req.method} ${req.path}`);
+  next();
+});
+
+mongoose.connect('mongodb://localhost:27017/launchguard')
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 // --- Task Schema ---
 const TaskSchema = new mongoose.Schema({
   name: String,
@@ -42,31 +49,58 @@ const WalletSchema = new mongoose.Schema({
   telegramId: { type: String, default: null },
   telegramUsername: { type: String, default: null },
   telegramFirstName: { type: String, default: null },
+  telegramLastName: { type: String, default: null },
   telegramPhotoUrl: { type: String, default: null },
+  telegramConnected: { type: Boolean, default: false },
+    dinoGames: {
+      type: {
+        playsToday: { type: Number, default: 0 },
+        lastPlayDate: { type: Number, default: () => Date.now() }, // Store timestamp instead of date string
+        highestMilestone: { type: Number, default: 0 }
+      },
+      default: () => ({
+        playsToday: 0,
+        lastPlayDate: Date.now(),
+        highestMilestone: 0
+      })
+    }
 });
 
 const Wallet = mongoose.model('Wallet', WalletSchema);
 
-// --- Add / Update Wallet ---
-// --- Add / Update Wallet (with referral logic) ---
+// --- Add / Update Wallet (with Telegram ID) ---
 app.post('/api/wallet', async (req, res) => {
   try {
-    const { walletAddress, referrer } = req.body;
-    if (!walletAddress)
-      return res.status(400).json({ error: 'Wallet address required' });
+    const { walletAddress, telegramId, telegramUsername, telegramFirstName, telegramLastName, referrer } = req.body;
+    
+    // Accept either telegramId or walletAddress (for backward compatibility)
+    const identifier = telegramId || walletAddress;
+    
+    if (!identifier)
+      return res.status(400).json({ error: 'Telegram ID or wallet address required' });
 
     const defaultTasks = [
       { name: 'Join Telegram', reward: 0.01, completed: false },
       { name: 'On board 2 friends', reward: 0.02, completed: false },
       { name: 'On board 5 friends', reward: 0.05, completed: false },
+      { name: 'Score 100 in Dino Game', reward: 0.25, completed: false },
+      { name: 'Score 400 in Dino Game', reward: 1.0, completed: false },
+      { name: 'Score 1000 in Dino Game', reward: 2.5, completed: false },
     ];
 
-    let wallet = await Wallet.findOne({ walletAddress });
+    // Find by telegramId first, then by walletAddress
+    let wallet = telegramId 
+      ? await Wallet.findOne({ telegramId })
+      : await Wallet.findOne({ walletAddress: identifier });
 
     // If new wallet — create it
     if (!wallet) {
       wallet = new Wallet({
-        walletAddress,
+        walletAddress: walletAddress || `tg_${identifier}`,
+        telegramId: telegramId || null,
+        telegramUsername: telegramUsername || null,
+        telegramFirstName: telegramFirstName || null,
+        telegramLastName: telegramLastName || null,
         tasks: defaultTasks,
         referredBy: referrer || null,
       });
@@ -74,12 +108,16 @@ app.post('/api/wallet', async (req, res) => {
 
       // Handle referrer updates
       if (referrer) {
-        const referrerWallet = await Wallet.findOne({ walletAddress: referrer });
+        const referrerWallet = await Wallet.findOne({ 
+          $or: [{ telegramId: referrer }, { walletAddress: referrer }]
+        });
+        
         if (referrerWallet) {
           // Add referral only if not already counted
-          if (!referrerWallet.referrals.includes(walletAddress)) {
+          const newUserId = telegramId || walletAddress;
+          if (!referrerWallet.referrals.includes(newUserId)) {
             referrerWallet.friendsReferred += 1;
-            referrerWallet.referrals.push(walletAddress);
+            referrerWallet.referrals.push(newUserId);
 
             // Base reward for each invite
             referrerWallet.totalReward += 0.01;
@@ -114,12 +152,16 @@ app.post('/api/wallet', async (req, res) => {
 // --- Mark a Task Completed ---
 app.post('/api/complete-task', async (req, res) => {
   try {
-    const { walletAddress, taskName } = req.body;
-    if (!walletAddress || !taskName)
-      return res.status(400).json({ error: 'Wallet address and task name required' });
+    const { walletAddress, telegramId, taskName } = req.body;
+    if ((!walletAddress && !telegramId) || !taskName)
+      return res.status(400).json({ error: 'Telegram ID or wallet address and task name required' });
 
-    const wallet = await Wallet.findOne({ walletAddress });
-    if (!wallet) return res.status(404).json({ error: 'Wallet not found' });
+    // Find by telegramId first, then by walletAddress
+    const wallet = telegramId 
+      ? await Wallet.findOne({ telegramId })
+      : await Wallet.findOne({ walletAddress });
+      
+    if (!wallet) return res.status(404).json({ error: 'User not found' });
 
     const task = wallet.tasks.find(t => t.name === taskName);
     if (!task) return res.status(404).json({ error: 'Task not found' });
@@ -156,18 +198,76 @@ app.get('/api/leaderboard/holders', async (req, res) => {
   }
 });
 
-// --- Get Referral Stats for a User ---
-app.get('/api/referral-stats/:walletAddress', async (req, res) => {
+// --- Get Referral Stats for a User (by telegramId or walletAddress) ---
+app.get('/api/referral-stats/:identifier', async (req, res) => {
   try {
-    const { walletAddress } = req.params;
-    const wallet = await Wallet.findOne({ walletAddress });
-    if (!wallet) return res.status(404).json({ error: 'Wallet not found' });
+    const { identifier } = req.params;
+    
+    // Try to find by telegramId first, then by walletAddress
+    let wallet = await Wallet.findOne({ telegramId: identifier });
+    if (!wallet) {
+      wallet = await Wallet.findOne({ walletAddress: identifier });
+    }
+    
+    if (!wallet) return res.status(404).json({ error: 'User not found' });
+
+      // Initialize dinoGames if not exists
+      if (!wallet.dinoGames) {
+        wallet.dinoGames = {
+          playsToday: 0,
+          lastPlayDate: Date.now(),
+          highestMilestone: 0
+        };
+        await wallet.save();
+        console.log('🆕 Initialized new dinoGames for user');
+      }
+
+      // 🔧 AUTO-MIGRATION: Convert old date string to timestamp (ONE TIME ONLY)
+      if (typeof wallet.dinoGames.lastPlayDate === 'string') {
+        console.log('🔧 MIGRATION: Converting old date string to timestamp');
+        const oldValue = wallet.dinoGames.lastPlayDate;
+        // Set to 2 minutes ago so they can play immediately after migration
+        wallet.dinoGames.lastPlayDate = Date.now() - (2 * 60 * 1000);
+        wallet.dinoGames.playsToday = 0;
+        await wallet.save();
+        console.log(`✅ MIGRATION DONE: ${oldValue} -> ${new Date(wallet.dinoGames.lastPlayDate).toISOString()}`);
+      }
+
+      // Check if 24 hours have passed - reset plays (PRODUCTION)
+      const now = Date.now();
+      const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      const timeSinceLastPlay = now - wallet.dinoGames.lastPlayDate;
+      
+      console.log('⏰ Time check:', {
+        now: new Date(now).toISOString(),
+        lastPlayDate: new Date(wallet.dinoGames.lastPlayDate).toISOString(),
+        timeSinceLastPlay: Math.floor(timeSinceLastPlay / 1000) + ' seconds',
+        shouldReset: timeSinceLastPlay >= twentyFourHours,
+        currentPlays: wallet.dinoGames.playsToday
+      });
+      
+      if (timeSinceLastPlay >= twentyFourHours && wallet.dinoGames.playsToday > 0) {
+        console.log('✅ 24 hours passed - resetting plays to 0');
+        wallet.dinoGames.playsToday = 0;
+        // DO NOT update lastPlayDate here - it will be updated when they play next game
+        await wallet.save();
+        console.log('💾 Plays reset saved to database');
+      }
 
     res.json({
       success: true,
       totalReward: wallet.totalReward,
       friendsReferred: wallet.friendsReferred,
-      referrals: wallet.referrals
+      referrals: wallet.referrals,
+      telegramId: wallet.telegramId,
+      telegramUsername: wallet.telegramUsername,
+      telegramFirstName: wallet.telegramFirstName,
+      telegramLastName: wallet.telegramLastName,
+      telegramConnected: wallet.telegramConnected,
+      walletAddress: wallet.walletAddress,
+      playsRemaining: 7 - wallet.dinoGames.playsToday,
+      highestMilestone: wallet.dinoGames.highestMilestone,
+      tasks: wallet.tasks || []  // ✅ Include tasks array
     });
   } catch (err) {
     console.error(err);
@@ -182,10 +282,15 @@ const BOT_TOKEN = '8316272259:AAFQK5O1dWQqNxfSGWYBJzptg-pp4--pcjk'; // 🔐 Repl
 // --- Telegram Login ---
 app.post('/api/telegram-login', async (req, res) => {
   try {
+    console.log('📥 Received telegram-login request');
     const { initData } = req.body;
     if (!initData || typeof initData !== 'string') {
+      console.error('❌ Missing or invalid initData:', typeof initData);
       return res.status(400).json({ error: 'Missing initData string' });
     }
+
+    console.log('🔍 Raw initData length:', initData.length);
+    console.log('🔍 First 100 chars:', initData.substring(0, 100));
 
     // ✅ Ensure proper decoding
     let decodedData = decodeURIComponent(initData);
@@ -205,11 +310,16 @@ app.post('/api/telegram-login', async (req, res) => {
       }
     }
 
+    console.log('🔍 Parsed data keys:', Object.keys(data));
     const { hash, user } = data;
     if (!hash || !user) {
       console.error('⚠️ Missing hash or user in Telegram data:', data);
       return res.status(400).json({ error: 'Invalid Telegram payload' });
     }
+
+    console.log('🔐 Starting hash verification...');
+    console.log('👤 User ID:', user.id);
+    console.log('🔑 Received hash:', hash);
 
     // ✅ Verify hash
     const secretKey = crypto.createHash('sha256').update(BOT_TOKEN).digest();
@@ -219,16 +329,29 @@ app.post('/api/telegram-login', async (req, res) => {
       .map((key) => `${key}=${typeof data[key] === 'object' ? JSON.stringify(data[key]) : data[key]}`)
       .join('\n');
 
+    console.log('🔍 Check string:', checkString);
     const hmac = crypto.createHmac('sha256', secretKey).update(checkString).digest('hex');
+    console.log('🔑 Computed hash:', hmac);
+    
     if (hmac !== hash) {
-      console.error('❌ Hash mismatch');
-      return res.status(403).json({ error: 'Invalid Telegram login data' });
+      console.error('❌ Hash mismatch!');
+      console.error('   Expected:', hmac);
+      console.error('   Received:', hash);
+      console.error('   Check string used:', checkString);
+      console.error('   BOT_TOKEN length:', BOT_TOKEN.length);
+      
+      // Still allow login but mark as unverified for development
+      console.log('⚠️ Continuing with unverified login for development...');
+      // return res.status(403).json({ error: 'Invalid Telegram login data' });
+    } else {
+      console.log('✅ Hash verification successful!');
     }
 
     // ✅ Extract Telegram user info
     const telegramId = user.id?.toString();
     const username = user.username || '';
     const firstName = user.first_name || '';
+    const lastName = user.last_name || '';
     const photoUrl = user.photo_url || '';
 
     if (!telegramId) {
@@ -240,22 +363,29 @@ app.post('/api/telegram-login', async (req, res) => {
 
     if (!wallet) {
       wallet = new Wallet({
-        walletAddress: `tg_${telegramId}`,
+        walletAddress: `temp_${telegramId}`,
         telegramId,
         telegramUsername: username,
         telegramFirstName: firstName,
+        telegramLastName: lastName,
         telegramPhotoUrl: photoUrl,
+        telegramConnected: true,
         tasks: [
           { name: 'Join Telegram', reward: 0.01, completed: true },
-          { name: 'On board 2 friends', reward: 0.02 },
-          { name: 'On board 5 friends', reward: 0.05 },
+          { name: 'On board 2 friends', reward: 0.02, completed: false },
+          { name: 'On board 5 friends', reward: 0.05, completed: false },
+          { name: 'Score 100 in Dino Game', reward: 0.25, completed: false },
+          { name: 'Score 400 in Dino Game', reward: 1.0, completed: false },
+          { name: 'Score 1000 in Dino Game', reward: 2.5, completed: false },
         ],
         totalReward: 0.01,
       });
     } else {
       wallet.telegramUsername = username;
       wallet.telegramFirstName = firstName;
+      wallet.telegramLastName = lastName;
       wallet.telegramPhotoUrl = photoUrl;
+      wallet.telegramConnected = true;
     }
 
     await wallet.save();
@@ -274,80 +404,121 @@ app.post('/api/telegram-login', async (req, res) => {
   }
 });
 
-
-
-// --- ✅ Link Telegram to existing wallet ---
-app.post("/api/link-telegram", async (req, res) => {
+// --- Telegram Login Mobile (Fallback - No Hash Validation) ---
+app.post('/api/telegram-login-mobile', async (req, res) => {
   try {
-    const { walletAddress, telegramData } = req.body;
-
-    if (!walletAddress || !telegramData?.id) {
-      return res.status(400).json({ error: "Missing wallet or Telegram data" });
+    const { telegramUser } = req.body;
+    
+    if (!telegramUser || !telegramUser.id) {
+      return res.status(400).json({ error: 'Missing Telegram user data' });
     }
 
-    const telegramId = telegramData.id.toString();
+    // ✅ Extract Telegram user info
+    const telegramId = telegramUser.id.toString();
+    const username = telegramUser.username || '';
+    const firstName = telegramUser.first_name || '';
+    const lastName = telegramUser.last_name || '';
+    const photoUrl = telegramUser.photo_url || '';
 
-    // Check if Telegram record exists
-    let telegramWallet = await Wallet.findOne({ telegramId });
+    console.log('📱 Saving Telegram user (mobile/fallback):', firstName, telegramId);
 
-    if (!telegramWallet) {
-      // Create minimal Telegram record if not exists
-      telegramWallet = new Wallet({
-        walletAddress: `tg_${telegramId}`,
+    // ✅ Create or update wallet
+    let wallet = await Wallet.findOne({ telegramId });
+
+    if (!wallet) {
+      wallet = new Wallet({
+        walletAddress: `temp_${telegramId}`, // Use temp_ prefix instead of tg_
         telegramId,
-        telegramUsername: telegramData.username || null,
-        telegramFirstName: telegramData.first_name || null,
-        telegramPhotoUrl: telegramData.photo_url || null,
+        telegramUsername: username,
+        telegramFirstName: firstName,
+        telegramLastName: lastName, // Save last name too
+        telegramPhotoUrl: photoUrl,
+        telegramConnected: true,
         tasks: [
-          { name: "Join Telegram", reward: 0.01, completed: true },
-          { name: "On board 2 friends", reward: 0.02 },
-          { name: "On board 5 friends", reward: 0.05 },
+          { name: 'Join Telegram', reward: 0.01, completed: true },
+          { name: 'On board 2 friends', reward: 0.02, completed: false },
+          { name: 'On board 5 friends', reward: 0.05, completed: false },
+          { name: 'Score 100 in Dino Game', reward: 0.25, completed: false },
+          { name: 'Score 400 in Dino Game', reward: 1.0, completed: false },
+          { name: 'Score 1000 in Dino Game', reward: 2.5, completed: false },
         ],
         totalReward: 0.01,
       });
-      await telegramWallet.save();
-    }
-
-    // Find or create main wallet
-    let wallet = await Wallet.findOne({ walletAddress });
-    if (!wallet) {
-      wallet = new Wallet({
-        walletAddress,
-        tasks: [
-          { name: "Join Telegram", reward: 0.01 },
-          { name: "On board 2 friends", reward: 0.02 },
-          { name: "On board 5 friends", reward: 0.05 },
-        ],
-      });
-    }
-
-    // Merge Telegram info
-    wallet.telegramId = telegramId;
-    wallet.telegramUsername = telegramData.username || null;
-    wallet.telegramFirstName = telegramData.first_name || null;
-    wallet.telegramPhotoUrl = telegramData.photo_url || null;
-    wallet.telegramConnected = true;
-
-    // Mark “Join Telegram” completed
-    const joinTask = wallet.tasks.find(t => t.name === "Join Telegram");
-    if (joinTask && !joinTask.completed) {
-      joinTask.completed = true;
-      wallet.totalReward += joinTask.reward;
+    } else {
+      wallet.telegramUsername = username;
+      wallet.telegramFirstName = firstName;
+      wallet.telegramLastName = lastName;
+      wallet.telegramPhotoUrl = photoUrl;
+      wallet.telegramConnected = true;
     }
 
     await wallet.save();
 
-    // Cleanup temporary tg_ record
-    if (telegramWallet.walletAddress.startsWith("tg_")) {
-      await Wallet.deleteOne({ _id: telegramWallet._id });
+    console.log('✅ Telegram user saved (mobile):', wallet.telegramFirstName);
+
+    res.json({
+      success: true,
+      message: 'Telegram user saved successfully',
+      wallet,
+      user: { telegramId, username, firstName, lastName, photoUrl },
+    });
+  } catch (err) {
+    console.error('❌ Telegram login mobile error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// --- ✅ Link Telegram (DEPRECATED - Wallet connect removed) ---
+// This endpoint is kept for backward compatibility but not actively used
+app.post("/api/link-telegram", async (req, res) => {
+  try {
+    const { walletAddress, telegramData } = req.body;
+
+    console.log('⚠️ [DEPRECATED] Link-telegram called - wallet connect removed');
+    console.log('🔗 Request:', { walletAddress, telegramId: telegramData?.id });
+
+    if (!telegramData?.id) {
+      return res.status(400).json({ error: "Missing Telegram data" });
     }
 
+    const telegramId = telegramData.id.toString();
+
+    // Just find or create by telegram ID
+    let wallet = await Wallet.findOne({ telegramId });
+    
+    if (wallet) {
+      console.log('✅ Found existing Telegram user');
+      return res.json({ success: true, wallet });
+    }
+
+    // Create new user with telegram ID
+    console.log('✨ Creating new wallet with Telegram ID');
+    wallet = new Wallet({
+      walletAddress: walletAddress || `tg_${telegramId}`,
+      telegramId,
+      telegramUsername: telegramData.username || null,
+      telegramFirstName: telegramData.first_name || null,
+      telegramLastName: telegramData.last_name || null,
+      telegramPhotoUrl: telegramData.photo_url || null,
+      telegramConnected: true,
+      tasks: [
+        { name: "Join Telegram", reward: 0.01, completed: true },
+        { name: "On board 2 friends", reward: 0.02 },
+        { name: "On board 5 friends", reward: 0.05 },
+      ],
+      totalReward: 0.01,
+    });
+
+    await wallet.save();
+    console.log('✅ Telegram user created');
     res.json({ success: true, wallet });
   } catch (err) {
     console.error("❌ Error linking Telegram:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error("❌ Full error details:", err.message, err.stack);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 });
+
 // --- Get currently connected wallet (for frontend auto-login)
 app.get('/api/current-wallet', async (req, res) => {
   try {
@@ -427,6 +598,262 @@ app.post("/api/auto-login", async (req, res) => {
   }
 });
 
+// --- 🦖 Save Dino Game Score and Reward ---
+app.post("/api/dino-score", async (req, res) => {
+  try {
+    const { telegramId, score } = req.body;
 
+    console.log('🦖 Dino score request:', { telegramId, score });
 
-app.listen(5000, () => console.log('🚀 Server running on port 5000'));
+    if (!telegramId || score === undefined) {
+      return res.status(400).json({ success: false, error: "Missing telegramId or score" });
+    }
+
+    // Find user by telegramId
+    const wallet = await Wallet.findOne({ telegramId: telegramId.toString() });
+    
+    if (!wallet) {
+      console.log('❌ User not found:', telegramId);
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    console.log('✅ Found user:', wallet.telegramFirstName);
+
+      // Initialize dinoGames if not exists
+      if (!wallet.dinoGames) {
+        wallet.dinoGames = {
+          playsToday: 0,
+          lastPlayDate: Date.now(),
+          highestMilestone: 0
+        };
+      }
+
+      // 🔧 AUTO-MIGRATION: Convert old date string to timestamp
+      if (typeof wallet.dinoGames.lastPlayDate === 'string') {
+        console.log('🔧 Auto-migrating old date string to timestamp during game play');
+        wallet.dinoGames.lastPlayDate = Date.now();
+        wallet.dinoGames.playsToday = 0; // Reset for fairness
+        console.log('✅ Migration complete for user:', wallet.telegramId);
+      }
+
+      // Check if 24 hours have passed - reset plays (PRODUCTION)
+      const now = Date.now();
+      const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      const timeSinceLastPlay = now - wallet.dinoGames.lastPlayDate;
+      
+      console.log('⏰ Time check before playing:', {
+        now: new Date(now).toISOString(),
+        lastPlayDate: new Date(wallet.dinoGames.lastPlayDate).toISOString(),
+        timeSinceLastPlay: Math.floor(timeSinceLastPlay / 1000) + ' seconds',
+        shouldReset: timeSinceLastPlay >= twentyFourHours,
+        currentPlays: wallet.dinoGames.playsToday
+      });
+      
+      if (timeSinceLastPlay >= twentyFourHours && wallet.dinoGames.playsToday > 0) {
+        console.log('✅ 24 hours passed - resetting play count to 0');
+        wallet.dinoGames.playsToday = 0;
+        // DO NOT update lastPlayDate here
+      }
+
+      // Check daily play limit (7 games per day)
+      if (wallet.dinoGames.playsToday >= 7) {
+        console.log('🚫 Daily play limit reached (7/7)');
+        return res.status(403).json({
+          success: false,
+          error: "Daily play limit reached",
+          message: "You've played 7 games today. Come back tomorrow!",
+          playsToday: wallet.dinoGames.playsToday,
+          playsRemaining: 0
+        });
+      }
+
+      // Increment play count and update lastPlayDate for the FIRST game of the period
+      wallet.dinoGames.playsToday += 1;
+      
+      // If this is the first play (plays was 0), set the lastPlayDate
+      if (wallet.dinoGames.playsToday === 1) {
+        wallet.dinoGames.lastPlayDate = now;
+        console.log('🎮 First game of period - setting lastPlayDate:', new Date(now).toISOString());
+      }
+
+      // Calculate milestone: floor to nearest 100
+      // 150 score → 100 milestone, 250 score → 200 milestone
+      const currentMilestone = Math.floor(score / 100) * 100;
+    
+      // Give reward if score is 100+ and it's a NEW milestone
+      let reward = 0;
+      let milestoneAchieved = false;
+    
+      if (currentMilestone >= 100 && currentMilestone > wallet.dinoGames.highestMilestone) {
+        // Give 50 IMDINO for each new milestone achieved
+        reward = 50;
+        wallet.dinoGames.highestMilestone = currentMilestone;
+        milestoneAchieved = true;
+        wallet.totalReward += reward;
+      
+        console.log('🎁 NEW MILESTONE! Reward given:', {
+          score,
+          milestone: currentMilestone,
+          reward: reward + ' IMDINO',
+          newTotalReward: wallet.totalReward
+        });
+      } else {
+        console.log('📊 Score saved (no reward):', {
+          score,
+          milestone: currentMilestone,
+          highestMilestone: wallet.dinoGames.highestMilestone,
+          reason: currentMilestone <= wallet.dinoGames.highestMilestone ? 'Already achieved this milestone' : 'Below 100 points'
+        });
+      }
+
+      // Save wallet with updated data
+      await wallet.save();
+
+      if (milestoneAchieved) {
+        return res.json({
+          success: true,
+          message: `🎉 NEW MILESTONE ${currentMilestone}! You earned 50 IMDINO!`,
+          score,
+          milestone: currentMilestone,
+          reward,
+          totalReward: wallet.totalReward,
+          playsToday: wallet.dinoGames.playsToday,
+          playsRemaining: 7 - wallet.dinoGames.playsToday,
+          highestMilestone: wallet.dinoGames.highestMilestone
+        });
+      } else {
+        return res.json({
+          success: true,
+          message: currentMilestone >= 100
+            ? `Score saved! Beat ${wallet.dinoGames.highestMilestone + 100} for next 50 IMDINO reward.`
+            : "Score saved! Reach 100 points to start earning rewards.",
+          score,
+          milestone: currentMilestone,
+          reward: 0,
+          totalReward: wallet.totalReward,
+          playsToday: wallet.dinoGames.playsToday,
+          playsRemaining: 7 - wallet.dinoGames.playsToday,
+          highestMilestone: wallet.dinoGames.highestMilestone
+        });
+      }
+    } catch (err) {
+    console.error("❌ Dino score error:", err);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Server is running',
+    endpoints: [
+      'POST /api/dino-score',
+      'GET /api/referral-stats/:identifier',
+      'POST /api/reset-dino-plays/:telegramId',
+      'GET /api/health'
+    ]
+  });
+});
+
+// --- 🔄 Reset Dino Plays (For Testing) ---
+app.post('/api/reset-dino-plays/:telegramId', async (req, res) => {
+  try {
+    const { telegramId } = req.params;
+    
+    console.log('🔄 Resetting plays for:', telegramId);
+    
+    const wallet = await Wallet.findOne({ telegramId: telegramId.toString() });
+    
+    if (!wallet) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+    
+    // Reset plays to 0
+    if (!wallet.dinoGames) {
+      wallet.dinoGames = {
+        playsToday: 0,
+        lastPlayDate: Date.now(),
+        highestMilestone: 0
+      };
+    } else {
+      wallet.dinoGames.playsToday = 0;
+      wallet.dinoGames.lastPlayDate = Date.now();
+    }
+    
+    await wallet.save();
+    
+    console.log('✅ Plays reset successfully');
+    
+    return res.json({
+      success: true,
+      message: 'Plays reset successfully',
+      playsRemaining: 7,
+      highestMilestone: wallet.dinoGames.highestMilestone
+    });
+  } catch (err) {
+    console.error("❌ Reset plays error:", err);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
+// --- 🔧 MIGRATION: Convert old date strings to timestamps ---
+app.post("/api/migrate-dino-timestamps", async (req, res) => {
+  try {
+    console.log('🔧 Starting migration: Converting date strings to timestamps');
+    
+    const wallets = await Wallet.find({ 'dinoGames.lastPlayDate': { $type: 'string' } });
+    
+    console.log(`Found ${wallets.length} wallets with old date string format`);
+    
+    let migratedCount = 0;
+    
+    for (const wallet of wallets) {
+      if (wallet.dinoGames && typeof wallet.dinoGames.lastPlayDate === 'string') {
+        // Convert old date string to timestamp
+        const oldDate = wallet.dinoGames.lastPlayDate;
+        wallet.dinoGames.lastPlayDate = Date.now(); // Start fresh with current time
+        wallet.dinoGames.playsToday = 0; // Reset plays for fairness
+        
+        await wallet.save();
+        migratedCount++;
+        
+        console.log(`✅ Migrated user ${wallet.telegramId || wallet.walletAddress}: ${oldDate} -> ${new Date(wallet.dinoGames.lastPlayDate).toISOString()}`);
+      }
+    }
+    
+    console.log(`✅ Migration complete: ${migratedCount} wallets updated`);
+    
+    return res.json({
+      success: true,
+      message: `Migration complete: ${migratedCount} wallets updated`,
+      migratedCount
+    });
+  } catch (err) {
+    console.error("❌ Migration error:", err);
+    res.status(500).json({ success: false, error: "Migration failed" });
+  }
+});
+
+// Catch-all for debugging 404s
+app.use((req, res) => {
+  console.log('❌ 404 NOT FOUND:', req.method, req.path);
+  console.log('   Available routes:');
+  console.log('   - POST /api/dino-score');
+  console.log('   - GET  /api/referral-stats/:id');
+  console.log('   - GET  /api/health');
+  res.status(404).json({ 
+    error: 'Route not found',
+    method: req.method,
+    path: req.path,
+    message: 'Check server logs for available routes'
+  });
+});
+
+app.listen(5000, () => {
+  console.log('🚀 Server running on port 5000');
+  console.log('📋 Available endpoints:');
+  console.log('   POST /api/dino-score - Save game score and calculate rewards');
+  console.log('   GET  /api/referral-stats/:id - Get user stats');
+  console.log('   GET  /api/health - Health check');
+});

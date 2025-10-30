@@ -7,11 +7,8 @@ import { useState, useEffect } from "react";
 import { FaAngleRight, FaTelegramPlane } from "react-icons/fa";
 import { TriangleAlert, ShoppingCart, FileText, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import SelectWallet from "../components/global/SelectWallet";
 import StoryProgress from "../components/boost/StoryProgress";
-import { useAccount } from "wagmi";
 import axios from "axios";
-import { useWeb3Modal } from "@web3modal/wagmi/react";
 import Dino from "../../public/dino-2.gif" 
 
 // ✅ Your backend base URL
@@ -22,86 +19,105 @@ function cn(...classes) {
 }
 
 export default function Boost() {
-  const { open: openWeb3Modal } = useWeb3Modal();
-  const { address, isConnected } = useAccount();
   const [loading, setLoading] = useState(true);
-
   const [open, setOpen] = useState(false);
-  const [wallet, setWallet] = useState(false);
   const [showStory, setShowStory] = useState(false);
   const [userData, setUserData] = useState(null);
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const displayAddress = address
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : "Not connected";
+  const [telegramUser, setTelegramUser] = useState(null);
 
   const telegramDisplayName = userData?.telegramUsername
     ? `@${userData.telegramUsername}`
     : userData?.telegramFirstName || "";
 
-  // ✅ Fetch or create wallet when connected
+  // ✅ Initialize Telegram WebApp and fetch user data
   useEffect(() => {
-    if (isConnected && address) {
-      axios
-        .post(`${BACKEND_URL}/api/wallet`, { walletAddress: address })
-        .then((res) => {
-          console.log("✅ Wallet data:", res.data.wallet);
-          setUserData(res.data.wallet);
-        })
-        .catch((err) => console.error("❌ Error saving wallet:", err));
-    }
-  }, [isConnected, address]);
+    const tg = window.Telegram?.WebApp;
+    const user = tg?.initDataUnsafe?.user;
 
-  useEffect(() => {
+    if (user) {
+      setTelegramUser(user);
+      const telegramId = user.id.toString();
+
+      // Fetch user data by Telegram ID
+      axios
+        .get(`${BACKEND_URL}/api/referral-stats/${telegramId}`, {
+          headers: {
+            'ngrok-skip-browser-warning': 'true'
+          }
+        })
+        .then((res) => {
+          console.log("✅ Full response:", res);
+          console.log("✅ Response data:", res.data);
+          console.log("📋 Tasks count:", res.data.tasks?.length || 0);
+          console.log("📋 Tasks data:", res.data.tasks);
+          console.log("📋 Success flag:", res.data.success);
+          setUserData(res.data);
+        })
+        .catch((err) => {
+          console.error("❌ Error loading user data:", err);
+          console.error("❌ Error response:", err.response);
+          // Create new user if not found
+          if (err.response?.status === 404) {
+            console.log("🆕 Creating new user...");
+            axios
+              .post(`${BACKEND_URL}/api/wallet`, {
+                walletAddress: `tg_${telegramId}`,
+                telegramId,
+                telegramUsername: user.username,
+                telegramFirstName: user.first_name,
+                telegramLastName: user.last_name,
+              })
+              .then((res) => {
+                console.log("✅ New user created:", res.data.wallet);
+                console.log("📋 New user tasks:", res.data.wallet?.tasks);
+                setUserData(res.data.wallet);
+              })
+              .catch((err) => console.error("❌ Error creating user:", err));
+          }
+        });
+    }
+
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2000);
+
     return () => clearTimeout(timer);
   }, []);
 
-  // ✅ Auto-link Telegram user when inside Telegram WebApp
-  useEffect(() => {
-    if (!isConnected || !address) return;
-
-    const tg = window.Telegram?.WebApp;
-    const telegramUser = tg?.initDataUnsafe?.user;
-
-    if (telegramUser) {
-      axios
-        .post(`${BACKEND_URL}/api/link-telegram`, {
-          walletAddress: address,
-          telegramData: telegramUser,
-        })
-        .then((res) => {
-          console.log("✅ Telegram linked to wallet:", res.data.wallet);
-          setUserData(res.data.wallet);
-        })
-        .catch((err) => {
-          console.error("❌ Telegram link error:", err);
-        });
-    }
-  }, [isConnected, address]);
-
   // ✅ Refresh user data every 10 seconds
   useEffect(() => {
-    if (isConnected && address) {
-      const interval = setInterval(() => {
-        axios
-          .post(`${BACKEND_URL}/api/wallet`, { walletAddress: address })
-          .then((res) => setUserData(res.data.wallet))
-          .catch(console.error);
-      }, 10000);
-      return () => clearInterval(interval);
-    }
-  }, [isConnected, address]);
+    if (!telegramUser) return;
+
+    const interval = setInterval(() => {
+      const telegramId = telegramUser.id.toString();
+      axios
+        .get(`${BACKEND_URL}/api/referral-stats/${telegramId}`, {
+          headers: {
+            'ngrok-skip-browser-warning': 'true'
+          }
+        })
+        .then((res) => {
+          console.log("🔄 Auto-refresh data:", res.data);
+          console.log("🔄 Tasks count:", res.data.tasks?.length || 0);
+          setUserData(res.data);
+        })
+        .catch((err) => {
+          console.error("❌ Auto-refresh error:", err);
+        });
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [telegramUser]);
 
   // ✅ Handle task completion
   const handleCompleteTask = async (taskName) => {
+    if (!telegramUser) return;
+
     try {
       const res = await axios.post(`${BACKEND_URL}/api/complete-task`, {
-        walletAddress: address,
+        telegramId: telegramUser.id.toString(),
         taskName,
       });
 
@@ -135,12 +151,12 @@ if (loading) {
       <div className="space-y-4">
         <Hero />
 
-        {/* 🪙 Wallet & Balance */}
+        {/* 🪙 Balance & Telegram Info */}
         <div className="flex justify-between gap-4">
           <div className="flex-1">
             <StatRow
               icon={<img src={bcx} alt="BCX" />}
-              label={userData ? `${userData.totalReward.toFixed(2)} IMDINO` : "0 IMDINO"}
+              label={userData ? `${(userData.totalReward || 0).toFixed(2)} IMDINO` : "0.00 IMDINO"}
               onClick={() => setOpen(true)}
               trailing={<FaAngleRight />}
             />
@@ -149,17 +165,15 @@ if (loading) {
           <div className="flex-1">
             <StatRow
               trailing={<FaAngleRight />}
-              onClick={() => {
-                if (isConnected) setWallet(true);
-                else openWeb3Modal();
-              }}
               hideIcon
               preserveIconSpace={false}
               label={
                 <div className="flex flex-col leading-tight">
-                  <span className="text-[#81858c] font-normal">{displayAddress}</span>
-                  {telegramDisplayName && (
-                    <span className="text-xs text-gray-500">{telegramDisplayName}</span>
+                  <span className="text-[#81858c] font-normal">
+                    {telegramUser ? `${telegramUser.first_name || 'User'}` : 'Loading...'}
+                  </span>
+                    {userData?.telegramUsername && (
+                      <span className="text-xs text-gray-500">@{userData.telegramUsername}</span>
                   )}
                 </div>
               }
@@ -167,36 +181,58 @@ if (loading) {
           </div>
         </div>
 
-        {/* ✅ Dynamic Task List */}
-        <div className="space-y-3">
-          {userData?.tasks?.map((task, index) => {
+        {/* ✅ Dynamic Task List with Beautiful Style */}
+        <div className="space-y-2">
+          {console.log('🔍 Rendering tasks. userData:', userData)}
+          {console.log('🔍 userData.tasks:', userData?.tasks)}
+          {console.log('🔍 Is array?', Array.isArray(userData?.tasks))}
+          
+          {!userData?.tasks || userData.tasks.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">
+              <p className="text-lg">⏳ Loading tasks...</p>
+              <p className="text-xs mt-2">User data: {userData ? '✅ Loaded' : '❌ Not loaded'}</p>
+              <p className="text-xs">Tasks: {userData?.tasks?.length || 0}</p>
+              <p className="text-xs">Tasks type: {typeof userData?.tasks}</p>
+              <p className="text-xs mt-2 text-gray-600">Check console for details (F12)</p>
+            </div>
+          ) : (
+            userData.tasks.slice(0, 5).map((task, index) => {
             let requirementMet = true;
             let requirementText = "";
+            let taskIcon = "📱";
 
             switch (task.name) {
               case "Join Telegram":
                 requirementMet = userData?.telegramConnected;
                 requirementText = "You need to join our Telegram group first.";
+                taskIcon = "📱";
                 break;
               case "On board 2 friends":
                 requirementMet = userData?.friendsReferred >= 2;
                 requirementText = "Invite at least 2 friends to unlock this reward.";
+                taskIcon = "📱";
                 break;
               case "On board 5 friends":
                 requirementMet = userData?.friendsReferred >= 5;
                 requirementText = "Invite at least 5 friends to unlock this reward.";
+                taskIcon = "📱";
+                break;
+              case "Score 100 in Dino Game":
+                taskIcon = "📱";
+                break;
+              case "Score 400 in Dino Game":
+                taskIcon = "📱";
+                break;
+              case "Score 1000 in Dino Game":
+                taskIcon = "📱";
                 break;
               default:
                 requirementMet = true;
+                taskIcon = "📱";
                 break;
             }
 
             const handleClick = () => {
-              if (!isConnected) {
-                openWeb3Modal();
-                return;
-              }
-
               if (!requirementMet && !task.completed) {
                 setErrorMessage(requirementText);
                 setErrorOpen(true);
@@ -207,17 +243,63 @@ if (loading) {
             };
 
             return (
-              <StatRow
+              <div
                 key={index}
-                icon={<FaTelegramPlane size={24} fill="#ffffff" />}
-                label={task.name}
-                value={`${task.reward} IMDINO`}
-                claimed={task.completed}
                 onClick={handleClick}
-                className={!requirementMet && !task.completed ? "opacity-50 cursor-not-allowed" : ""}
-              />
+                className={`
+                  relative bg-gradient-to-br from-[#1a1d21] to-[#13151a] 
+                  border border-white/10 rounded-2xl p-4
+                  transition-all duration-200 cursor-pointer
+                  hover:border-white/20 hover:shadow-[0_0_20px_rgba(130,173,75,0.15)]
+                  ${!requirementMet && !task.completed ? 'opacity-50 cursor-not-allowed' : ''}
+                  ${task.completed ? 'bg-gradient-to-br from-[#1a2618] to-[#13151a] border-[#82ad4b]/30' : ''}
+                `}
+              >
+                {/* Decorative gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[#82ad4b]/5 rounded-2xl pointer-events-none" />
+                
+                <div className="relative flex items-center justify-between">
+                  {/* Left side - Icon and Text */}
+                  <div className="flex items-center gap-3 flex-1">
+                    {/* Icon Container */}
+                    <div className="w-11 h-11 bg-gradient-to-br from-[#0a0b0d] to-[#1a1d21] border border-white/10 rounded-xl flex items-center justify-center shadow-inner">
+                      <FaTelegramPlane size={20} className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
+                    </div>
+
+                    {/* Task Info */}
+                    <div className="flex-1">
+                      <p className="text-white font-medium text-sm tracking-wide">{task.name}</p>
+                      {task.completed && (
+                        <p className="text-[#82ad4b] text-xs mt-0.5 font-medium">✓ Completed</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right side - Reward Badge */}
+                  <div className={`
+                    px-4 py-2 rounded-xl font-bold text-xs tracking-wide
+                    ${task.completed 
+                      ? 'bg-gradient-to-r from-[#82ad4b]/20 to-[#6a8f3d]/20 text-[#82ad4b] border border-[#82ad4b]/30' 
+                      : 'bg-white/5 text-white border border-white/10'
+                    }
+                  `}>
+                    {task.reward} IMDINO
+                  </div>
+                </div>
+
+                {/* Completion checkmark overlay */}
+                {task.completed && (
+                  <div className="absolute top-2 right-2">
+                    <div className="w-6 h-6 bg-[#82ad4b] rounded-full flex items-center justify-center shadow-lg">
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M5 13l4 4L19 7"></path>
+                      </svg>
+                    </div>
+                  </div>
+                )}
+              </div>
             );
-          })}
+          }))}
         </div>
 
         {/* Info Section */}
@@ -271,17 +353,43 @@ if (loading) {
       </div>
 
       <BottomNav />
-      <SelectWallet open={wallet} onClose={() => setWallet(false)} />
       {showStory && <StoryProgress onClose={() => setShowStory(false)} />}
 
+      {/* Success Modal for Task Completion */}
+      <ImageModal
+        open={open && userData?.latestEarnedReward}
+        onClose={() => setOpen(false)}
+        src={bcx}
+        title="🎉 Congratulations!"
+        description={
+          <span className="text-[#82ad4b] font-semibold text-lg">
+            Task completed successfully!
+          </span>
+        }
+        userHoldings={(userData?.totalReward || 0).toFixed(2)}
+        details={
+          <div className="space-y-2">
+            <div className="text-white text-center">
+              <span className="text-2xl font-bold text-[#82ad4b]">
+                +{(userData?.latestEarnedReward || 0).toFixed(2)} IMDINO
+              </span>
+            </div>
+            <p className="text-gray-400 text-sm text-center">
+              Keep completing tasks to earn more rewards!
+            </p>
+          </div>
+        }
+      />
+
+      {/* Error Modal for Locked Tasks */}
       <ImageModal
         open={errorOpen}
         onClose={() => setErrorOpen(false)}
         src={bcx}
-        title="Task Locked"
+        title="🔒 Task Locked"
         description={<span className="text-red-400">{errorMessage}</span>}
-        userHoldings={userData?.totalReward?.toFixed(2) || 0}
-        details={<span>Complete the requirement first to earn this reward.</span>}
+        userHoldings={(userData?.totalReward || 0).toFixed(2)}
+        details={<span className="text-gray-400">Complete the requirement first to earn this reward.</span>}
       />
     </main>
   );

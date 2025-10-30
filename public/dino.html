@@ -240,6 +240,38 @@
     var imgSource = imageSources[i];
     this.images[imgSource.name] = document.getElementById(imgSource.id);
     }
+
+      // Try to load optional custom Dino skins (static PNGs) from public/img/dino/
+      // Place files at: /public/img/dino/dino1.png and /public/img/dino/dino2.png
+      // If both load successfully, the game will render the custom dino instead of the sprite sheet.
+      try {
+        this.customDinoA = new Image();
+        this.customDinoB = new Image();
+        this.customDinoALoaded = false;
+        this.customDinoBLoaded = false;
+        this.hasCustomDino = false;
+        var updateFlag = function() {
+          this.hasCustomDino = !!(this.customDinoALoaded || this.customDinoBLoaded);
+        }.bind(this);
+        this.customDinoA.onload = function() { 
+          this.customDinoALoaded = true; 
+          updateFlag(); 
+          console.log('✅ Loaded custom dino A');
+        }.bind(this);
+        this.customDinoB.onload = function() { 
+          this.customDinoBLoaded = true; 
+          updateFlag(); 
+          console.log('✅ Loaded custom dino B');
+        }.bind(this);
+        // Be resilient if files are missing
+        this.customDinoA.onerror = function() { console.log('⚠️ Could not load dino1'); };
+        this.customDinoB.onerror = function() { console.log('⚠️ Could not load dino2'); };
+        this.customDinoA.src = '/img/dino/dino-1.gif';
+        this.customDinoB.src = '/img/dino/dino-2.gif';
+      } catch (e) {
+        // Fallback silently
+        this.hasCustomDino = false;
+      }
     this.init();
     },
     /**
@@ -308,11 +340,12 @@
     // Draw t-rex
     this.tRex = new Trex(this.canvas, this.images.TREX);
     this.outerContainerEl.appendChild(this.containerEl);
-    // Turns badge
+    // Turns badge (hidden - now shown in React component)
     this.turnsBadge = document.createElement('div');
     this.turnsBadge.style.position = 'absolute';
     this.turnsBadge.style.top = '-26px';
     this.turnsBadge.style.left = '0';
+    this.turnsBadge.style.display = 'none'; // Hide the badge
     this.turnsBadge.style.zIndex = '999';
     this.turnsBadge.style.padding = '2px 8px';
     this.turnsBadge.style.fontSize = '12px';
@@ -625,6 +658,25 @@
     } else {
     this.gameOverPanel.draw();
     }
+    
+    // 🎮 SEND SCORE TO PARENT REACT COMPONENT
+    var actualScore = this.distanceMeter.getActualDistance(this.distanceRan);
+    console.log('🎮 [DINO] Game Over! Distance:', Math.ceil(this.distanceRan), 'Actual Score:', actualScore);
+    console.log('🎮 [DINO] window.parent exists?', !!window.parent);
+    console.log('🎮 [DINO] handleDinoGameOver exists?', !!(window.parent && window.parent.handleDinoGameOver));
+    
+    try {
+      if (window.parent && window.parent.handleDinoGameOver) {
+        console.log('🎮 [DINO] Calling parent handleDinoGameOver with score:', actualScore);
+        window.parent.handleDinoGameOver(actualScore);
+        console.log('✅ [DINO] Successfully called parent function');
+      } else {
+        console.warn('⚠️ [DINO] Parent or handler function not found');
+      }
+    } catch (e) {
+      console.error('❌ [DINO] Error sending score to parent:', e);
+    }
+    
     // Decrement turns and show start overlay if turns exhausted
     if (this.turnsLeft > 0) {
       this.turnsLeft--;
@@ -1229,7 +1281,7 @@
     Trex.config = {
     DROP_VELOCITY: -5,
     GRAVITY: 0.6,
-    HEIGHT: 47,
+    HEIGHT: 70,
     INIITAL_JUMP_VELOCITY: -10,
     INTRO_DURATION: 1500,
     MAX_JUMP_HEIGHT: 30,
@@ -1237,16 +1289,16 @@
     SPEED_DROP_COEFFICIENT: 3,
     SPRITE_WIDTH: 262,
     START_X_POS: 50,
-    WIDTH: 44
+    WIDTH: 66
     };
     /**
     * Used in collision detection.
     * @type {Array.<CollisionBox>}
     */
     Trex.collisionBoxes = [
-    new CollisionBox(1, -1, 30, 26),
-    new CollisionBox(32, 0, 8, 16),
-    new CollisionBox(10, 35, 14, 8),
+    new CollisionBox(1, -1, 45, 39),
+    new CollisionBox(48, 0, 12, 24),
+    new CollisionBox(15, 52, 21, 12),
     new CollisionBox(1, 24, 29, 5),
     new CollisionBox(5, 30, 21, 4),
     new CollisionBox(9, 34, 15, 4)
@@ -1361,17 +1413,32 @@
     sourceWidth *= 2;
     sourceHeight *= 2;
     }
-    // Draw original sprite
-    this.canvasCtx.save();
-    this.canvasCtx.drawImage(this.image, sourceX, sourceY,
-    sourceWidth, sourceHeight,
-    this.xPos, this.yPos,
-    this.config.WIDTH, this.config.HEIGHT);
-    // Tint the T-Rex to #fffff
-    this.canvasCtx.globalCompositeOperation = 'source-atop';
-    this.canvasCtx.fillStyle = '#82ad4b';
-    this.canvasCtx.fillRect(this.xPos, this.yPos, this.config.WIDTH, this.config.HEIGHT);
-    this.canvasCtx.restore();
+      this.canvasCtx.save();
+      // If custom dino skins are loaded, draw them instead of the sprite sheet
+      var runner = window.Runner && window.Runner.instance_ ? window.Runner.instance_ : null;
+      if (runner && runner.hasCustomDino) {
+        var img = runner.customDinoA && runner.customDinoALoaded ? runner.customDinoA : runner.customDinoB;
+        // Use alternate frame while running to simulate animation if both available
+        if (this.status === Trex.status.RUNNING && runner.customDinoALoaded && runner.customDinoBLoaded) {
+          img = (this.currentFrame % 2 === 0) ? runner.customDinoA : runner.customDinoB;
+        }
+
+        // Draw the custom image scaled to Trex dimensions
+        this.canvasCtx.drawImage(img,
+          0, 0, img.width, img.height,
+          this.xPos, this.yPos,
+          this.config.WIDTH, this.config.HEIGHT);
+      } else {
+        // Fallback: draw original sprite with green tint
+        this.canvasCtx.drawImage(this.image, sourceX, sourceY,
+            sourceWidth, sourceHeight,
+            this.xPos, this.yPos,
+            this.config.WIDTH, this.config.HEIGHT);
+        this.canvasCtx.globalCompositeOperation = 'source-atop';
+        this.canvasCtx.fillStyle = '#82ad4b';
+        this.canvasCtx.fillRect(this.xPos, this.yPos, this.config.WIDTH, this.config.HEIGHT);
+      }
+      this.canvasCtx.restore();
     },
     /**
     * Sets a random time for the blink to happen.
@@ -2706,7 +2773,33 @@ html[subframe] body {
   title.style.marginBottom = '10px';
 
   var info = document.createElement('div');
-  info.textContent = 'Let\'s Play';
+  // Show plays remaining if available - with dynamic update
+  var playsLeft = window.parent.dinoPlaysRemaining;
+  if (message) {
+    info.textContent = 'Come back tomorrow for more plays!';
+  } else if (playsLeft !== undefined) {
+    if (playsLeft <= 0) {
+      info.textContent = '🚫 No plays remaining today';
+    } else {
+      info.textContent = playsLeft > 0 ? `${playsLeft} plays remaining today` : 'No plays remaining';
+    }
+  } else {
+    info.textContent = 'Let\'s Play';
+    // Update info text when parent value becomes available
+    var checkInterval = setInterval(function() {
+      var updatedPlays = window.parent.dinoPlaysRemaining;
+      if (updatedPlays !== undefined) {
+        if (updatedPlays <= 0) {
+          info.textContent = '🚫 No plays remaining today';
+        } else {
+          info.textContent = `${updatedPlays} plays remaining today`;
+        }
+        clearInterval(checkInterval);
+      }
+    }, 100);
+    // Clear interval after 3 seconds if value never appears
+    setTimeout(function() { clearInterval(checkInterval); }, 3000);
+  }
   info.style.opacity = '0.8';
   info.style.marginBottom = '16px';
 
@@ -2722,9 +2815,10 @@ html[subframe] body {
   let resetTime = localStorage.getItem("dinoResetTime");
 
   if (!resetTime || now > parseInt(resetTime)) {
-    // Set new 24-hour limit
-    resetTime = now + 24 * 60 * 60 * 1000;
+    // Set new 24-hour limit (PRODUCTION)
+    resetTime = now + 24 * 60 * 60 * 1000; // 24 hours
     localStorage.setItem("dinoResetTime", resetTime);
+    console.log('⏰ New 24-hour countdown started');
   }
 
   if (message) {
@@ -2764,8 +2858,21 @@ html[subframe] body {
         countdownText.textContent = "00:00:00";
         clearInterval(countdownId);
         localStorage.removeItem("dinoResetTime");
-        // Optionally reset turns here
-        info.textContent = "Daily Turns: 7 (Reset)";
+        
+        // Show reset message
+        info.textContent = "Plays reset! Refreshing...";
+        
+        // Send message to parent to refresh data
+        console.log('⏰ Timer ended - sending reset message to parent');
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'DINO_TIMER_RESET' }, '*');
+        }
+        
+        // Reload this iframe after a short delay to show fresh countdown
+        setTimeout(function() {
+          window.location.reload();
+        }, 2000);
+        
         return;
       }
 
@@ -2796,25 +2903,68 @@ document.addEventListener('click', function () {
 
 
           var startBtn = document.createElement('button');
-          startBtn.textContent = message ? 'Come back tomorrow' : 'Start';
-          startBtn.style.padding = '0px 20px';
+          // Check plays remaining to set button text and state
+          var currentPlaysLeft = window.parent.dinoPlaysRemaining;
+          var hasNoPlays = currentPlaysLeft !== undefined && currentPlaysLeft <= 0;
+          
+          startBtn.textContent = (message || hasNoPlays) ? 'Come back tomorrow' : 'Start';
+          startBtn.style.padding = '12px 32px';
           startBtn.style.borderRadius = '10px';
-          startBtn.style.position = 'absolute';
-          startBtn.style.bottom = '-220px';
-          startBtn.style.border = '1px solid rgba(34,197,94,0.2)';
-          startBtn.style.background = 'rgba(255,255,255,0.05)';
-          startBtn.style.color = '#fffff';
+          startBtn.style.border = '1px solid rgba(239,184,28,0.3)';
+          startBtn.style.background = 'linear-gradient(135deg, rgba(130,173,75,0.9), rgba(106,143,61,0.9))';
+          startBtn.style.color = '#ffffff';
           startBtn.style.fontWeight = '600';
+          startBtn.style.fontSize = '16px';
           startBtn.style.cursor = 'pointer';
           startBtn.style.backdropFilter = 'blur(6px)';
-          startBtn.style.boxShadow = '0 0 20px rgba(34,197,94,0.15)';
+          startBtn.style.boxShadow = '0 4px 20px rgba(130,173,75,0.4)';
           startBtn.style.transition = 'all 150ms ease-in-out';
+          startBtn.style.marginTop = '20px';
+          
+          // Disable button if message exists (daily limit reached) or no plays left
+          if (message || hasNoPlays) {
+            startBtn.style.cursor = 'not-allowed';
+            startBtn.style.opacity = '0.5';
+            startBtn.disabled = true;
+            startBtn.style.background = 'linear-gradient(135deg, rgba(100,100,100,0.9), rgba(80,80,80,0.9))';
+          }
+          
+          // Hover effect
+          startBtn.addEventListener('mouseenter', function() {
+            if (!message && !hasNoPlays) {
+              startBtn.style.transform = 'scale(1.05)';
+              startBtn.style.boxShadow = '0 6px 25px rgba(130,173,75,0.6)';
+            }
+          });
+          startBtn.addEventListener('mouseleave', function() {
+            if (!message && !hasNoPlays) {
+              startBtn.style.transform = 'scale(1)';
+              startBtn.style.boxShadow = '0 4px 20px rgba(130,173,75,0.4)';
+            }
+          });
+          
           overlay.appendChild(title);
           overlay.appendChild(info);
           if (countdownWrap) overlay.appendChild(countdownWrap);
           overlay.appendChild(startBtn);
           runner.containerEl.appendChild(overlay);
           function begin() {
+            // Check if plays remaining from parent window
+            var playsLeft = window.parent.dinoPlaysRemaining;
+            
+            console.log('🎮 Attempting to start game. Plays remaining:', playsLeft);
+            
+            if (playsLeft !== undefined && playsLeft <= 0) {
+              // Show message that they can't play
+              console.log('🚫 Blocking game start - no plays remaining');
+              if (window.parent.toast && window.parent.toast.error) {
+                window.parent.toast.error("❌ No plays remaining! Come back tomorrow.", { duration: 4000 });
+              }
+              // Don't remove overlay, keep it blocking the game
+              return;
+            }
+            
+            console.log('✅ Starting game...');
             overlay.parentNode && overlay.parentNode.removeChild(overlay);
             if (countdownId) { clearInterval(countdownId); countdownId = null; }
             // Reset turns on new session
@@ -2828,8 +2978,19 @@ document.addEventListener('click', function () {
         }
         // expose for gameOver usage
         window.__dinoShowOverlay = showStartOverlay;
-        // initial overlay
-        showStartOverlay();
+        
+        // Check plays remaining and show appropriate message
+        setTimeout(function() {
+          var playsLeft = window.parent.dinoPlaysRemaining;
+          if (playsLeft !== undefined && playsLeft <= 0) {
+            showStartOverlay("Daily Limit Reached 🚫");
+          } else {
+            showStartOverlay();
+          }
+        }, 300); // Increased delay to ensure parent has set the value
+
+        // Declare overlay outside IIFE so startOnAnyInput can access it
+        var overlay;
 
         // Info button + modal (rules & rewards) - keep in iframe (can be disabled if using React modal)
         (function initInfoUI(){
@@ -2857,7 +3018,7 @@ document.addEventListener('click', function () {
           infoBtn.addEventListener('mouseenter', function(){ infoBtn.style.background = 'rgba(255,255,255,0.08)'; });
           infoBtn.addEventListener('mouseleave', function(){ infoBtn.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))'; });
 
-          var overlay = document.createElement('div');
+          overlay = document.createElement('div');
           overlay.style.position = 'fixed';
           overlay.style.inset = '0';
           overlay.style.background = 'rgba(0,0,0,0.6)';
