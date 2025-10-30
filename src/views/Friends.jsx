@@ -128,7 +128,7 @@ function Friends() {
             <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#a8d86c] to-[#82ad4b] font-semibold text-lg">
               Earn IMDINO for every
             </p>
-            <p className="text-gray-300 text-sm">Friend you invite</p>
+            <p className="text-gray-300 text-sm">Friends join, and rule the jungle!</p>
           </div>
           <div className="bg-gradient-to-br from-[#a8d86c] to-[#82ad4b] p-3 rounded-xl shadow-[0_0_20px_rgba(130,173,75,0.55)]">
             <Gift className="text-black w-7 h-7" />
