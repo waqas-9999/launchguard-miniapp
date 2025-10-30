@@ -49,7 +49,7 @@ export default function GameInfoModal({ open, onClose }) {
 
         <div className="text-[11px] opacity-80 mt-3">
           Note: This game is built for fun and learning purposes only. Scores and rewards are for
-          entertainment within the Buycex ecosystem.
+          entertainment within the IAMDINO ecosystem.
         </div>
       </div>
     </div>

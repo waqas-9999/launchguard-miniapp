@@ -79,11 +79,21 @@ export default function Boost() {
         });
     }
 
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(timer);
+    try {
+      const hasSeen = localStorage.getItem('hasSeenDino') === 'true';
+      if (hasSeen) {
+        setLoading(false);
+        return;
+      }
+      const timer = setTimeout(() => {
+        setLoading(false);
+        localStorage.setItem('hasSeenDino', 'true');
+      }, 2000);
+      return () => clearTimeout(timer);
+    } catch (_) {
+      const timer = setTimeout(() => setLoading(false), 1000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   // ✅ Refresh user data every 10 seconds

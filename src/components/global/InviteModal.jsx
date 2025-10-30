@@ -97,8 +97,8 @@ export default function InviteModal({ open, onClose, referralLink, onShare }) {
                 onClick={handleShare}
                 className="flex items-center justify-center gap-3 w-full py-4 
                   rounded-xl font-semibold text-black 
-                  bg-white
-                  shadow-[0_0_20px_rgba(255,255,255,0.4)] 
+                  bg-gradient-to-r from-[#a8d86c] to-[#82ad4b]
+                  shadow-[0_0_22px_rgba(130,173,75,0.55)] 
                   transition-all"
               >
                 <FaShare className="text-black" />
@@ -111,8 +111,8 @@ export default function InviteModal({ open, onClose, referralLink, onShare }) {
                 onClick={handleCopy}
                 className="flex items-center justify-center gap-3 w-full py-4 
                   rounded-xl font-semibold text-black 
-                  bg-white
-                  shadow-[0_0_20px_rgba(255,255,255,0.4)]
+                  bg-gradient-to-r from-[#a8d86c] to-[#82ad4b]
+                  shadow-[0_0_22px_rgba(130,173,75,0.55)] 
                   transition-all"
               >
                 <IoCopy className="text-black" />
