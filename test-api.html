@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API Response</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        pre {
+            background: #000;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test /api/referral-stats API</h1>
+    <button onclick="testAPI()">Test API with Telegram ID: 1111554359</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const telegramId = '1111554359';
+            const apiUrl = `https://isochronous-packable-sherly.ngrok-free.dev/api/referral-stats/${telegramId}`;
+            
+            document.getElementById('result').innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'ngrok-skip-browser-warning': 'true'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('result').innerHTML = `
+                    <h2>✅ Response Status: ${response.status}</h2>
+                    <h3>Success: ${data.success ? '✅ YES' : '❌ NO'}</h3>
+                    <h3>Tasks Count: ${data.tasks?.length || 0}</h3>
+                    <h3>Tasks Present: ${data.tasks ? '✅ YES' : '❌ NO'}</h3>
+                    <h3>Tasks is Array: ${Array.isArray(data.tasks) ? '✅ YES' : '❌ NO'}</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (err) {
+                document.getElementById('result').innerHTML = `
+                    <h2>❌ Error</h2>
+                    <pre>${err.message}</pre>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -35,8 +35,8 @@ export default function ImageModal({ open, onClose, src, title, description, det
               {title}
             </h2>
 
-            <p className="mt-8 text-sm text-gray-300">{description}</p>
-            <p className="mt-4 mb-8 text-xl">{details}</p>
+            <div className="mt-8 text-sm text-gray-300">{description}</div>
+            <div className="mt-4 mb-8 text-xl">{details}</div>
 
             {/* ✅ Ownership section */}
             <div className="mt-4">

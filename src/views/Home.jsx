@@ -7,11 +7,8 @@ import { useState, useEffect } from "react";
 import { FaAngleRight, FaTelegramPlane } from "react-icons/fa";
 import { TriangleAlert, ShoppingCart, FileText, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import SelectWallet from "../components/global/SelectWallet";
 import StoryProgress from "../components/boost/StoryProgress";
-import { useAccount } from "wagmi";
 import axios from "axios";
-import { useWeb3Modal } from "@web3modal/wagmi/react";
 import Dino from "../../public/dino-2.gif" 
 
 // ✅ Your backend base URL
@@ -22,86 +19,105 @@ function cn(...classes) {
 }
 
 export default function Boost() {
-  const { open: openWeb3Modal } = useWeb3Modal();
-  const { address, isConnected } = useAccount();
   const [loading, setLoading] = useState(true);
-
   const [open, setOpen] = useState(false);
-  const [wallet, setWallet] = useState(false);
   const [showStory, setShowStory] = useState(false);
   const [userData, setUserData] = useState(null);
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const displayAddress = address
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : "Not connected";
+  const [telegramUser, setTelegramUser] = useState(null);
 
   const telegramDisplayName = userData?.telegramUsername
     ? `@${userData.telegramUsername}`
     : userData?.telegramFirstName || "";
 
-  // ✅ Fetch or create wallet when connected
+  // ✅ Initialize Telegram WebApp and fetch user data
   useEffect(() => {
-    if (isConnected && address) {
-      axios
-        .post(`${BACKEND_URL}/api/wallet`, { walletAddress: address })
-        .then((res) => {
-          console.log("✅ Wallet data:", res.data.wallet);
-          setUserData(res.data.wallet);
-        })
-        .catch((err) => console.error("❌ Error saving wallet:", err));
-    }
-  }, [isConnected, address]);
+    const tg = window.Telegram?.WebApp;
+    const user = tg?.initDataUnsafe?.user;
 
-  useEffect(() => {
+    if (user) {
+      setTelegramUser(user);
+      const telegramId = user.id.toString();
+
+      // Fetch user data by Telegram ID
+      axios
+        .get(`${BACKEND_URL}/api/referral-stats/${telegramId}`, {
+          headers: {
+            'ngrok-skip-browser-warning': 'true'
+          }
+        })
+        .then((res) => {
+          console.log("✅ Full response:", res);
+          console.log("✅ Response data:", res.data);
+          console.log("📋 Tasks count:", res.data.tasks?.length || 0);
+          console.log("📋 Tasks data:", res.data.tasks);
+          console.log("📋 Success flag:", res.data.success);
+          setUserData(res.data);
+        })
+        .catch((err) => {
+          console.error("❌ Error loading user data:", err);
+          console.error("❌ Error response:", err.response);
+          // Create new user if not found
+          if (err.response?.status === 404) {
+            console.log("🆕 Creating new user...");
+            axios
+              .post(`${BACKEND_URL}/api/wallet`, {
+                walletAddress: `tg_${telegramId}`,
+                telegramId,
+                telegramUsername: user.username,
+                telegramFirstName: user.first_name,
+                telegramLastName: user.last_name,
+              })
+              .then((res) => {
+                console.log("✅ New user created:", res.data.wallet);
+                console.log("📋 New user tasks:", res.data.wallet?.tasks);
+                setUserData(res.data.wallet);
+              })
+              .catch((err) => console.error("❌ Error creating user:", err));
+          }
+        });
+    }
+
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2000);
+
     return () => clearTimeout(timer);
   }, []);
 
-  // ✅ Auto-link Telegram user when inside Telegram WebApp
-  useEffect(() => {
-    if (!isConnected || !address) return;
-
-    const tg = window.Telegram?.WebApp;
-    const telegramUser = tg?.initDataUnsafe?.user;
-
-    if (telegramUser) {
-      axios
-        .post(`${BACKEND_URL}/api/link-telegram`, {
-          walletAddress: address,
-          telegramData: telegramUser,
-        })
-        .then((res) => {
-          console.log("✅ Telegram linked to wallet:", res.data.wallet);
-          setUserData(res.data.wallet);
-        })
-        .catch((err) => {
-          console.error("❌ Telegram link error:", err);
-        });
-    }
-  }, [isConnected, address]);
-
   // ✅ Refresh user data every 10 seconds
   useEffect(() => {
-    if (isConnected && address) {
-      const interval = setInterval(() => {
-        axios
-          .post(`${BACKEND_URL}/api/wallet`, { walletAddress: address })
-          .then((res) => setUserData(res.data.wallet))
-          .catch(console.error);
-      }, 10000);
-      return () => clearInterval(interval);
-    }
-  }, [isConnected, address]);
+    if (!telegramUser) return;
+
+    const interval = setInterval(() => {
+      const telegramId = telegramUser.id.toString();
+      axios
+        .get(`${BACKEND_URL}/api/referral-stats/${telegramId}`, {
+          headers: {
+            'ngrok-skip-browser-warning': 'true'
+          }
+        })
+        .then((res) => {
+          console.log("🔄 Auto-refresh data:", res.data);
+          console.log("🔄 Tasks count:", res.data.tasks?.length || 0);
+          setUserData(res.data);
+        })
+        .catch((err) => {
+          console.error("❌ Auto-refresh error:", err);
+        });
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [telegramUser]);
 
   // ✅ Handle task completion
   const handleCompleteTask = async (taskName) => {
+    if (!telegramUser) return;
+
     try {
       const res = await axios.post(`${BACKEND_URL}/api/complete-task`, {
-        walletAddress: address,
+        telegramId: telegramUser.id.toString(),
         taskName,
       });
 
@@ -135,12 +151,12 @@ if (loading) {
       <div className="space-y-4">
         <Hero />
 
-        {/* 🪙 Wallet & Balance */}
+        {/* 🪙 Balance & Telegram Info */}
         <div className="flex justify-between gap-4">
           <div className="flex-1">
             <StatRow
               icon={<img src={bcx} alt="BCX" />}
-              label={userData ? `${userData.totalReward.toFixed(2)} IMDINO` : "0 IMDINO"}
+              label={userData ? `${(userData.totalReward || 0).toFixed(2)} IMDINO` : "0.00 IMDINO"}
               onClick={() => setOpen(true)}
               trailing={<FaAngleRight />}
             />
@@ -149,17 +165,15 @@ if (loading) {
           <div className="flex-1">
             <StatRow
               trailing={<FaAngleRight />}
-              onClick={() => {
-                if (isConnected) setWallet(true);
-                else openWeb3Modal();
-              }}
               hideIcon
               preserveIconSpace={false}
               label={
                 <div className="flex flex-col leading-tight">
-                  <span className="text-[#81858c] font-normal">{displayAddress}</span>
-                  {telegramDisplayName && (
-                    <span className="text-xs text-gray-500">{telegramDisplayName}</span>
+                  <span className="text-[#81858c] font-normal">
+                    {telegramUser ? `${telegramUser.first_name || 'User'}` : 'Loading...'}
+                  </span>
+                    {userData?.telegramUsername && (
+                      <span className="text-xs text-gray-500">@{userData.telegramUsername}</span>
                   )}
                 </div>
               }
@@ -169,7 +183,20 @@ if (loading) {
 
         {/* ✅ Dynamic Task List with Beautiful Style */}
         <div className="space-y-2">
-          {userData?.tasks?.slice(0, 5).map((task, index) => {
+          {console.log('🔍 Rendering tasks. userData:', userData)}
+          {console.log('🔍 userData.tasks:', userData?.tasks)}
+          {console.log('🔍 Is array?', Array.isArray(userData?.tasks))}
+          
+          {!userData?.tasks || userData.tasks.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">
+              <p className="text-lg">⏳ Loading tasks...</p>
+              <p className="text-xs mt-2">User data: {userData ? '✅ Loaded' : '❌ Not loaded'}</p>
+              <p className="text-xs">Tasks: {userData?.tasks?.length || 0}</p>
+              <p className="text-xs">Tasks type: {typeof userData?.tasks}</p>
+              <p className="text-xs mt-2 text-gray-600">Check console for details (F12)</p>
+            </div>
+          ) : (
+            userData.tasks.slice(0, 5).map((task, index) => {
             let requirementMet = true;
             let requirementText = "";
             let taskIcon = "📱";
@@ -206,11 +233,6 @@ if (loading) {
             }
 
             const handleClick = () => {
-              if (!isConnected) {
-                openWeb3Modal();
-                return;
-              }
-
               if (!requirementMet && !task.completed) {
                 setErrorMessage(requirementText);
                 setErrorOpen(true);
@@ -277,7 +299,7 @@ if (loading) {
                 )}
               </div>
             );
-          })}
+          }))}
         </div>
 
         {/* Info Section */}
@@ -331,7 +353,6 @@ if (loading) {
       </div>
 
       <BottomNav />
-      <SelectWallet open={wallet} onClose={() => setWallet(false)} />
       {showStory && <StoryProgress onClose={() => setShowStory(false)} />}
 
       {/* Success Modal for Task Completion */}
@@ -345,12 +366,12 @@ if (loading) {
             Task completed successfully!
           </span>
         }
-        userHoldings={userData?.totalReward?.toFixed(2) || 0}
+        userHoldings={(userData?.totalReward || 0).toFixed(2)}
         details={
           <div className="space-y-2">
             <div className="text-white text-center">
               <span className="text-2xl font-bold text-[#82ad4b]">
-                +{userData?.latestEarnedReward?.toFixed(2) || 0} IMDINO
+                +{(userData?.latestEarnedReward || 0).toFixed(2)} IMDINO
               </span>
             </div>
             <p className="text-gray-400 text-sm text-center">
@@ -367,7 +388,7 @@ if (loading) {
         src={bcx}
         title="🔒 Task Locked"
         description={<span className="text-red-400">{errorMessage}</span>}
-        userHoldings={userData?.totalReward?.toFixed(2) || 0}
+        userHoldings={(userData?.totalReward || 0).toFixed(2)}
         details={<span className="text-gray-400">Complete the requirement first to earn this reward.</span>}
       />
     </main>

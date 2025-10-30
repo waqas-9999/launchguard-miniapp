@@ -68,13 +68,16 @@ const WalletSchema = new mongoose.Schema({
 
 const Wallet = mongoose.model('Wallet', WalletSchema);
 
-// --- Add / Update Wallet ---
-// --- Add / Update Wallet (with referral logic) ---
+// --- Add / Update Wallet (with Telegram ID) ---
 app.post('/api/wallet', async (req, res) => {
   try {
-    const { walletAddress, referrer } = req.body;
-    if (!walletAddress)
-      return res.status(400).json({ error: 'Wallet address required' });
+    const { walletAddress, telegramId, telegramUsername, telegramFirstName, telegramLastName, referrer } = req.body;
+    
+    // Accept either telegramId or walletAddress (for backward compatibility)
+    const identifier = telegramId || walletAddress;
+    
+    if (!identifier)
+      return res.status(400).json({ error: 'Telegram ID or wallet address required' });
 
     const defaultTasks = [
       { name: 'Join Telegram', reward: 0.01, completed: false },
@@ -85,12 +88,19 @@ app.post('/api/wallet', async (req, res) => {
       { name: 'Score 1000 in Dino Game', reward: 2.5, completed: false },
     ];
 
-    let wallet = await Wallet.findOne({ walletAddress });
+    // Find by telegramId first, then by walletAddress
+    let wallet = telegramId 
+      ? await Wallet.findOne({ telegramId })
+      : await Wallet.findOne({ walletAddress: identifier });
 
     // If new wallet — create it
     if (!wallet) {
       wallet = new Wallet({
-        walletAddress,
+        walletAddress: walletAddress || `tg_${identifier}`,
+        telegramId: telegramId || null,
+        telegramUsername: telegramUsername || null,
+        telegramFirstName: telegramFirstName || null,
+        telegramLastName: telegramLastName || null,
         tasks: defaultTasks,
         referredBy: referrer || null,
       });
@@ -98,12 +108,16 @@ app.post('/api/wallet', async (req, res) => {
 
       // Handle referrer updates
       if (referrer) {
-        const referrerWallet = await Wallet.findOne({ walletAddress: referrer });
+        const referrerWallet = await Wallet.findOne({ 
+          $or: [{ telegramId: referrer }, { walletAddress: referrer }]
+        });
+        
         if (referrerWallet) {
           // Add referral only if not already counted
-          if (!referrerWallet.referrals.includes(walletAddress)) {
+          const newUserId = telegramId || walletAddress;
+          if (!referrerWallet.referrals.includes(newUserId)) {
             referrerWallet.friendsReferred += 1;
-            referrerWallet.referrals.push(walletAddress);
+            referrerWallet.referrals.push(newUserId);
 
             // Base reward for each invite
             referrerWallet.totalReward += 0.01;
@@ -138,12 +152,16 @@ app.post('/api/wallet', async (req, res) => {
 // --- Mark a Task Completed ---
 app.post('/api/complete-task', async (req, res) => {
   try {
-    const { walletAddress, taskName } = req.body;
-    if (!walletAddress || !taskName)
-      return res.status(400).json({ error: 'Wallet address and task name required' });
+    const { walletAddress, telegramId, taskName } = req.body;
+    if ((!walletAddress && !telegramId) || !taskName)
+      return res.status(400).json({ error: 'Telegram ID or wallet address and task name required' });
 
-    const wallet = await Wallet.findOne({ walletAddress });
-    if (!wallet) return res.status(404).json({ error: 'Wallet not found' });
+    // Find by telegramId first, then by walletAddress
+    const wallet = telegramId 
+      ? await Wallet.findOne({ telegramId })
+      : await Wallet.findOne({ walletAddress });
+      
+    if (!wallet) return res.status(404).json({ error: 'User not found' });
 
     const task = wallet.tasks.find(t => t.name === taskName);
     if (!task) return res.status(404).json({ error: 'Task not found' });
@@ -242,9 +260,14 @@ app.get('/api/referral-stats/:identifier', async (req, res) => {
       friendsReferred: wallet.friendsReferred,
       referrals: wallet.referrals,
       telegramId: wallet.telegramId,
-        walletAddress: wallet.walletAddress,
-        playsRemaining: 7 - wallet.dinoGames.playsToday,
-        highestMilestone: wallet.dinoGames.highestMilestone
+      telegramUsername: wallet.telegramUsername,
+      telegramFirstName: wallet.telegramFirstName,
+      telegramLastName: wallet.telegramLastName,
+      telegramConnected: wallet.telegramConnected,
+      walletAddress: wallet.walletAddress,
+      playsRemaining: 7 - wallet.dinoGames.playsToday,
+      highestMilestone: wallet.dinoGames.highestMilestone,
+      tasks: wallet.tasks || []  // ✅ Include tasks array
     });
   } catch (err) {
     console.error(err);
@@ -445,104 +468,33 @@ app.post('/api/telegram-login-mobile', async (req, res) => {
   }
 });
 
-// --- ✅ Link Telegram to existing wallet ---
+// --- ✅ Link Telegram (DEPRECATED - Wallet connect removed) ---
+// This endpoint is kept for backward compatibility but not actively used
 app.post("/api/link-telegram", async (req, res) => {
   try {
     const { walletAddress, telegramData } = req.body;
 
-    console.log('🔗 Link-telegram request:', { walletAddress, telegramId: telegramData?.id });
+    console.log('⚠️ [DEPRECATED] Link-telegram called - wallet connect removed');
+    console.log('🔗 Request:', { walletAddress, telegramId: telegramData?.id });
 
-    if (!walletAddress || !telegramData?.id) {
-      return res.status(400).json({ error: "Missing wallet or Telegram data" });
+    if (!telegramData?.id) {
+      return res.status(400).json({ error: "Missing Telegram data" });
     }
 
     const telegramId = telegramData.id.toString();
 
-    // Find existing Telegram record
-    let telegramWallet = await Wallet.findOne({ telegramId });
+    // Just find or create by telegram ID
+    let wallet = await Wallet.findOne({ telegramId });
     
-    // Find existing wallet record
-    let walletRecord = await Wallet.findOne({ walletAddress });
-
-    // If wallet already has this telegram ID, just return it
-    if (walletRecord && walletRecord.telegramId === telegramId) {
-      console.log('✅ Wallet already linked to this Telegram');
-      return res.json({ success: true, wallet: walletRecord });
+    if (wallet) {
+      console.log('✅ Found existing Telegram user');
+      return res.json({ success: true, wallet });
     }
 
-    // If telegram record exists with temp_ address, update it with real wallet address
-    if (telegramWallet && telegramWallet.walletAddress.startsWith('temp_')) {
-      console.log('📝 Updating Telegram record with real wallet address');
-      
-      // If there's also a wallet-only record, merge and delete it
-      if (walletRecord) {
-        console.log('🔄 Merging wallet-only record data');
-        telegramWallet.totalReward = Math.max(telegramWallet.totalReward || 0, walletRecord.totalReward || 0);
-        telegramWallet.totalHoldings = Math.max(telegramWallet.totalHoldings || 0, walletRecord.totalHoldings || 0);
-        
-        // Delete the duplicate wallet record
-        await Wallet.deleteOne({ _id: walletRecord._id });
-        console.log('🗑️ Deleted duplicate wallet record');
-      }
-      
-      telegramWallet.walletAddress = walletAddress;
-      telegramWallet.telegramConnected = true;
-      await telegramWallet.save();
-      
-      console.log('✅ Wallet linked successfully');
-      return res.json({ success: true, wallet: telegramWallet });
-    }
-
-    // If telegram record exists with different address (tg_ or other), update it
-    if (telegramWallet) {
-      console.log('📝 Updating existing Telegram record');
-      
-      if (walletRecord) {
-        console.log('🔄 Merging wallet record data');
-        telegramWallet.totalReward = Math.max(telegramWallet.totalReward || 0, walletRecord.totalReward || 0);
-        telegramWallet.totalHoldings = Math.max(telegramWallet.totalHoldings || 0, walletRecord.totalHoldings || 0);
-        await Wallet.deleteOne({ _id: walletRecord._id });
-        console.log('🗑️ Deleted duplicate wallet record');
-      }
-      
-      telegramWallet.walletAddress = walletAddress;
-      telegramWallet.telegramConnected = true;
-      telegramWallet.telegramUsername = telegramData.username || telegramWallet.telegramUsername;
-      telegramWallet.telegramFirstName = telegramData.first_name || telegramWallet.telegramFirstName;
-      telegramWallet.telegramLastName = telegramData.last_name || telegramWallet.telegramLastName;
-      telegramWallet.telegramPhotoUrl = telegramData.photo_url || telegramWallet.telegramPhotoUrl;
-      
-      await telegramWallet.save();
-      console.log('✅ Wallet linked successfully');
-      return res.json({ success: true, wallet: telegramWallet });
-    }
-
-    // If no telegram record but wallet exists, update wallet with telegram data
-    if (walletRecord) {
-      console.log('📝 Updating wallet record with Telegram data');
-      walletRecord.telegramId = telegramId;
-      walletRecord.telegramUsername = telegramData.username || null;
-      walletRecord.telegramFirstName = telegramData.first_name || null;
-      walletRecord.telegramLastName = telegramData.last_name || null;
-      walletRecord.telegramPhotoUrl = telegramData.photo_url || null;
-      walletRecord.telegramConnected = true;
-
-      // Mark "Join Telegram" completed
-      const joinTask = walletRecord.tasks.find(t => t.name === "Join Telegram");
-      if (joinTask && !joinTask.completed) {
-        joinTask.completed = true;
-        walletRecord.totalReward += joinTask.reward;
-      }
-
-      await walletRecord.save();
-      console.log('✅ Wallet linked successfully');
-      return res.json({ success: true, wallet: walletRecord });
-    }
-
-    // If neither exists, create new record
-    console.log('✨ Creating new wallet with Telegram data');
-    const newWallet = new Wallet({
-      walletAddress,
+    // Create new user with telegram ID
+    console.log('✨ Creating new wallet with Telegram ID');
+    wallet = new Wallet({
+      walletAddress: walletAddress || `tg_${telegramId}`,
       telegramId,
       telegramUsername: telegramData.username || null,
       telegramFirstName: telegramData.first_name || null,
@@ -557,15 +509,16 @@ app.post("/api/link-telegram", async (req, res) => {
       totalReward: 0.01,
     });
 
-    await newWallet.save();
-    console.log('✅ Wallet created and linked successfully');
-    res.json({ success: true, wallet: newWallet });
+    await wallet.save();
+    console.log('✅ Telegram user created');
+    res.json({ success: true, wallet });
   } catch (err) {
     console.error("❌ Error linking Telegram:", err);
     console.error("❌ Full error details:", err.message, err.stack);
     res.status(500).json({ error: "Server error", details: err.message });
   }
 });
+
 // --- Get currently connected wallet (for frontend auto-login)
 app.get('/api/current-wallet', async (req, res) => {
   try {
