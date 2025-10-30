@@ -7,6 +7,7 @@ import BuycexBanner1 from "../../assets/img/home/BuycexBanner.png";
 import BuycexBanner5 from "../../assets/img/home/BuycexBanner-5.png";
 import BuycexBanner3 from "../../assets/img/home/BuycexBanner-3.png";
 import BuycexBanner4 from "../../assets/img/home/BuycexBanner-4.png";
+import BuycexBanner6 from "../../assets/img/home/BuycexBanner-6.png";
 
 interface StoryProgressProps {
   onClose: () => void;
@@ -17,6 +18,7 @@ const slides = [
   { id: 2, image: BuycexBanner5 },
   { id: 3, image: BuycexBanner3 },
   { id: 4, image: BuycexBanner4 },
+  { id: 5, image: BuycexBanner6 },
 ];
 
 export default function StoryProgress({ onClose }: StoryProgressProps) {
@@ -39,10 +41,10 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
       navigate("/dino");
     } else if (current === slides.length - 1) {
       // Redirect to /get-bcx for last slide
-      navigate("/get-bcx");
+      navigate("/dino");
     } else {
       // Open website for other slides
-      window.open("https://infinity.buycex.com/", "_blank");
+      window.open("/landing", "_blank");
     }
   };
 
@@ -53,11 +55,11 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
         key={`img-${slides[current].id}`}
         src={slides[current].image}
         alt={`Slide ${slides[current].id}`}
-        className="absolute inset-0 w-full h-full object-contain object-center max-w-full max-h-full"
+        className="absolute no-scrollbar mx-auto inset-0 w-full h-full object-contain object-center max-w-full max-h-full"
         style={{
-          width: '100%',
+          width: '400px',
           height: '100%',
-          objectFit: 'contain',
+          objectFit: 'fill',
           objectPosition: 'center'
         }}
         initial={{ opacity: 0 }}
@@ -71,7 +73,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
         {slides.map((_, i) => (
           <div
             key={i}
-            className="flex-1 bg-gray-700 h-1 rounded-full overflow-hidden"
+            className="flex-1 bg-gray-700 h-1 rounded-full scro"
           >
             <motion.div
               className="h-full bg-white"
@@ -87,9 +89,9 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
       <div className="absolute bottom-6 w-full max-w-sm mx-auto px-6 z-20 flex gap-4">
         <button
           onClick={handleLeftButton}
-          className="bg-[#efb81c] font-semibold w-1/2 text-black px-6 py-2 rounded-lg"
+          className="bg-[#82ad4b] font-semibold w-1/2 text-black px-6 py-2 rounded-lg"
         >
-          {slides[current].id === 3 ? "Play Dino" : current === slides.length - 1 ? "Get BCX" : "Visit website"}
+          {slides[current].id === 3 ? "Play Dino" : current === slides.length - 1 ? "Play Now" : "Visit website"}
         </button>
 
         <button

@@ -1,9 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Menu, X, ExternalLink, Twitter, MessageCircle, Zap, Trophy, Star, Target, Lock, Calendar, CheckCircle, Clock } from "lucide-react"
-import Dino from "../../public/dino-2.gif" 
-import Dino2 from "../../public/dino-3.gif" 
+import { Menu, X, ExternalLink, Twitter, MessageCircle, Compass, Gem, Zap, Trophy, Star, Target, Lock, Calendar, CheckCircle, Clock } from "lucide-react"
+import Dino from "../../public/dino-2.gif"
+import Dino2 from "../../public/dino-3.gif"
+import { Link } from "react-router-dom"
+import dinoCoin from "../../src/assets/img/coin-dino.png"
+import { RiTelegram2Fill, RiTwitterXFill } from "react-icons/ri"
 
 export default function LandingMini() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -13,10 +16,10 @@ export default function LandingMini() {
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([])
 
   const quests = [
-    { id: "follow", title: "Follow on Twitter", points: 100, icon: "🐦" },
-    { id: "join-discord", title: "Join Discord", points: 150, icon: "💬" },
-    { id: "share", title: "Share with Friends", points: 200, icon: "🔗" },
-    { id: "hold", title: "Hold 1M $IMDINO", points: 500, icon: "💎" },
+    { id: "follow", title: "Follow on X", points: 100, icon: RiTwitterXFill },
+    { id: "join-discord", title: "Join telegram", points: 150, icon: RiTelegram2Fill },
+    { id: "share", title: "Share with Friends", points: 200, icon: "🔗"  },
+    { id: "hold", title: "Play IMDINO", points: 500, icon: dinoCoin },
   ]
 
   const achievements = [
@@ -64,7 +67,7 @@ export default function LandingMini() {
       title: "Dino Genesis",
       status: "completed",
       items: [
-        "Fair Launch on Solana",
+        "Born From Digital Jungle",
         "Community Building",
         "Website & Social Launch",
         "First 1,000 Holders"
@@ -99,7 +102,7 @@ export default function LandingMini() {
       items: [
         "Multi-chain Expansion",
         "Advanced Game Features",
-        "Dino Metaverse Integration",
+        "Vibe and HODL",
         "Global Tournament System"
       ]
     }
@@ -163,57 +166,31 @@ export default function LandingMini() {
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-sm border-b-4 border-green-400">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4 flex justify-between items-center">
-          <div className="flex items-center gap-1 sm:gap-2">
+          <a href="#home" className="flex items-center gap-1 sm:gap-2">
             <div className="text-2xl sm:text-3xl">🦖</div>
             <h2 className="text-lg sm:text-xl lg:text-2xl font-dino font-black text-white" style={{ textShadow: "0 0 10px rgba(34, 197, 94, 0.5)" }}>
               I AM DINO
             </h2>
-          </div>
-
-          {/* Mobile Points Display */}
-          <div className="flex sm:hidden items-center gap-2">
-            <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-400 rounded text-xs">
-              <Zap size={12} className="text-green-300" />
-              <span className="font-bold text-green-300">{userPoints}</span>
-            </div>
-            <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-400 rounded text-xs">
-              <Trophy size={12} className="text-green-300" />
-              <span className="font-bold text-green-300">{userLevel}</span>
-            </div>
-          </div>
-
-          <div className="hidden lg:flex items-center gap-6">
-            <div className="flex items-center gap-2 px-4 py-2 bg-green-500/20 border-2 border-green-400 rounded-lg">
-              <Zap size={18} className="text-green-300" />
-              <span className="text-sm font-bold text-green-300">{userPoints} PTS</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-green-500/20 border-2 border-green-400 rounded-lg">
-              <Trophy size={18} className="text-green-300" />
-              <span className="text-sm font-bold text-green-300">LVL {userLevel}</span>
-            </div>
-          </div>
+          </a>
 
           <div className="hidden md:flex gap-6 lg:gap-8">
             <a href="#quests" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
               QUESTS
             </a>
-            <a href="#achievements" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
-              ACHIEVEMENTS
-            </a>
-            <a href="#leaderboard" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
-              LEADERBOARD
+            <a href="#how-to-play" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
+              HOW TO PLAY
             </a>
             <a href="#roadmap" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
               ROADMAP
             </a>
             <a href="#about" className="hover:text-green-300 transition font-bold text-sm lg:text-base">
-              ABOUT
+              ABOUT I AM DINO
             </a>
           </div>
 
-          <button className="hidden md:block px-4 lg:px-6 py-2 border-2 border-green-400 text-white bg-green-500 rounded-lg hover:bg-green-400 hover:text-black transition font-bold shadow-lg shadow-green-500/50 text-sm lg:text-base">
+          <Link to="https://t.me/Iamdino_bot" target="_blank" className="hidden md:block px-4 lg:px-6 py-2 border-2 border-green-400 text-white bg-green-500 rounded-lg hover:bg-green-400 hover:text-black transition font-bold shadow-lg shadow-green-500/50 text-sm lg:text-base">
             PLAY NOW
-          </button>
+          </Link>
 
           <button className="md:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -232,26 +209,24 @@ export default function LandingMini() {
             <a href="#quests" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
               QUESTS
             </a>
-            <a href="#achievements" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
-              ACHIEVEMENTS
+            <a href="#how-to-play" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
+              HOW TO PLAY
             </a>
-            <a href="#leaderboard" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
-              LEADERBOARD
-            </a>
-            <a href="#roadmap" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
+            <a href="#roadmap" className="block hover:text-green-300 font-bold py-2">
               ROADMAP
             </a>
             <a href="#about" className="block hover:text-green-300 font-bold py-2" onClick={() => setIsMenuOpen(false)}>
-              ABOUT
+              ABOUT I AM DINO
             </a>
-            <button className="w-full px-6 py-3 border-2 border-green-400 text-white bg-green-500 rounded-lg hover:bg-green-400 hover:text-black transition font-bold mt-4">
+            <a href="https://t.me/Iamdino_bot" target="_blank" className="w-full flex items-center justify-center flex-1 text-center px-6 py-3 border-2 border-green-400 text-white bg-green-500 rounded-lg hover:bg-green-400 hover:text-black transition font-bold mt-4">
               PLAY NOW
-            </button>
+            </a>
           </div>
         )}
       </nav>
 
       <section
+      id="home"
         className="pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-20 px-3 sm:px-4 relative overflow-hidden"
         style={{
           backgroundImage: `linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)`,
@@ -313,7 +288,7 @@ export default function LandingMini() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start">
-              <button className="px-6 sm:px-8 py-3 sm:py-4 bg-green-500 text-black font-black rounded-lg hover:bg-green-400 transition transform hover:scale-105 text-base sm:text-lg shadow-lg shadow-green-500/60 border-2 border-green-400">
+              <button onClick={() => window.open("https://t.me/Iamdino_bot", "_blank")} className="px-6 sm:px-8 py-3 sm:py-4 bg-green-500 text-black font-black rounded-lg hover:bg-green-400 transition transform hover:scale-105 text-base sm:text-lg shadow-lg shadow-green-500/60 border-2 border-green-400">
                 START PLAYING
               </button>
             </div>
@@ -322,205 +297,23 @@ export default function LandingMini() {
           {/* Right - Pixel Art Dino Character */}
           <div className="flex justify-center items-center order-first md:order-last">
             <div className="relative w-full h-64 sm:h-80 md:h-96 flex items-center justify-center">
-              <img src={Dino} alt="Loading..." className="w-40 sm:w-48 md:w-52 h-56 sm:h-64 md:h-72 animate-bounce" />
+              <img src={Dino} alt="Loading..." className="w-40 sm:w-48 md:w-80 h-56 sm:h-64 md:h-96 transform -scale-x-100" />
               <div className="absolute inset-0 bg-gradient-to-r from-green-500/30 to-transparent rounded-full blur-3xl"></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Daily Quests Section */}
-      <section id="quests" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-green-500/10 border-y-4 border-green-400">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <Target size={24} className="text-green-300 sm:w-8 sm:h-8" />
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
-              DAILY QUESTS
-            </h2>
-          </div>
-          <p className="text-sm sm:text-base text-gray-300 mb-8 sm:mb-12 font-bold text-center sm:text-left">Complete quests to earn points and level up!</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            {quests.map((quest) => {
-              const isCompleted = completedQuests.includes(quest.id)
-              return (
-                <div
-                  key={quest.id}
-                  className={`p-4 sm:p-6 border-4 rounded-lg transition ${
-                    isCompleted
-                      ? "bg-green-500/30 border-green-400"
-                      : "bg-black border-green-400 hover:border-green-300"
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-3 sm:mb-4">
-                    <div className="text-3xl sm:text-4xl">{quest.icon}</div>
-                    <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 bg-green-500/40 border-2 border-green-400 rounded-lg">
-                      <Zap size={14} className="text-green-300 sm:w-4 sm:h-4" />
-                      <span className="text-xs sm:text-sm font-black text-green-300">+{quest.points}</span>
-                    </div>
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-black text-white mb-3 sm:mb-4">{quest.title}</h3>
-                  <button
-                    onClick={() => handleCompleteQuest(quest.id, quest.points)}
-                    disabled={isCompleted}
-                    className={`w-full py-2 sm:py-3 rounded-lg font-black transition border-2 text-sm sm:text-base ${
-                      isCompleted
-                        ? "bg-green-500/30 text-green-300 border-green-400 cursor-default"
-                        : "bg-green-500 text-black hover:bg-green-400 border-green-400"
-                    }`}
-                  >
-                    {isCompleted ? "✓ COMPLETED" : "COMPLETE QUEST"}
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Roadmap Section */}
-      <section id="roadmap" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-black">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <Calendar size={24} className="text-green-300 sm:w-8 sm:h-8" />
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
-              DINOSAUR ROADMAP
-            </h2>
-          </div>
-          <p className="text-sm sm:text-base text-gray-300 mb-8 sm:mb-12 font-bold text-center sm:text-left">Witness the evolution of I AM DINO from hatchling to apex predator!</p>
-
-          <div className="relative">
-            {/* Timeline line - hidden on mobile, visible on desktop */}
-            <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-2 bg-green-400/30 rounded-full"></div>
-            
-            <div className="space-y-8 sm:space-y-12">
-              {roadmapItems.map((phase, index) => (
-                <div key={phase.phase} className="relative">
-                  {/* Mobile: Simple vertical layout */}
-                  <div className="md:hidden">
-                    <div className="flex items-start gap-4">
-                      {/* Mobile timeline node */}
-                      <div className="w-6 h-6 rounded-full bg-green-500 border-2 border-black flex-shrink-0 mt-1"></div>
-                      
-                      {/* Content */}
-                      <div className="flex-1">
-                        <div className={`p-4 sm:p-6 border-4 rounded-lg ${getStatusColor(phase.status)} transition`}>
-                          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                            {getStatusIcon(phase.status)}
-                            <div>
-                              <span className="text-xs sm:text-sm font-black text-green-300 uppercase tracking-wide">{phase.phase}</span>
-                              <h3 className="text-lg sm:text-xl font-black text-white">{phase.title}</h3>
-                            </div>
-                          </div>
-                          <ul className="space-y-1 sm:space-y-2">
-                            {phase.items.map((item, itemIndex) => (
-                              <li key={itemIndex} className="flex items-start gap-2 text-gray-300 font-bold text-sm sm:text-base">
-                                <span className="text-green-400 mt-1">•</span>
-                                <span>{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="mt-3 sm:mt-4 flex items-center gap-2">
-                            <div className={`px-2 py-1 rounded text-xs font-black ${
-                              phase.status === 'completed' ? 'bg-green-500 text-black' :
-                              phase.status === 'current' ? 'bg-yellow-500 text-black' :
-                              phase.status === 'upcoming' ? 'bg-blue-500 text-white' :
-                              'bg-purple-500 text-white'
-                            }`}>
-                              {phase.status.toUpperCase()}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Desktop: Alternating layout */}
-                  <div className={`hidden md:flex ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'} items-center`}>
-                    {/* Timeline node */}
-                    <div className="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-green-500 border-4 border-black z-10"></div>
-                    
-                    {/* Content */}
-                    <div className={`w-5/12 ${index % 2 === 0 ? 'pr-12' : 'pl-12'}`}>
-                      <div className={`p-6 border-4 rounded-lg ${getStatusColor(phase.status)} transition hover:scale-105`}>
-                        <div className="flex items-center gap-3 mb-4">
-                          {getStatusIcon(phase.status)}
-                          <div>
-                            <span className="text-sm font-black text-green-300 uppercase tracking-wide">{phase.phase}</span>
-                            <h3 className="text-2xl font-black text-white">{phase.title}</h3>
-                          </div>
-                        </div>
-                        <ul className="space-y-2">
-                          {phase.items.map((item, itemIndex) => (
-                            <li key={itemIndex} className="flex items-center gap-2 text-gray-300 font-bold">
-                              <span className="text-green-400">•</span>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                        <div className="mt-4 flex items-center gap-2">
-                          <div className={`px-2 py-1 rounded text-xs font-black ${
-                            phase.status === 'completed' ? 'bg-green-500 text-black' :
-                            phase.status === 'current' ? 'bg-yellow-500 text-black' :
-                            phase.status === 'upcoming' ? 'bg-blue-500 text-white' :
-                            'bg-purple-500 text-white'
-                          }`}>
-                            {phase.status.toUpperCase()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Leaderboard Section */}
-      <section id="leaderboard" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-green-500/10 border-y-4 border-green-400">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <Trophy size={24} className="text-green-300 sm:w-8 sm:h-8" />
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
-              LEADERBOARD
-            </h2>
-          </div>
-          <p className="text-sm sm:text-base text-gray-300 mb-8 sm:mb-12 font-bold text-center sm:text-left">Compete with the community and climb the ranks!</p>
-
-          <div className="space-y-2 sm:space-y-3">
-            {leaderboard.map((player) => (
-              <div
-                key={player.rank}
-                className={`p-3 sm:p-4 rounded-lg border-4 flex items-center justify-between transition ${
-                  player.isUser
-                    ? "bg-green-500/30 border-green-400"
-                    : "bg-black border-green-400 hover:border-green-300"
-                }`}
-              >
-                <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
-                  <div className="text-lg sm:text-2xl font-black text-green-300 w-6 sm:w-8 flex-shrink-0">#{player.rank}</div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-black text-white text-sm sm:text-base truncate">{player.name}</p>
-                    <p className="text-xs sm:text-sm text-gray-400 font-bold">Level {player.level}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                  <Zap size={16} className="text-green-300 sm:w-5 sm:h-5" />
-                  <span className="text-lg sm:text-xl font-black text-green-300">{player.points}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* About Section */}
       <section id="about" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 sm:gap-12 items-start md:items-center">
           <div className="order-2 md:order-1 flex justify-center md:justify-start">
-            <img src={Dino2} alt="Loading..." className="w-64 sm:w-80 h-48 sm:h-60 object-contain" />
+            <img
+              src={Dino2}
+              alt="Loading..."
+              className="w-72 md:w-96 h-56 md:h-72"
+            />
+
           </div>
           <div className="space-y-4 sm:space-y-6 order-1 md:order-2 text-center md:text-left">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
@@ -535,7 +328,7 @@ export default function LandingMini() {
               Fueled by players. Powered by community. In this jungle, logic takes a backseat — fun earns you coins,
               memes build empires, and every roar echoes across the blockchain.
             </p>
-            <div className="space-y-2 sm:space-y-3 pt-2 sm:pt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-1 space-y-2 sm:space-y-3 pt-2 sm:pt-4">
               <div className="flex items-center gap-2 sm:gap-3 justify-center md:justify-start">
                 <span className="text-green-300 text-xl sm:text-2xl font-black">✓</span>
                 <span className="text-gray-300 font-bold text-sm sm:text-base">Zero transaction taxes</span>
@@ -557,6 +350,217 @@ export default function LandingMini() {
         </div>
       </section>
 
+      {/* Roadmap Section */}
+      <section id="roadmap" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-black">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <Calendar size={24} className="text-green-300 sm:w-8 sm:h-8 hidden md:block" />
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center md:text-left mx-auto md:mx-0" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
+              DINO JUNGLEMAP
+            </h2>
+          </div>
+          <p className="text-sm sm:text-base text-gray-300 mb-8 sm:mb-12 font-bold text-center sm:text-left">Witness the evolution of I AM DINO from hatchling to apex predator!</p>
+
+          <div className="relative">
+            {/* Timeline line - hidden on mobile, visible on desktop */}
+            <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-2 bg-green-400/30 rounded-full"></div>
+
+            <div className="space-y-8 sm:space-y-12">
+              {roadmapItems.map((phase, index) => (
+                <div key={phase.phase} className="relative">
+                  {/* Mobile: Simple vertical layout */}
+                  <div className="md:hidden">
+                    <div className="flex items-start gap-4">
+                      {/* Mobile timeline node */}
+                      <div className="w-6 h-6 rounded-full hidden md:flex bg-green-500 border-2 border-black flex-shrink-0 mt-1"></div>
+
+                      {/* Content */}
+                      <div className="flex-1">
+                        <div className={`p-4 sm:p-6 border-4 rounded-lg ${getStatusColor(phase.status)} transition`}>
+                          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                            {getStatusIcon(phase.status)}
+                            <div>
+                              <span className="text-xs sm:text-sm font-black text-green-300 uppercase tracking-wide">{phase.phase}</span>
+                              <h3 className="text-lg sm:text-xl font-black text-white">{phase.title}</h3>
+                            </div>
+                          </div>
+                          <ul className="space-y-1 sm:space-y-2">
+                            {phase.items.map((item, itemIndex) => (
+                              <li key={itemIndex} className="flex items-start gap-2 text-gray-300 font-bold text-sm sm:text-base">
+                                <span className="text-green-400 mt-1">•</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          <div className="mt-3 sm:mt-4 flex items-center gap-2">
+                            <div className={`px-2 py-1 rounded text-xs font-black ${phase.status === 'completed' ? 'bg-green-500 text-black' :
+                              phase.status === 'current' ? 'bg-yellow-500 text-black' :
+                                phase.status === 'upcoming' ? 'bg-blue-500 text-white' :
+                                  'bg-purple-500 text-white'
+                              }`}>
+                              {phase.status.toUpperCase()}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Desktop: Alternating layout */}
+                  <div className={`hidden md:flex ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'} items-center`}>
+                    {/* Timeline node */}
+                    <div className="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-green-500 border-4 border-black z-10"></div>
+
+                    {/* Content */}
+                    <div className={`w-5/12 ${index % 2 === 0 ? 'pr-12' : 'pl-12'}`}>
+                      <div className={`p-6 border-4 rounded-lg ${getStatusColor(phase.status)} transition hover:scale-105`}>
+                        <div className="flex items-center gap-3 mb-4">
+                          {getStatusIcon(phase.status)}
+                          <div>
+                            <span className="text-sm font-black text-green-300 uppercase tracking-wide">{phase.phase}</span>
+                            <h3 className="text-2xl font-black text-white">{phase.title}</h3>
+                          </div>
+                        </div>
+                        <ul className="space-y-2">
+                          {phase.items.map((item, itemIndex) => (
+                            <li key={itemIndex} className="flex items-center gap-2 text-gray-300 font-bold">
+                              <span className="text-green-400">•</span>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-4 flex items-center gap-2">
+                          <div className={`px-2 py-1 rounded text-xs font-black ${phase.status === 'completed' ? 'bg-green-500 text-black' :
+                            phase.status === 'current' ? 'bg-yellow-500 text-black' :
+                              phase.status === 'upcoming' ? 'bg-blue-500 text-white' :
+                                'bg-purple-500 text-white'
+                            }`}>
+                            {phase.status.toUpperCase()}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Daily Quests Section */}
+      <section id="quests" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-green-500/10 border-y-4 border-green-400">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <Target size={24} className="text-green-300 sm:w-8 sm:h-8 hidden md:block" />
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center md:text-left mx-auto md:mx-0" style={{ textShadow: "0 0 10px rgba(34,197,94,0.5)", fontFamily: "var(--font-heading)" }}>
+              DAILY QUESTS
+            </h2>
+          </div>
+          <p className="text-sm sm:text-base text-gray-300 mb-8 sm:mb-12 font-bold text-center sm:text-left">Complete quests to earn points and level up!</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            {quests.map((quest) => {
+              const isCompleted = completedQuests.includes(quest.id)
+              return (
+                <div
+                  key={quest.id}
+                  className={`p-4 sm:p-6 border-4 rounded-lg transition ${isCompleted
+                    ? "bg-green-500/30 border-green-400"
+                    : "bg-black border-green-400 hover:border-green-300"
+                    }`}
+                >
+                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                    <div className="text-3xl sm:text-4xl">
+                      {typeof quest.icon === "string" ? (
+                        (quest.icon as string).includes(".png") ? (
+                          <img src={quest.icon as string} alt="quest" className="w-8 h-8 sm:w-10 sm:h-10" />
+                        ) : (
+                          <span>{quest.icon}</span>
+                        )
+                      ) : (
+                        (() => {
+                          const IconComp = quest.icon as React.ComponentType<{ className?: string }>
+                          return <IconComp className="w-8 h-8 sm:w-10 sm:h-10" />
+                        })()
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 bg-green-500/40 border-2 border-green-400 rounded-lg">
+                      <Zap size={14} className="text-green-300 sm:w-4 sm:h-4" />
+                      <span className="text-xs sm:text-sm font-black text-green-300">+{quest.points}</span>
+                    </div>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black text-white mb-3 sm:mb-4">{quest.title}</h3>
+                  <button
+                    onClick={() => window.open("https://t.me/Iamdino_bot", "_blank")}
+                    className={`w-full py-2 sm:py-3 rounded-lg font-black transition border-2 text-sm sm:text-base ${isCompleted
+                      ? "bg-green-500/30 text-green-300 border-green-400 cursor-default"
+                      : "bg-green-500 text-black hover:bg-green-400 border-green-400"
+                      }`}
+                  >
+                    COMPLETE QUEST
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* How to Play Section */}
+      <section id="how-to-play" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-black border-y-4 border-green-400">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <Zap size={28} className="text-green-300 sm:w-8 sm:h-8 hidden md:block" />
+            <h2
+              className="text-3xl sm:text-4xl md:text-5xl font-black text-white text-center md:text-left mx-auto md:mx-0"
+              style={{
+                textShadow: "0 0 10px rgba(34,197,94,0.5)",
+                fontFamily: "var(--font-heading)",
+              }}
+            >
+              HOW TO PLAY
+            </h2>
+          </div>
+          <p className="text-sm sm:text-base text-gray-300 mb-8 sm:mb-12 font-bold text-center sm:text-left">
+            Follow these simple steps to become the ultimate Dino explorer!
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="p-6 border-4 border-green-400 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition text-center">
+              <Compass size={48} className="text-green-300 mx-auto mb-4" />
+              <h3 className="text-xl font-black text-white mb-2">1. Join the Jungle</h3>
+              <p className="text-gray-300 text-sm font-bold">
+                Connect to the Telegram Mini App and enter the Dino ecosystem.
+              </p>
+            </div>
+
+            <div className="p-6 border-4 border-green-400 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition text-center">
+              <Target size={40} className="text-green-300 mx-auto mb-4" />
+              <h3 className="text-xl font-black text-white mb-2">2. Complete Games & Quests</h3>
+              <p className="text-gray-300 text-sm font-bold">
+                Finish daily tasks like sharing, following, or playing games.
+              </p>
+            </div>
+
+            <div className="p-6 border-4 border-green-400 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition text-center">
+              <Gem size={40} className="text-green-300 mx-auto mb-4" />
+              <h3 className="text-xl font-black text-white mb-2">3. Earn Coins</h3>
+              <p className="text-gray-300 text-sm font-bold">
+                Claim IMDINO coins by completing games and quests.
+              </p>
+            </div>
+
+          </div>
+
+          <div className="text-center mt-10">
+            <button onClick={() => window.open("https://t.me/Iamdino_bot", "_blank")} className="px-8 py-4 bg-green-500 text-black font-black rounded-lg hover:bg-green-400 transition transform hover:scale-105 text-lg shadow-lg shadow-green-500/60 border-2 border-green-400">
+              START YOUR JOURNEY
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 bg-green-500/10 border-y-4 border-green-400">
         <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
@@ -570,11 +574,11 @@ export default function LandingMini() {
             Start earning points, unlock achievements, and compete on the leaderboard today!
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <button className="px-6 sm:px-8 md:px-10 py-3 sm:py-4 bg-green-500 text-black font-black rounded-lg hover:bg-green-400 transition transform hover:scale-105 text-base sm:text-lg shadow-lg shadow-green-500/60 border-2 border-green-400">
+            <button onClick={() => window.open("https://t.me/Iamdino_bot", "_blank")} className="px-6 sm:px-8 md:px-10 py-3 sm:py-4 bg-green-500 text-black font-black rounded-lg hover:bg-green-400 transition transform hover:scale-105 text-base sm:text-lg shadow-lg shadow-green-500/60 border-2 border-green-400">
               PLAY NOW
             </button>
-            <button className="px-6 sm:px-8 md:px-10 py-3 sm:py-4 border-4 border-green-400 text-green-300 font-black rounded-lg hover:bg-green-500/20 transition text-base sm:text-lg">
-              JOIN DISCORD
+            <button onClick={() => window.open("https://t.me/imdinocoin", "_blank")} className="px-6 sm:px-8 md:px-10 py-3 sm:py-4 border-4 border-green-400 text-green-300 font-black rounded-lg hover:bg-green-500/20 transition text-base sm:text-lg">
+              JOIN TELEGRAM
             </button>
           </div>
         </div>
@@ -597,18 +601,18 @@ export default function LandingMini() {
               <h4 className="font-black text-white mb-3 sm:mb-4 text-sm sm:text-base">LINKS</h4>
               <ul className="space-y-1 sm:space-y-2 text-gray-400 text-xs sm:text-sm">
                 <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
+                  <a href="https://x.com/imdinocoin?s=21" className="hover:text-green-300 transition font-bold">
                     Twitter
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Discord
+                  <a href="https://t.me/imdinocoin" className="hover:text-green-300 transition font-bold">
+                    Telegram
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Telegram
+                  <a href="https://t.me/iamdinocoin" className="hover:text-green-300 transition font-bold">
+                  Telegram Channel
                   </a>
                 </li>
               </ul>
@@ -618,39 +622,10 @@ export default function LandingMini() {
               <ul className="space-y-1 sm:space-y-2 text-gray-400 text-xs sm:text-sm">
                 <li>
                   <a href="#" className="hover:text-green-300 transition font-bold">
-                    Whitepaper
+                  The Jungle Paper
                   </a>
                 </li>
-                <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Contract
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Audit
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-black text-white mb-3 sm:mb-4 text-sm sm:text-base">LEGAL</h4>
-              <ul className="space-y-1 sm:space-y-2 text-gray-400 text-xs sm:text-sm">
-                <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Terms
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Privacy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-green-300 transition font-bold">
-                    Disclaimer
-                  </a>
-                </li>
+               
               </ul>
             </div>
           </div>

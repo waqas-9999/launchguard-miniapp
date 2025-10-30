@@ -40,7 +40,7 @@ export default function GameInfoModal({ open, onClose }) {
           <h3 className="text-lg font-extrabold text-[#82ad4b]">Rewards</h3>
         </div>
         <div className="text-sm leading-6 space-y-1">
-          <div>• Get 1 IMDINO for every 100 points you score.</div>
+          <div>• Get IMDINO for every 100 points you score.</div>
           <div>• Only full 100-point milestones count.</div>
           
           <div className="pt-1">If you crash before the next 100 points (e.g. 150 pts), you keep your last reward only.</div>
