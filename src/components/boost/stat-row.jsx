@@ -122,7 +122,7 @@ export function StatRow({ icon, label, value, hint, muted = false, onClick, hide
           )}
           {hint && <span className="text-xs text-gray-500">{hint}</span>}
         </div>
-        {trailing && <div className="text-gray-400">{trailing}</div>}
+        {/* {trailing && <div className="text-gray-400">{trailing}</div>} */}
       </div>
     </motion.div>
   )
