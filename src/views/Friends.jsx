@@ -5,96 +5,85 @@ import { Gift, Copy } from "lucide-react";
 import InviteModal from "../components/global/InviteModal";
 import toast from "react-hot-toast";
 
+const API_BASE = "http://localhost:5000";
+const NGROK_BASE = "https://kora-brotherless-unofficiously.ngrok-free.dev";
+
 function Friends() {
   const [open, setOpen] = useState(false);
-  const [wallet, setWallet] = useState(null);
+  const [user, setUser] = useState(null);
   const [referralData, setReferralData] = useState({
     totalReward: 0,
     friendsReferred: 0,
   });
 
+  // Get Telegram user data
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const referrer = params.get("code");
-
-    if (referrer) {
-      axios
-        .post("https://kora-brotherless-unofficiously.ngrok-free.dev/api/referral-join", {
-          referrer,
-          telegramId: window.Telegram.WebApp.initDataUnsafe?.user?.id,
-          telegramFirstName: window.Telegram.WebApp.initDataUnsafe?.user?.first_name,
-          telegramUsername: window.Telegram.WebApp.initDataUnsafe?.user?.username,
-          telegramPhotoUrl: window.Telegram.WebApp.initDataUnsafe?.user?.photo_url,
-        })
-        .then((res) => {
-          if (res.data.success) toast.success("Joined via referral!");
-          else toast.error(res.data.error);
-        })
-        .catch(() => toast.error("Error joining referral"));
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    if (tgUser) {
+      setUser(tgUser);
+      fetchUserData(tgUser.id.toString());
     }
   }, []);
 
-  const fetchUserWallet = async () => {
+  // Handle referral join when user opens app with referral code
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const referrerTelegramId = params.get("ref");
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+
+    if (referrerTelegramId && tgUser) {
+      const joinedKey = `joined_${tgUser.id}`;
+      const alreadyJoined = localStorage.getItem(joinedKey);
+
+      if (!alreadyJoined) {
+        console.log('🔗 Processing referral join:', { referrerTelegramId, userId: tgUser.id });
+        
+        axios
+          .post(`${API_BASE}/api/referral-join`, {
+            referrerTelegramId,
+            telegramId: tgUser.id.toString(),
+            telegramFirstName: tgUser.first_name,
+            telegramLastName: tgUser.last_name,
+            telegramUsername: tgUser.username,
+            telegramPhotoUrl: tgUser.photo_url,
+          })
+          .then((res) => {
+            if (res.data.success) {
+              localStorage.setItem(joinedKey, 'true');
+              toast.success(`Welcome! You've joined via ${referrerTelegramId}'s referral!`);
+              fetchUserData(tgUser.id.toString());
+            } else {
+              console.log('Referral join response:', res.data.error);
+              if (res.data.error !== "Already joined") {
+                toast.error(res.data.error);
+              }
+            }
+          })
+          .catch((err) => {
+            console.error("Referral join error:", err);
+            toast.error("Error joining referral");
+          });
+      }
+    }
+  }, []);
+
+  const fetchUserData = async (telegramId) => {
     try {
-      const res = await axios.get("http://localhost:5000/api/current-wallet");
+      const res = await axios.get(`${API_BASE}/api/referral-stats/${telegramId}`);
       if (res.data.success) {
-        setWallet(res.data.wallet);
-        fetchReferralData(res.data.wallet.walletAddress);
-      } else {
-        console.warn("No wallet found, waiting for user to connect...");
+        setReferralData(res.data);
       }
     } catch (err) {
-      console.error("Error fetching user wallet:", err);
+      console.error("Error fetching user data:", err);
     }
   };
 
-  const fetchReferralData = async (address) => {
-    try {
-      const res = await axios.get(
-        `http://localhost:5000/api/referral-stats/${address}`
-      );
-      if (res.data.success) setReferralData(res.data);
-    } catch (err) {
-      console.error("Error fetching referral data:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserWallet();
-  }, []);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const referrer = params.get("code");
-    const joinedWallet = localStorage.getItem("joinedWallet");
-
-    if (referrer && !joinedWallet) {
-      axios
-        .post("http://localhost:5000/api/wallet", {
-          walletAddress: `temp_${Date.now()}`,
-          referrer,
-        })
-        .then((res) => {
-          if (res.data.success) {
-            localStorage.setItem("joinedWallet", res.data.wallet.walletAddress);
-            toast.success("Joined successfully via referral!");
-          } else {
-            toast.error(res.data.error || "Invalid referrer or already joined");
-          }
-        })
-        .catch((err) => {
-          console.error("Referral join error:", err);
-          toast.error("Server error while joining referral");
-        });
-    }
-  }, []);
-
-  const referralLink = wallet
-    ? `${window.location.origin}/referral?code=${wallet.walletAddress}`
-    : "Connect your wallet to get your referral link";
+  const referralLink = user
+    ? `https://t.me/LaunchGuardBot/app?startapp=ref_${user.id}`
+    : "Loading...";
 
   const handleCopy = async () => {
-    if (!wallet) return toast.error("Connect your wallet first");
+    if (!user) return toast.error("Please wait for user data to load");
     try {
       await navigator.clipboard.writeText(referralLink);
       toast.success("Referral link copied!");
@@ -107,6 +96,19 @@ function Friends() {
       document.execCommand("copy");
       document.body.removeChild(textArea);
       toast.success("Referral link copied!");
+    }
+  };
+
+  const handleShare = () => {
+    if (!user) return toast.error("Please wait for user data to load");
+    
+    const shareText = `Join me on LaunchGuard and earn IMDINO tokens! 🚀`;
+    const shareUrl = referralLink;
+
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.openTelegramLink(
+        `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`
+      );
     }
   };
 
@@ -126,7 +128,7 @@ function Friends() {
             <p className="text-transparent bg-clip-text bg-white font-semibold text-lg">
               Earn IMDINO for every
             </p>
-            <p className="text-gray-300 text-sm">Coin your friend buys</p>
+            <p className="text-gray-300 text-sm">Friend you invite</p>
           </div>
           <div className="bg-gradient-to-br from-white to-gray-300 p-3 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.4)]">
             <Gift className="text-black w-7 h-7" />
@@ -173,7 +175,12 @@ function Friends() {
       </div>
 
       <BottomNav />
-      <InviteModal open={open} onClose={() => setOpen(false)} />
+      <InviteModal 
+        open={open} 
+        onClose={() => setOpen(false)} 
+        referralLink={referralLink}
+        onShare={handleShare}
+      />
     </div>
   );
 }
