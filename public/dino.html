@@ -153,23 +153,12 @@
   .runner-container {
     width: 100% !important;
     max-width: 100% !important;
-    /* Android performance optimizations */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    will-change: transform;
   }
 
   .runner-canvas {
     width: 100% !important;
     height: auto !important;
     display: block;
-    /* Hardware acceleration for smoother rendering on Android */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    perspective: 1000px;
-    -webkit-perspective: 1000px;
   }
 
   /* Info button */
@@ -1255,11 +1244,6 @@
     } else if (Runner.keycodes.DUCK[keyCode]) {
     this.tRex.speedDrop = false;
     } else if (this.crashed) {
-    // ⛔ PREVENT RESTART IF NO PLAYS LEFT
-    if (this.turnsLeft <= 0) {
-      console.log('⛔ [DINO] Cannot restart - no plays remaining');
-      return; // Block all restart attempts
-    }
     // Check that enough time has elapsed before allowing jump key to restart.
     var deltaTime = getTimeStamp() - this.time;
     if (Runner.keycodes.RESTART[keyCode] ||
@@ -1353,43 +1337,35 @@
           window.__dinoShowOverlay('Daily Limit Reached 🚫');
         }
       }, 600);
-    } else {
-      // ✅ Create Retry button only if plays remaining
-      if (!this.retryButton) {
-        var btn = document.createElement('button');
-        btn.textContent = 'Retry';
-        btn.setAttribute('type', 'button');
-        btn.style.position = 'absolute';
-        btn.style.left = '50%';
-        btn.style.transform = 'translateX(-50%)';
-        btn.style.bottom = '-220px';
-        btn.style.padding = '12px 32px';
-        btn.style.borderRadius = '10px';
-        btn.style.border = '1px solid rgba(34,197,94,0.2)';
+    }
+    // Create Retry button below the game over panel.
+    if (!this.retryButton) {
+      var btn = document.createElement('button');
+      btn.textContent = 'Retry';
+      btn.setAttribute('type', 'button');
+      btn.style.position = 'absolute';
+      btn.style.left = '50%';
+      btn.style.transform = 'translateX(-50%)';
+      btn.style.bottom = '-220px';
+      btn.style.padding = '0px 20px';
+      btn.style.borderRadius = '10px';
+      btn.style.border = '1px solid rgba(34,197,94,0.2)';
+      btn.style.background = 'rgba(255,255,255,0.05)';
+      btn.style.color = '#fffff';
+      btn.style.fontWeight = '600';
+      btn.style.cursor = 'pointer';
+      // btn.style.backdropFilter = 'blur(6px)';
+      // btn.style.boxShadow = '0 0 20px rgba(34,197,94,0.15)';
+      btn.style.transition = 'all 150ms ease-in-out';
+      btn.addEventListener('mouseenter', function(){
+        btn.style.background = 'rgba(255,255,255,0.08)';
+      });
+      btn.addEventListener('mouseleave', function(){
         btn.style.background = 'rgba(255,255,255,0.05)';
-        btn.style.color = '#ffffff';
-        btn.style.fontSize = '16px';
-        btn.style.fontWeight = '600';
-        btn.style.cursor = 'pointer';
-        btn.style.transition = 'all 150ms ease-in-out';
-        btn.style.touchAction = 'manipulation'; // Better touch response on Android
-        btn.addEventListener('mouseenter', function(){
-          btn.style.background = 'rgba(255,255,255,0.08)';
-        });
-        btn.addEventListener('mouseleave', function(){
-          btn.style.background = 'rgba(255,255,255,0.05)';
-        });
-        btn.addEventListener('click', function() {
-          // ⛔ Double-check plays remaining before restart
-          if (this.turnsLeft <= 0) {
-            console.log('⛔ [DINO] Retry button blocked - no plays remaining');
-            return;
-          }
-          this.restart();
-        }.bind(this));
-        this.containerEl.appendChild(btn);
-        this.retryButton = btn;
-      }
+      });
+      btn.addEventListener('click', this.restart.bind(this));
+      this.containerEl.appendChild(btn);
+      this.retryButton = btn;
     }
     // Update the high score.
     if (this.distanceRan > this.highestScore) {
@@ -1483,36 +1459,17 @@
     */
     Runner.updateCanvasScaling = function(canvas, opt_width, opt_height) {
     var context = canvas.getContext('2d');
-    
-    // Disable image smoothing for crisp pixel art
     context.imageSmoothingEnabled = false;
-    context.webkitImageSmoothingEnabled = false;
-    context.mozImageSmoothingEnabled = false;
-    context.msImageSmoothingEnabled = false;
-    
-    // For Android: Use lower DPI to improve performance
-    var dpr = 1; // Fixed DPI for consistent performance
-    if (window.devicePixelRatio && window.devicePixelRatio > 1) {
-      // On high-DPI Android devices, use lower multiplier for better performance
-      var isAndroid = /Android/i.test(navigator.userAgent);
-      dpr = isAndroid ? 1.5 : Math.min(window.devicePixelRatio, 2);
-    }
-    
+    // Prefer native pixel size to avoid expensive high-DPI upscaling
+    // and keep crisp pixel-art by disabling smoothing.
+    context.imageSmoothingEnabled = false;
     var oldWidth = opt_width || canvas.width;
     var oldHeight = opt_height || canvas.height;
-    
-    // Set actual canvas size (accounting for DPI)
-    canvas.width = oldWidth * dpr;
-    canvas.height = oldHeight * dpr;
-    
-    // Set display size
+    canvas.width = oldWidth;
+    canvas.height = oldHeight;
     canvas.style.width = oldWidth + 'px';
     canvas.style.height = oldHeight + 'px';
-    
-    // Scale context to match DPI
-    context.scale(dpr, dpr);
-    
-    return true;
+    return false;
     };
     /**
     * Get random number.
