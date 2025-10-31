@@ -59,7 +59,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
         style={{
           width: '400px',
           height: '100%',
-          objectFit: 'fill',
+          objectFit: 'contain',
           objectPosition: 'center'
         }}
         initial={{ opacity: 0 }}
