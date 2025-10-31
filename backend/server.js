@@ -7,12 +7,24 @@ const app = express();
 
 // CORS configuration - must be before other middleware
 app.use(cors({
-  origin: [
-    "http://localhost:5173", // your local React app
-    "https://isochronous-packable-sherly.ngrok-free.dev",
-    "https://pussly-retreatal-veda.ngrok-free.dev", // your frontend ngrok link
-    "https://kora-brotherless-unofficiously.ngrok-free.dev"
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "https://isochronous-packable-sherly.ngrok-free.dev",
+      "https://pussly-retreatal-veda.ngrok-free.dev",
+      "https://kora-brotherless-unofficiously.ngrok-free.dev"
+    ];
+    
+    // Allow all trycloudflare.com subdomains
+    if (origin.includes('trycloudflare.com') || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
   credentials: true

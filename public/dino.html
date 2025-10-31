@@ -1,22 +1,654 @@
 <html>
 
 <head>
-<title>T-Rex Game</title>
-<meta name="description" content="Ripped T-Rex/Dino game of Chromium">
-<meta property="og:title" content="Play the hidden T-Rex Dinosaur game of Chromium .">
+<title>IMDINO Game - Buycex</title>
+<meta name="description" content="Play the Buycex Dino game and earn rewards">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta property="og:title" content="Play IMDINO Game">
 <meta property="og:type" content="article">
-<meta property="og:url" content="http://www.thecodepost.org">
-<meta property="og:image" content="http://img.thecodepost.org/2015/01/trex.png">
-<meta property="og:site_name" content="The Code Post">
-<meta property="og:description" content="Google Chrome has a hidden T-Rex game only for offline mode. But now, you can enjoy it any time and on any device, but you gotta stay online!!!">
+<meta property="og:description" content="Jump, score, earn! Play the Buycex Dino game.">
 
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@thecodepost">
-<meta name="twitter:creator" content="@thecodepost">
-<meta name="twitter:title" content="Check out the cool hidden game from Google Chrome!">
-<meta name="twitter:description" content="Check out the cool hidden game from Google Chrome!">
-<meta name="twitter:image:src" content="http://img.thecodepost.org/2015/01/trex.png">
-<script src="https://apis.google.com/js/platform.js" async defer></script>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #0a0b0d 0%, #1a1d21 50%, #0a0b0d 100%);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    overflow: hidden;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  /* Animated background particles */
+  .bg-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(130, 173, 75, 0.3);
+    border-radius: 50%;
+    animation: float 15s infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: 0.5; }
+    50% { transform: translateY(-100vh) translateX(50px); opacity: 0.8; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(-200vh) translateX(0); opacity: 0; }
+  }
+
+  /* Game container with stunning border */
+  #game-container {
+    position: relative;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 16px;
+    background: linear-gradient(145deg, rgba(15, 17, 20, 0.95), rgba(10, 11, 13, 0.98));
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: blur(10px);
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Glow effect on container */
+  #game-container::before {
+    display: none;
+  }
+
+  @keyframes glow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+  }
+
+  /* Header section */
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, rgba(130, 173, 75, 0.08), rgba(130, 173, 75, 0.03));
+    border-radius: 12px;
+    border: 1px solid rgba(130, 173, 75, 0.15);
+  }
+
+  .score-display {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .score-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .score-label {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.3px;
+  }
+
+  .score-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #82ad4b;
+    text-shadow: 0 0 20px rgba(130, 173, 75, 0.4);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .plays-badge {
+    padding: 6px 12px;
+    background: linear-gradient(135deg, rgba(130, 173, 75, 0.15), rgba(130, 173, 75, 0.08));
+    border: 1px solid rgba(130, 173, 75, 0.3);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #82ad4b;
+    text-shadow: 0 0 10px rgba(130, 173, 75, 0.3);
+  }
+
+  /* Canvas wrapper with enhanced styling */
+  .canvas-wrapper {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0b0c0e;
+    border: 2px solid rgba(130, 173, 75, 0.2);
+    box-shadow: 
+      inset 0 0 60px rgba(0, 0, 0, 0.5),
+      0 8px 32px rgba(0, 0, 0, 0.4);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 360px;
+  }
+
+  .runner-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .runner-canvas {
+    width: 100% !important;
+    height: auto !important;
+    display: block;
+  }
+
+  /* Info button */
+  .info-button {
+    position: fixed;
+    right: 16px;
+    bottom: 116px;
+    z-index: 52;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(130, 173, 75, 0.3);
+    background: linear-gradient(135deg, rgba(130, 173, 75, 0.15), rgba(130, 173, 75, 0.05));
+    color: #82ad4b;
+    font-weight: 900;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(130, 173, 75, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .info-button:hover {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, rgba(130, 173, 75, 0.25), rgba(130, 173, 75, 0.15));
+    box-shadow: 0 8px 30px rgba(130, 173, 75, 0.4);
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.3s ease;
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Game Over Modal */
+  .game-over-modal {
+    position: relative;
+    max-width: 320px;
+    width: calc(100% - 40px);
+    background: linear-gradient(145deg, #1a1b23, #0f1114);
+    border-radius: 12px;
+    border: 1px solid rgba(130, 173, 75, 0.3);
+    padding: 12px 16px 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+    animation: slideUp 0.4s ease;
+    text-align: center;
+    margin: auto;
+  }
+
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(40px) scale(0.95);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .modal-icon {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 6px;
+    background: linear-gradient(135deg, rgba(130, 173, 75, 0.2), rgba(130, 173, 75, 0.1));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 0 40px rgba(130, 173, 75, 0.3);
+    animation: bounce 0.6s ease;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 900;
+    text-align: center;
+    color: #ffffff;
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px rgba(130, 173, 75, 0.3);
+  }
+
+  .modal-score {
+    background: linear-gradient(135deg, rgba(130, 173, 75, 0.15), rgba(130, 173, 75, 0.05));
+    border: 1px solid rgba(130, 173, 75, 0.3);
+    border-radius: 8px;
+    padding: 5px 10px;
+    margin: 0 auto 6px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-score span:first-child {
+    display: block;
+    font-size: 7px;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+
+  .modal-score span:last-child {
+    display: block;
+    font-size: 28px;
+    font-weight: 900;
+    color: #82ad4b;
+    text-shadow: 0 0 30px rgba(130, 173, 75, 0.5);
+    line-height: 1;
+  }
+
+  .modal-message {
+    text-align: center;
+    padding: 5px 12px;
+    background: rgba(130, 173, 75, 0.08);
+    border-radius: 6px;
+    margin: 0 auto 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #82ad4b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px;
+  }
+
+  .modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .modal-btn {
+    width: 100%;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .modal-btn span {
+    font-size: 11px;
+  }
+
+  .modal-btn-primary {
+    background: linear-gradient(135deg, #82ad4b, #6a8f3d);
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(130, 173, 75, 0.3);
+  }
+
+  .modal-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(130, 173, 75, 0.5);
+  }
+
+  .modal-btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .modal-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Info Modal */
+  .info-modal {
+    position: relative;
+    max-width: 520px;
+    width: calc(100% - 32px);
+    max-height: 80vh;
+    overflow-y: auto;
+    background: linear-gradient(145deg, #0f1114, #0a0b0d);
+    border-radius: 24px;
+    border: 1px solid rgba(130, 173, 75, 0.3);
+    padding: 28px 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  }
+
+  .close-button {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    color: #ffffff;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .close-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(90deg);
+  }
+
+  .info-section {
+    margin-bottom: 24px;
+  }
+
+  .info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .info-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #82ad4b;
+    box-shadow: 0 0 12px rgba(130, 173, 75, 0.6);
+  }
+
+  .info-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+  }
+
+  .info-content {
+    font-size: 14px;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.7);
+    padding-left: 22px;
+  }
+
+  .info-content div {
+    margin-bottom: 8px;
+  }
+
+  .info-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(130, 173, 75, 0.3), transparent);
+    margin: 20px 0;
+  }
+
+  .info-note {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    #game-container {
+      padding: 12px 8px;
+      min-height: 100vh;
+    }
+
+    .game-header {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 6px 10px;
+      margin-bottom: 6px;
+    }
+
+    .score-display {
+      gap: 10px;
+    }
+
+    .score-label {
+      font-size: 8px;
+    }
+
+    .score-value {
+      font-size: 14px;
+    }
+
+    .plays-badge {
+      padding: 5px 10px;
+      font-size: 11px;
+    }
+
+    .canvas-wrapper {
+      border-radius: 8px;
+      min-height: 250px;
+    }
+
+    .game-over-modal {
+      max-width: 300px;
+      width: calc(100% - 32px);
+      padding: 10px 16px 10px;
+    }
+
+    .modal-icon {
+      width: 30px;
+      height: 30px;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .modal-title {
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .modal-score {
+      padding: 4px 10px;
+      margin-bottom: 5px;
+    }
+
+    .modal-score span:first-child {
+      font-size: 7px;
+      margin-bottom: 2px;
+    }
+
+    .modal-score span:last-child {
+      font-size: 24px;
+    }
+
+    .modal-message {
+      font-size: 9px;
+      padding: 4px 10px;
+      margin-bottom: 6px;
+      min-height: 18px;
+    }
+
+    .modal-buttons {
+      gap: 4px;
+    }
+
+    .modal-btn {
+      padding: 5px 12px;
+      font-size: 10px;
+    }
+
+    .modal-btn span {
+      font-size: 10px;
+    }
+
+    .info-button {
+      bottom: 80px;
+      right: 12px;
+      width: 44px;
+      height: 44px;
+    }
+
+    .info-modal {
+      max-width: 92%;
+      width: calc(100% - 24px);
+      padding: 24px 20px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+  }
+
+  /* Extra small screens (Telegram WebApp typical viewport) */
+  @media (max-width: 400px) {
+    #game-container {
+      padding: 8px 4px;
+    }
+
+    .game-header {
+      padding: 5px 8px;
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+
+    .score-display {
+      gap: 8px;
+    }
+
+    .score-label {
+      font-size: 7px;
+    }
+
+    .score-value {
+      font-size: 13px;
+    }
+
+    .plays-badge {
+      padding: 4px 8px;
+      font-size: 10px;
+    }
+
+    .canvas-wrapper {
+      min-height: 200px;
+    }
+
+    .game-over-modal {
+      max-width: 240px;
+      width: calc(100% - 24px);
+      padding: 16px 14px 14px;
+    }
+
+    .modal-icon {
+      width: 38px;
+      height: 38px;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .modal-score {
+      padding: 7px 10px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+    }
+
+    .modal-score span:first-child {
+      font-size: 8px;
+      margin-bottom: 3px;
+      letter-spacing: 0.8px;
+    }
+
+    .modal-score span:last-child {
+      font-size: 30px;
+    }
+
+    .modal-message {
+      font-size: 11px;
+      padding: 6px 12px;
+      margin-bottom: 12px;
+      min-height: 24px;
+    }
+
+    .modal-btn {
+      padding: 7px 14px;
+      font-size: 12px;
+    }
+
+    .modal-btn span {
+      font-size: 12px;
+    }
+
+    .modal-buttons {
+      gap: 5px;
+    }
+
+    .modal-btn {
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+  }
+</style>
 
 	<!--script type="text/javascript" src="a.js"></script-->
 	<script type="text/javascript">
@@ -87,7 +719,7 @@
     * Default game width.
     * @const
     */
-    var DEFAULT_WIDTH = 600;
+    var DEFAULT_WIDTH = 800;
     /**
     * Frames per second.
     * @const
@@ -131,7 +763,7 @@
     */
     Runner.defaultDimensions = {
     WIDTH: DEFAULT_WIDTH,
-    HEIGHT: 150
+  HEIGHT: 200
     };
     /**
     * CSS class names.
@@ -677,6 +1309,18 @@
       console.error('❌ [DINO] Error sending score to parent:', e);
     }
     
+    // Show beautiful game over modal instead of alert
+    setTimeout(function() {
+      var bcxEarned = Math.floor(actualScore / 100) * 0.1;
+      var message = bcxEarned > 0 
+        ? '🎉 You earned ' + bcxEarned.toFixed(1) + ' BCX!' 
+        : 'Keep playing to earn rewards!';
+      
+      if (window.showGameOverModal) {
+        window.showGameOverModal(actualScore, message);
+      }
+    }, 500);
+    
     // Decrement turns and show start overlay if turns exhausted
     if (this.turnsLeft > 0) {
       this.turnsLeft--;
@@ -690,7 +1334,7 @@
       // Delay slightly to let crash render
       setTimeout(function(){
         if (window.__dinoShowOverlay) {
-          window.__dinoShowOverlay('Daily turns over');
+          window.__dinoShowOverlay('Daily Limit Reached 🚫');
         }
       }, 600);
     }
@@ -1216,8 +1860,9 @@
     type: 'CACTUS_SMALL',
     className: ' cactus cactus-small ',
     width: 17,
-    height: 35,
-    yPos: 105,
+  height: 35,
+  // Adjust for taller canvas (old 105 + 50 = 155)
+  yPos: 155,
     multipleSpeed: 3,
     minGap: 120,
     collisionBoxes: [
@@ -1230,8 +1875,9 @@
     type: 'CACTUS_LARGE',
     className: ' cactus cactus-large ',
     width: 25,
-    height: 50,
-    yPos: 90,
+  height: 50,
+  // Adjust for taller canvas (old 90 + 50 = 140)
+  yPos: 140,
     multipleSpeed: 6,
     minGap: 120,
     collisionBoxes: [
@@ -1854,11 +2500,12 @@
     * Horizon line dimensions.
     * @enum {number}
     */
-    HorizonLine.dimensions = {
-    WIDTH: 600,
-    HEIGHT: 12,
-    YPOS: 127
-    };
+  HorizonLine.dimensions = {
+  WIDTH: 600,
+  HEIGHT: 12,
+  // Shift ground line down to align with taller canvas (200px)
+  YPOS: 177
+  };
     HorizonLine.prototype = {
     /**
     * Set the source dimensions of the horizon line.
@@ -2121,31 +2768,37 @@ body.safe-browsing {
 }
 
 button {
-  background: rgb(76, 142, 250);
+  background: linear-gradient(135deg, #82ad4b, #6a8f3d);
   border: 0;
-  border-radius: 2px;
+  border-radius: 12px;
   box-sizing: border-box;
   color: #fff;
   cursor: pointer;
-  float: right;
-  font-size: .875em;
-  height: 36px;
-  margin: -6px 0 0;
-  padding: 8px 24px;
-  transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  float: none;
+  font-size: 1em;
+  font-weight: 700;
+  height: auto;
+  margin: 20px auto 0;
+  padding: 14px 32px;
+  transition: all 0.3s ease;
+  display: block;
+  box-shadow: 0 4px 20px rgba(130, 173, 75, 0.3);
+  text-transform: none;
 }
 
 [dir='rtl'] button {
-  float: left;
+  float: none;
 }
 
 button:active {
-  background: rgb(50, 102, 213);
+  background: linear-gradient(135deg, #6a8f3d, #82ad4b);
   outline: 0;
+  transform: translateY(1px);
 }
 
 button:hover {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .50);
+  box-shadow: 0 6px 30px rgba(130, 173, 75, 0.5);
+  transform: translateY(-2px);
 }
 
 .debugging-content {
@@ -2179,15 +2832,28 @@ button:hover {
 
 h1 {
   -webkit-margin-after: 16px;
-  color: #585858;
-  font-size: 1.6em;
-  font-weight: normal;
+  color: #ffffff;
+  font-size: 2em;
+  font-weight: 900;
   line-height: 1.25em;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(130, 173, 75, 0.3);
+  margin-top: 20px;
 }
 
 h2 {
   font-size: 1.2em;
   font-weight: normal;
+  color: #ffffff;
+  text-align: center;
+}
+
+p {
+  color: #82ad4b;
+  font-size: 1.1em;
+  font-weight: 600;
+  text-align: center;
+  margin: 16px 0;
 }
 
 .hidden {
@@ -2210,9 +2876,14 @@ input[type=checkbox] {
   box-sizing: border-box;
   font-size: 1em;
   line-height: 1.6em;
-  margin: 50px auto 0;
-  max-width: 600px;
+  margin: 20px auto 0;
+  max-width: 100%;
   width: 100%;
+  padding: 20px;
+  background: linear-gradient(145deg, #1a1b23, #0f1114);
+  border-radius: 20px;
+  border: 1px solid rgba(130, 173, 75, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
 #malware-opt-in {
@@ -2721,6 +3392,58 @@ html[subframe] body {
      fjs.parentNode.insertBefore(js, fjs);
    }(document, 'script', 'facebook-jssdk'));
 </script>
+
+<!-- Animated Background Particles -->
+<div class="bg-particles"></div>
+
+<!-- Game Over Modal -->
+<div class="modal-overlay" id="gameOverModal" style="display: none;">
+  <div class="game-over-modal">
+    <div class="modal-icon">🏆</div>
+    <div class="modal-title">Game Over!</div>
+    <div class="modal-message" id="modalMessage"></div>
+    <div class="modal-score">
+      <span>Your Score</span>
+      <span id="modalScore">0</span>
+    </div>
+    
+    <div class="modal-buttons">
+      <button class="modal-btn modal-btn-primary" id="playAgainBtn">
+        <span>🎮</span> Play Again
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Info Modal -->
+<div class="modal-overlay" id="infoModal" style="display: none;">
+  <div class="info-modal">
+    <div class="modal-header">
+      <div class="modal-title">How to Play</div>
+      <button class="close-btn" id="closeInfoBtn">✕</button>
+    </div>
+    <div class="info-content">
+      <div class="info-item">
+        <div class="info-icon">🦖</div>
+        <div class="info-text">Press <strong>SPACE</strong> or <strong>TAP</strong> to jump</div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">🎯</div>
+        <div class="info-text">Avoid obstacles and survive as long as possible</div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">💎</div>
+        <div class="info-text">Earn rewards based on your score!</div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">⏰</div>
+        <div class="info-text">Limited plays per day - make each one count!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Game Container -->
 <div id="main-frame-error" class="interstitial-wrapper" jstcache="0">
 
     <div id="offline-resources" jstcache="0">
@@ -2754,23 +3477,51 @@ html[subframe] body {
       try {
         var runner = new Runner('.interstitial-wrapper');
         // Reusable start overlay
-        function showStartOverlay(message) {
+    function showStartOverlay(message) {
   var overlay = document.createElement('div');
-  overlay.style.position = 'absolute';
+  // Ensure only one start overlay exists at a time
+  overlay.id = 'dinoStartOverlay';
+  overlay.style.position = 'fixed'; // ensure it sits above and is viewport-relative
   overlay.style.inset = '0';
   overlay.style.display = 'flex';
-  overlay.style.flexDirection = 'column';
   overlay.style.alignItems = 'center';
-  overlay.style.justifyContent = 'center';
-  overlay.style.background = 'rgba(11,12,14,0.9)';
-  overlay.style.color = '#e5e7eb';
-  overlay.style.zIndex = '3';
+  overlay.style.justifyContent = 'center'; // center panel vertically
+  overlay.style.background = 'rgba(11,12,14,0.85)';
+  overlay.style.zIndex = '9999';
+  // keep a small offset from top and reserve space for bottom nav so it doesn't collide
+  var topOffset = 24;
+  if (window.innerWidth <= 400) topOffset = 16;
+  else if (window.innerWidth <= 640) topOffset = 20;
+  var bottomSafe = 160;
+  if (window.innerWidth <= 640) bottomSafe = 140;
+  if (window.innerWidth <= 400) bottomSafe = 120;
+  overlay.style.paddingTop = topOffset + 'px';
+  overlay.style.paddingBottom = bottomSafe + 'px';
+  overlay.style.overflowY = 'auto';
+
+  // Panel to match game theme
+  var panel = document.createElement('div');
+  panel.style.width = '100%';
+  panel.style.maxWidth = '520px';
+  panel.style.margin = '0 16px';
+  panel.style.padding = '14px';
+  panel.style.borderRadius = '12px';
+  panel.style.border = '1px solid rgba(130,173,75,0.3)';
+  panel.style.background = 'linear-gradient(145deg, rgba(26,27,35,0.95), rgba(15,17,20,0.95))';
+  panel.style.boxShadow = '0 8px 32px rgba(0,0,0,0.5)';
+  panel.style.display = 'flex';
+  panel.style.flexDirection = 'column';
+  panel.style.alignItems = 'center';
+  panel.style.textAlign = 'center';
 
   var title = document.createElement('div');
   title.textContent = message ? message : 'Dino Runner';
-  title.style.fontWeight = '700';
-  title.style.fontSize = '18px';
+  title.style.fontWeight = '900';
+  title.style.fontSize = '20px';
   title.style.marginBottom = '10px';
+  title.style.color = '#ffffff';
+  title.style.textAlign = 'center';
+  title.style.textShadow = '0 0 20px rgba(130,173,75,0.3)';
 
   var info = document.createElement('div');
   // Show plays remaining if available - with dynamic update
@@ -2800,11 +3551,13 @@ html[subframe] body {
     // Clear interval after 3 seconds if value never appears
     setTimeout(function() { clearInterval(checkInterval); }, 3000);
   }
-  info.style.opacity = '0.8';
-  info.style.marginBottom = '16px';
+  info.style.opacity = '0.9';
+  info.style.marginBottom = '12px';
+  info.style.color = '#e5e7eb';
+  info.style.textAlign = 'center';
 
-  overlay.appendChild(title);
-  overlay.appendChild(info);
+  panel.appendChild(title);
+  panel.appendChild(info);
 
   var countdownWrap = null;
   var countdownText = null;
@@ -2838,11 +3591,11 @@ html[subframe] body {
     clockDot.style.width = '10px';
     clockDot.style.height = '10px';
     clockDot.style.borderRadius = '9999px';
-    clockDot.style.background = '#fffff';
+  clockDot.style.background = '#ffffff';
     clockDot.style.boxShadow = '0 0 10px rgba(34,197,94,0.6)';
 
-    countdownText = document.createElement('div');
-    countdownText.style.color = '#fffff';
+  countdownText = document.createElement('div');
+  countdownText.style.color = '#ffffff';
     countdownText.style.fontWeight = '700';
     countdownText.style.fontFamily = 'monospace';
     countdownText.style.letterSpacing = '1px';
@@ -2850,7 +3603,7 @@ html[subframe] body {
 
     countdownWrap.appendChild(clockDot);
     countdownWrap.appendChild(countdownText);
-    overlay.appendChild(countdownWrap);
+  panel.appendChild(countdownWrap);
 
     function updateCountdown() {
       var ms = parseInt(resetTime) - Date.now();
@@ -2943,10 +3696,13 @@ document.addEventListener('click', function () {
             }
           });
           
-          overlay.appendChild(title);
-          overlay.appendChild(info);
-          if (countdownWrap) overlay.appendChild(countdownWrap);
-          overlay.appendChild(startBtn);
+          panel.appendChild(startBtn);
+          overlay.appendChild(panel);
+          // Replace any existing overlay instance to avoid stacking
+          try {
+            var existing = document.getElementById('dinoStartOverlay');
+            if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+          } catch (e) {}
           runner.containerEl.appendChild(overlay);
           function begin() {
             // Check if plays remaining from parent window
@@ -2957,10 +3713,11 @@ document.addEventListener('click', function () {
             if (playsLeft !== undefined && playsLeft <= 0) {
               // Show message that they can't play
               console.log('🚫 Blocking game start - no plays remaining');
-              if (window.parent.toast && window.parent.toast.error) {
-                window.parent.toast.error("❌ No plays remaining! Come back tomorrow.", { duration: 4000 });
+              // Ensure our modal overlay is shown with the limit message (no external toasts)
+              if (window.__dinoShowOverlay) {
+                window.__dinoShowOverlay('Daily Limit Reached 🚫');
               }
-              // Don't remove overlay, keep it blocking the game
+              // Don't remove overlay; keep the modal blocking the game
               return;
             }
             
@@ -3192,6 +3949,114 @@ document.addEventListener('click', function () {
     });
   </script>
 
+  <script type="text/javascript">
+    // Generate animated particles
+    (function() {
+      var particlesContainer = document.querySelector('.bg-particles');
+      if (!particlesContainer) return;
+      
+      var particleCount = 50;
+      for (var i = 0; i < particleCount; i++) {
+        var particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.cssText = 
+          'position: absolute;' +
+          'width: ' + (Math.random() * 3 + 1) + 'px;' +
+          'height: ' + (Math.random() * 3 + 1) + 'px;' +
+          'background: rgba(255,255,255,' + (Math.random() * 0.5 + 0.2) + ');' +
+          'border-radius: 50%;' +
+          'left: ' + (Math.random() * 100) + '%;' +
+          'top: ' + (Math.random() * 100) + '%;' +
+          'animation: float ' + (Math.random() * 10 + 10) + 's ease-in-out infinite;' +
+          'animation-delay: ' + (Math.random() * 5) + 's;';
+        particlesContainer.appendChild(particle);
+      }
+    })();
+
+    // Modal handling
+    var gameOverModal = document.getElementById('gameOverModal');
+    var infoModal = document.getElementById('infoModal');
+    var playAgainBtn = document.getElementById('playAgainBtn');
+    var closeInfoBtn = document.getElementById('closeInfoBtn');
+
+    // Function to show game over modal instead of alert
+    window.showGameOverModal = function(score, message) {
+      // Check if there are plays remaining before showing modal
+      var playsLeft = 0;
+      try {
+        if (window.parent && window.parent.playsLeft !== undefined) {
+          playsLeft = window.parent.playsLeft;
+        }
+      } catch(e) {
+        console.log('Could not access parent playsLeft');
+      }
+      
+      // Only show modal if there are plays remaining
+      if (playsLeft > 0) {
+        document.getElementById('modalScore').textContent = score;
+        document.getElementById('modalMessage').textContent = message || '';
+        gameOverModal.style.display = 'flex';
+      } else {
+        console.log('🚫 Game Over modal blocked - no plays remaining');
+        // Modal won't show when plays are exhausted
+      }
+    };
+
+    // Function to show info modal
+    window.showInfoModal = function() {
+      infoModal.style.display = 'flex';
+    };
+
+    // Close modals
+    function closeGameOverModal() {
+      gameOverModal.style.display = 'none';
+    }
+
+    function closeInfoModalFunc() {
+      infoModal.style.display = 'none';
+    }
+
+    // Play again button
+    if (playAgainBtn) {
+      playAgainBtn.addEventListener('click', function() {
+        closeGameOverModal();
+        if (window.runner && window.runner.restart) {
+          window.runner.restart();
+        }
+      });
+    }
+
+    if (playAgainBtn) {
+      playAgainBtn.addEventListener('click', function() {
+        closeGameOverModal();
+        if (window.runner && window.runner.restart) {
+          window.runner.restart();
+        }
+      });
+    }
+
+    // Info modal close
+    if (closeInfoBtn) {
+      closeInfoBtn.addEventListener('click', closeInfoModalFunc);
+    }
+
+    // Click outside to close
+    if (gameOverModal) {
+      gameOverModal.addEventListener('click', function(e) {
+        if (e.target === gameOverModal) {
+          closeGameOverModal();
+        }
+      });
+    }
+
+    if (infoModal) {
+      infoModal.addEventListener('click', function(e) {
+        if (e.target === infoModal) {
+          closeInfoModalFunc();
+        }
+      });
+    }
+  </script>
 
     <script type="text/javascript">
     if (navigator.userAgent.toLowerCase().indexOf('chrome') <= -1) {
