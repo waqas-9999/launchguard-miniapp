@@ -149,13 +149,10 @@ const PresaleEntry: React.FC = () => {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black via-gray-900 to-black text-white p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <img src={buycexlogo} alt="Buycex Logo" className="mx-auto h-16 w-auto mb-4 animate-pulse" />
-          <h1 className="text-4xl font-bold text-yellow-400 mb-2">IMIDINO</h1>
-        </div>
+      
 
         {/* Main Card */}
-        <div className="rounded-lg border border-yellow-500/30 bg-black/60 p-6 text-center backdrop-blur-lg shadow-2xl shadow-yellow-500/20">
+        <div className="rounded-lg border border-white/30 bg-black/60 p-6 text-center backdrop-blur-lg shadow-2xl shadow-white/20">
           {/* Dino Animation */}
           <div className="mb-6">
             <img 
