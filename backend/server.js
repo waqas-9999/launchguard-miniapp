@@ -680,42 +680,57 @@ app.post("/api/dino-score", async (req, res) => {
       // 150 score → 100 milestone, 250 score → 200 milestone
       const currentMilestone = Math.floor(score / 100) * 100;
     
-      // Give reward if score is 100+ and it's a NEW milestone
+      // Always give reward equal to the milestone if score is 100+
       let reward = 0;
-      let milestoneAchieved = false;
+      let milestoneBonus = 0;
+      let isNewMilestone = false;
     
-      if (currentMilestone >= 100 && currentMilestone > wallet.dinoGames.highestMilestone) {
-        // Give 50 IMDINO for each new milestone achieved
-        reward = 50;
-        wallet.dinoGames.highestMilestone = currentMilestone;
-        milestoneAchieved = true;
+      if (currentMilestone >= 100) {
+        // Base reward = milestone value (100, 200, 300, etc.)
+        reward = currentMilestone;
+        
+        // Check if this is a NEW milestone (never reached before)
+        if (currentMilestone > wallet.dinoGames.highestMilestone) {
+          milestoneBonus = 50; // Extra 50 IMDINO bonus for new milestone
+          reward += milestoneBonus;
+          wallet.dinoGames.highestMilestone = currentMilestone;
+          isNewMilestone = true;
+        }
+        
         wallet.totalReward += reward;
       
-        console.log('🎁 NEW MILESTONE! Reward given:', {
+        console.log('🎁 Reward given:', {
           score,
           milestone: currentMilestone,
-          reward: reward + ' IMDINO',
-          newTotalReward: wallet.totalReward
+          baseReward: currentMilestone + ' IMDINO',
+          milestoneBonus: isNewMilestone ? '+50 IMDINO (NEW MILESTONE!)' : 'None',
+          totalReward: reward + ' IMDINO',
+          newBalance: wallet.totalReward
         });
       } else {
         console.log('📊 Score saved (no reward):', {
           score,
           milestone: currentMilestone,
-          highestMilestone: wallet.dinoGames.highestMilestone,
-          reason: currentMilestone <= wallet.dinoGames.highestMilestone ? 'Already achieved this milestone' : 'Below 100 points'
+          reason: 'Below 100 points'
         });
       }
 
       // Save wallet with updated data
       await wallet.save();
 
-      if (milestoneAchieved) {
+      if (currentMilestone >= 100) {
+        const message = isNewMilestone 
+          ? `🎉 NEW MILESTONE ${currentMilestone}! You earned ${currentMilestone} IMDINO + 50 BONUS = ${reward} IMDINO!`
+          : `💰 You earned ${reward} IMDINO! (Milestone: ${currentMilestone})`;
+          
         return res.json({
           success: true,
-          message: `🎉 NEW MILESTONE ${currentMilestone}! You earned 50 IMDINO!`,
+          message,
           score,
           milestone: currentMilestone,
           reward,
+          milestoneBonus: isNewMilestone ? milestoneBonus : 0,
+          isNewMilestone,
           totalReward: wallet.totalReward,
           playsToday: wallet.dinoGames.playsToday,
           playsRemaining: 7 - wallet.dinoGames.playsToday,
@@ -724,9 +739,7 @@ app.post("/api/dino-score", async (req, res) => {
       } else {
         return res.json({
           success: true,
-          message: currentMilestone >= 100
-            ? `Score saved! Beat ${wallet.dinoGames.highestMilestone + 100} for next 50 IMDINO reward.`
-            : "Score saved! Reach 100 points to start earning rewards.",
+          message: "Score saved! Reach 100 points to start earning rewards.",
           score,
           milestone: currentMilestone,
           reward: 0,
