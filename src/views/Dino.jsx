@@ -5,6 +5,7 @@ import GameInfoModal from "../components/global/GameInfoModal";
 import StatusModal from "../components/global/StatusModal";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FiRefreshCw } from "react-icons/fi";
 
 // Import stat icons
 import PlaysLeftIcon from "../assets/img/stats/PlaysLeft.png";
@@ -320,18 +321,14 @@ function Dino() {
             }
           }}
           aria-label="Refresh stats"
-          className="h-12 w-12 rounded-full 
-            bg-gradient-to-br from-purple-500 to-purple-700
+          className="h-14 w-14 rounded-full 
+            bg-purple-500/10
             text-white font-bold text-sm
-            shadow-lg shadow-purple-500/50
-            hover:shadow-xl hover:shadow-purple-500/70
-            hover:scale-110
-            active:scale-95
             transition-all duration-200
             border-2 border-purple-400/30
             flex items-center justify-center"
         >
-          🔄
+          <FiRefreshCw />
         </button>
 
         {/* Info button */}
@@ -340,11 +337,8 @@ function Dino() {
           onClick={() => setOpen(true)}
           aria-label="Game info"
           className="h-14 w-14 rounded-full 
-            bg-gradient-to-br from-[#82ad4b] to-[#6a8f3d]
+            bg-[#82ad4b]/10
             text-white font-extrabold text-xl
-            shadow-lg shadow-[#82ad4b]/50
-            hover:shadow-xl hover:shadow-[#82ad4b]/70
-            hover:scale-110
             active:scale-95
             transition-all duration-200
             border-2 border-[#a8d966]/30

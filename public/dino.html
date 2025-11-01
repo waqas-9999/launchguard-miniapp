@@ -739,23 +739,25 @@
     * @enum {number}
     */
     Runner.config = {
-    ACCELERATION: 0.001,
-    BG_CLOUD_SPEED: 0.2,
-    BOTTOM_PAD: 10,
-    CLEAR_TIME: 3000,
-    CLOUD_FREQUENCY: 0.35,
-    GAMEOVER_CLEAR_TIME: 750,
-    GAP_COEFFICIENT: 0.7,
-    GRAVITY: 0.6,
-    INITIAL_JUMP_VELOCITY: 12,
-    MAX_CLOUDS: 6,
-    MAX_OBSTACLE_LENGTH: 3,
-    MAX_SPEED: 10,
-    MIN_JUMP_HEIGHT: 35,
-    MOBILE_SPEED_COEFFICIENT: 1.2,
-    RESOURCE_TEMPLATE_ID: 'audio-resources',
-    SPEED: 6,
-    SPEED_DROP_COEFFICIENT: 3
+  ACCELERATION: 0.001,
+  BG_CLOUD_SPEED: 0.2,
+  BOTTOM_PAD: 10,
+  CLEAR_TIME: 3000,
+  CLOUD_FREQUENCY: 0.35,
+  GAMEOVER_CLEAR_TIME: 750,
+  // Runner physics (default chrome dino values)
+  GAP_COEFFICIENT: 0.7,
+  GRAVITY: 0.6,
+  INITIAL_JUMP_VELOCITY: 12,
+  MAX_CLOUDS: 6,
+  MAX_OBSTACLE_LENGTH: 3,
+  MAX_SPEED: 10,
+  // Minimum jump height (chrome defaults)
+  MIN_JUMP_HEIGHT: 35,
+  MOBILE_SPEED_COEFFICIENT: 1.2,
+  RESOURCE_TEMPLATE_ID: 'audio-resources',
+  SPEED: 6,
+  SPEED_DROP_COEFFICIENT: 3
     };
     /**
     * Default dimensions.
@@ -1730,27 +1732,26 @@
     * @param {number} gapCoefficient Mutipler in determining the gap.
     * @param {number} speed
     */
-    function Obstacle(canvasCtx, type, obstacleImg, dimensions,
-    gapCoefficient, speed) {
-    this.canvasCtx = canvasCtx;
-    this.image = obstacleImg;
-    this.typeConfig = type;
-    this.gapCoefficient = gapCoefficient;
-    this.size = getRandomNum(1, Obstacle.MAX_OBSTACLE_LENGTH);
-    this.dimensions = dimensions;
-    this.remove = false;
-    this.xPos = 0;
-    this.yPos = this.typeConfig.yPos;
-    this.width = 0;
-    this.collisionBoxes = [];
-    this.gap = 0;
-    this.init(speed);
-    };
-    /**
-    * Coefficient for calculating the maximum gap.
-    * @const
-    */
-    Obstacle.MAX_GAP_COEFFICIENT = 1.5;
+  function Obstacle(canvasCtx, type, obstacleImg, dimensions, gapCoefficient, speed) {
+  this.canvasCtx = canvasCtx;
+  this.image = obstacleImg;
+  this.typeConfig = type;
+  this.gapCoefficient = gapCoefficient;
+  this.size = getRandomNum(1, Obstacle.MAX_OBSTACLE_LENGTH);
+  this.dimensions = dimensions;
+  this.remove = false;
+  this.xPos = 0;
+  this.yPos = this.typeConfig.yPos;
+  this.width = 0;
+  this.collisionBoxes = [];
+  this.gap = 0;
+  this.init(speed);
+  };
+  /**
+  * Coefficient for calculating the maximum gap.
+  * @const
+  */
+  Obstacle.MAX_GAP_COEFFICIENT = 1.5;
     /**
     * Maximum obstacle grouping count.
     * @const
@@ -1863,8 +1864,8 @@
   height: 35,
   // Adjust for taller canvas (old 105 + 50 = 155)
   yPos: 155,
-    multipleSpeed: 3,
-    minGap: 120,
+  multipleSpeed: 3,
+  minGap: 120,
     collisionBoxes: [
     new CollisionBox(0, 7, 5, 27),
     new CollisionBox(4, 0, 6, 34),
@@ -1878,8 +1879,8 @@
   height: 50,
   // Adjust for taller canvas (old 90 + 50 = 140)
   yPos: 140,
-    multipleSpeed: 6,
-    minGap: 120,
+  multipleSpeed: 6,
+  minGap: 120,
     collisionBoxes: [
     new CollisionBox(0, 12, 7, 38),
     new CollisionBox(8, 0, 7, 49),
@@ -1925,13 +1926,16 @@
     * @enum {number}
     */
     Trex.config = {
-    DROP_VELOCITY: -5,
-    GRAVITY: 0.6,
-    HEIGHT: 70,
-    INIITAL_JUMP_VELOCITY: -10,
-    INTRO_DURATION: 1500,
-    MAX_JUMP_HEIGHT: 30,
-    MIN_JUMP_HEIGHT: 30,
+  DROP_VELOCITY: -5,
+  // Match Runner gravity (chrome default)
+  GRAVITY: 0.6,
+  HEIGHT: 70,
+  // Initial jump velocity (chrome default)
+  INIITAL_JUMP_VELOCITY: -10,
+  INTRO_DURATION: 1500,
+  // Jump height limits (chrome defaults)
+  MAX_JUMP_HEIGHT: 30,
+  MIN_JUMP_HEIGHT: 30,
     SPEED_DROP_COEFFICIENT: 3,
     SPRITE_WIDTH: 262,
     START_X_POS: 50,
@@ -1997,7 +2001,6 @@
     Runner.config.BOTTOM_PAD;
     this.yPos = this.groundYPos;
     this.minJumpHeight = this.groundYPos - this.config.MIN_JUMP_HEIGHT;
-    this.draw(0, 0);
     this.update(0, Trex.status.WAITING);
     },
     /**
