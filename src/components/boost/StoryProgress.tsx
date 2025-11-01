@@ -57,7 +57,7 @@ export default function StoryProgress({ onClose }: StoryProgressProps) {
         alt={`Slide ${slides[current].id}`}
         className="absolute no-scrollbar mx-auto inset-0 w-full h-full object-contain object-center max-w-full max-h-full"
         style={{
-          width: '400px',
+          // width: '400px',
           height: '100%',
           objectFit: 'contain',
           objectPosition: 'center'
