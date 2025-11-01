@@ -557,7 +557,7 @@
   }
 
   /* Extra small screens (Telegram WebApp typical viewport) */
-  @media (max-width: 400px) {
+  @media (max-width: 640px) {
     #game-container {
       padding: 8px 4px;
     }
@@ -1348,14 +1348,17 @@
       btn.style.position = 'absolute';
       btn.style.left = '50%';
       btn.style.transform = 'translateX(-50%)';
-      btn.style.bottom = '-220px';
-      btn.style.padding = '0px 20px';
+      btn.style.bottom = IS_MOBILE ? '-160px' : '-220px';
+      btn.style.padding = '10px 20px';
       btn.style.borderRadius = '10px';
       btn.style.border = '1px solid rgba(34,197,94,0.2)';
-      btn.style.background = 'rgba(255,255,255,0.05)';
-      btn.style.color = '#fffff';
+      btn.style.background = '#65873b';
+      btn.style.color = '#ffffff';
       btn.style.fontWeight = '600';
       btn.style.cursor = 'pointer';
+      btn.style.zIndex = '999';
+      btn.style.width = IS_MOBILE ? '120px' : 'auto';
+      btn.style.fontSize = IS_MOBILE ? '16px' : '14px';
       // btn.style.backdropFilter = 'blur(6px)';
       // btn.style.boxShadow = '0 0 20px rgba(34,197,94,0.15)';
       btn.style.transition = 'all 150ms ease-in-out';
@@ -2990,7 +2993,7 @@ input[type=checkbox] {
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 640px) {
   button,
   [dir='rtl'] button {
     float: none;
@@ -3334,7 +3337,7 @@ html[subframe] body {
   display: none;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 640px) {
   .suggested-left > #control-buttons,
   .suggested-right > #control-buttons {
     float: none;
