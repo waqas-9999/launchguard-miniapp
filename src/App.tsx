@@ -1,5 +1,4 @@
-import { useEffect, useState, useCallback, lazy, Suspense } from 'react'
-import { useAccount, useDisconnect } from 'wagmi'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { Toaster } from "react-hot-toast";
 import { useDispatch } from 'react-redux'
 import {
@@ -9,8 +8,6 @@ import {
   Navigate
 } from 'react-router-dom'
 
-import { fetchReferralCode } from './utils/apis'
-import { setUser } from './store/wallet'
 import { telegramWebApp } from './utils/telegram'
 
 import WebglFluidAnimation from './components/WebglFluidAnimation'
@@ -45,14 +42,9 @@ const GetBcx = lazy(() => import('./views/GetBcx.jsx'))
 const LandingMini = lazy(() => import('./views/Landing-mini.js'))
 // @ts-ignore - JSX module shim
 const Transaction = lazy(() => import('./views/Transaction.jsx'))
-function App() {
-  const { address, isConnected } = useAccount()
-  const { disconnect } = useDisconnect()
-  const dispatch = useDispatch()
 
-  const [hasEntered, setHasEntered] = useState<boolean>(() => {
-    return localStorage.getItem('hasEntered') === 'true'
-  })
+function App() {
+  const dispatch = useDispatch()
 
   // Capture ?ref= once on mount and run helper
   useEffect(() => {
@@ -65,22 +57,6 @@ function App() {
       getReferralFromURL()
     } catch {}
   }, [])
-
-  const signIn = useCallback(async () => {
-    try {
-      const { user } = await fetchReferralCode(address as string)
-      if (user) dispatch(setUser({ ...user }))
-    } catch (e) {
-      console.error('Referral fetch failed:', e)
-    }
-  }, [address, dispatch])
-
-  useEffect(() => {
-    if (!isConnected) return
-    localStorage.setItem('hasEntered', 'true')
-    setHasEntered(true)
-    signIn()
-  }, [isConnected, signIn])
 
   // Throttled mousemove forwarder to #webgl-fluid (prevents CPU spikes)
   useEffect(() => {

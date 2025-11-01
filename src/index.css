@@ -329,7 +329,8 @@ nav {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-fill-color: transparent;
+  /* Fallback for non-webkit browsers */
+  color: transparent;
 }
 
 @layer base {
@@ -367,6 +368,7 @@ body {
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
 }
 
@@ -512,4 +514,47 @@ input, textarea {
 .font-dino h6 {
   font-family: "Press Start 2P", cursive;
   letter-spacing: 0.05em;
+}
+
+/* 🎮 Smooth fade-in animation for game entry */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* 🎨 Pulsing glow effect for game elements */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(239, 184, 28, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(239, 184, 28, 0.6);
+  }
+}
+
+.animate-pulseGlow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* 🔄 Delayed animations for staggered effects */
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
 }
