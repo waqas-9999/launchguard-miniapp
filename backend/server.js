@@ -13,9 +13,10 @@ app.use(cors({
     
     const allowedOrigins = [
       "http://localhost:5173",
-      "https://isochronous-packable-sherly.ngrok-free.dev",
+      "https://manage.iamdino.org/",
       "https://pussly-retreatal-veda.ngrok-free.dev",
-      "https://kora-brotherless-unofficiously.ngrok-free.dev"
+      "https://manage.iamdino.org",
+      "https://iamdino.org",
     ];
     
     // Allow all trycloudflare.com subdomains

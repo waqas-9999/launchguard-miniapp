@@ -6,7 +6,7 @@ import InviteModal from "../components/global/InviteModal";
 import toast from "react-hot-toast";
 
 const API_BASE = "http://localhost:5000";
-const NGROK_BASE = "https://kora-brotherless-unofficiously.ngrok-free.dev";
+const NGROK_BASE = "https://manage.iamdino.org";
 
 function Friends() {
   const [open, setOpen] = useState(false);
