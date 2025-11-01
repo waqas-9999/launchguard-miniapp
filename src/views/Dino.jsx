@@ -2,13 +2,20 @@ import BottomNav from "../components/boost/BottomNav";
 import React, { useState, useEffect } from "react";
 import CoinBurst from "../components/dino/CoinBurst";
 import GameInfoModal from "../components/global/GameInfoModal";
+import StatusModal from "../components/global/StatusModal";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+// Import stat icons
+import PlaysLeftIcon from "../assets/img/stats/PlaysLeft.png";
+import MilestoneIcon from "../assets/img/stats/Milestone.png";
+import NextGoalIcon from "../assets/img/stats/NextGoal.png";
+import CoinIcon from "../assets/img/stats/coin.png";
+
 // TODO: Update this URL to match your current ngrok URL
-const API_BASE = "https://manage.iamdino.org/";
+const API_BASE = "https://manage.iamdino.org";
 // For local testing without ngrok, use:
-// const API_BASE = "https://manage.iamdino.org/";
+// const API_BASE = "https://manage.iamdino.org";
 // NOTE: Switch back to ngrok URL when deploying to Telegram
 
 function Dino() {
@@ -18,6 +25,9 @@ function Dino() {
   const [playsRemaining, setPlaysRemaining] = useState(7);
   const [highestMilestone, setHighestMilestone] = useState(0);
   const [showCoins, setShowCoins] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [statusTitle, setStatusTitle] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
     // Get Telegram user data
@@ -103,13 +113,19 @@ function Dino() {
         
         if (reward > 0) {
           console.log('🎉 [DINO] Reward earned:', reward);
-          toast.success(`🪙 ${message}\nMilestone: ${milestone}`, { duration: 5000 });
+          // Show modal instead of toast
+          setStatusTitle('Reward earned!');
+          setStatusMessage(`${message}\nMilestone: ${milestone}`);
+          setStatusOpen(true);
           setTotalReward(newTotal);
           setShowCoins(true);
           setTimeout(() => setShowCoins(false), 1200);
         } else {
           console.log('📊 [DINO] No reward (score < 100)');
-          toast(`${message}\nPlays left today: ${newPlays}`, { icon: '📊', duration: 3000 });
+          // Show modal instead of toast
+          setStatusTitle('Score saved');
+          setStatusMessage(`${message}\nPlays left today: ${newPlays}`);
+          setStatusOpen(true);
         }
       } else {
         console.error('❌ [DINO] Backend returned error:', response.data.error);
@@ -131,10 +147,14 @@ function Dino() {
       
       // Handle 403 (daily limit reached)
       if (error.response?.status === 403) {
-        toast.error(error.response.data.message || "Daily play limit reached!");
+        setStatusTitle('Daily limit reached');
+        setStatusMessage(error.response.data.message || 'Daily play limit reached!');
+        setStatusOpen(true);
         setPlaysRemaining(0);
       } else {
-        toast.error("Failed to save score. Please try again.");
+        setStatusTitle('Error');
+        setStatusMessage('Failed to save score. Please try again.');
+        setStatusOpen(true);
       }
     }
   };
@@ -207,7 +227,7 @@ function Dino() {
             <div className="text-right bg-gradient-to-br from-[#82ad4b]/20 to-[#82ad4b]/5 px-4 py-2 rounded-lg border border-[#82ad4b]/30">
               <div className="text-xs text-gray-400 mb-0.5">Total Earned</div>
               <div className="text-lg font-extrabold text-[#82ad4b] drop-shadow-lg flex items-center justify-end gap-1">
-                <span className="text-2xl">💰</span>
+                <img src={CoinIcon} alt="Coin" className="w-7 h-7" />
                 {totalReward.toFixed(2)} 
                 <span className="text-xs font-normal text-[#82ad4b]/80">IMDINO</span>
               </div>
@@ -215,24 +235,27 @@ function Dino() {
           </div>
           
           {/* Progress Bar and Stats */}
-          <div className="grid grid-cols-3 gap-3 mb-3">
-            <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 backdrop-blur-sm rounded-xl px-3 py-3 border border-blue-400/30 shadow-lg hover:scale-105 transition-transform">
-              <div className="text-xs text-blue-300 mb-1 font-medium">Plays Left</div>
-              <div className="font-extrabold text-white text-xl flex items-center justify-center gap-1">
-                🎮 <span className={playsRemaining === 0 ? 'text-red-400' : 'text-white'}>{playsRemaining}</span>
-                <span className="text-sm text-gray-400">/7</span>
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 backdrop-blur-sm rounded-lg px-2 py-1 border border-blue-400/30 shadow-lg hover:scale-105 transition-transform">
+              <div className="text-[9px] text-blue-300 mb-0 font-medium">Plays Left</div>
+              <div className="font-extrabold text-white text-sm flex items-center justify-center gap-1">
+                <img src={PlaysLeftIcon} alt="Plays Left" className="w-3.5 h-3.5" />
+                <span className={playsRemaining === 0 ? 'text-red-400' : 'text-white'}>{playsRemaining}</span>
+                <span className="text-[10px] text-gray-400">/7</span>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-[#82ad4b]/20 to-[#82ad4b]/10 backdrop-blur-sm rounded-xl px-3 py-3 border border-[#82ad4b]/40 shadow-lg hover:scale-105 transition-transform">
-              <div className="text-xs text-[#a8d966] mb-1 font-medium">Best Milestone</div>
-              <div className="font-extrabold text-[#82ad4b] text-xl flex items-center justify-center gap-1">
-                🏆 {highestMilestone}
+            <div className="bg-gradient-to-br from-[#82ad4b]/20 to-[#82ad4b]/10 backdrop-blur-sm rounded-lg px-2 py-1 border border-[#82ad4b]/40 shadow-lg hover:scale-105 transition-transform">
+              <div className="text-[9px] text-[#a8d966] mb-0 font-medium">Best Milestone</div>
+              <div className="font-extrabold text-[#82ad4b] text-sm flex items-center justify-center gap-1">
+                <img src={MilestoneIcon} alt="Milestone" className="w-3.5 h-3.5" />
+                {highestMilestone}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 backdrop-blur-sm rounded-xl px-3 py-3 border border-yellow-400/30 shadow-lg hover:scale-105 transition-transform">
-              <div className="text-xs text-yellow-300 mb-1 font-medium">Next Goal</div>
-              <div className="font-extrabold text-yellow-400 text-xl flex items-center justify-center gap-1">
-                🎯 {highestMilestone + 100}
+            <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 backdrop-blur-sm rounded-lg px-2 py-1 border border-yellow-400/30 shadow-lg hover:scale-105 transition-transform">
+              <div className="text-[9px] text-yellow-300 mb-0 font-medium">Next Goal</div>
+              <div className="font-extrabold text-yellow-400 text-sm flex items-center justify-center gap-1">
+                <img src={NextGoalIcon} alt="Next Goal" className="w-3.5 h-3.5" />
+                {highestMilestone + 100}
               </div>
             </div>
           </div>
@@ -332,8 +355,15 @@ function Dino() {
       </div>
 
       <GameInfoModal open={open} onClose={() => setOpen(false)} />
+      <StatusModal
+        open={statusOpen}
+        onClose={() => setStatusOpen(false)}
+        title={statusTitle}
+        message={statusMessage}
+      />
       <BottomNav />
     </div>
-)};
+  );
+}
 
 export default Dino

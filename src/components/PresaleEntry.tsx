@@ -5,8 +5,7 @@ import buycexlogo from '../assets/img/BUYCEX-INFINITY.png';
 import Dino from '../../public/dino-2.gif';
 
 const BACKEND_URL =
-  import.meta.env.x || 'https://manage.iamdino.org/'
-  || 'https://manage.iamdino.org/';
+  import.meta.env.x || 'https://manage.iamdino.org';
 
 interface TelegramUser {
   id: number;
@@ -21,10 +20,10 @@ interface TelegramUser {
 
 const PresaleEntry: React.FC = () => {
   const [telegramUser, setTelegramUser] = useState<TelegramUser | null>(null);
-  const [telegramError, setTelegramError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState('Checking Telegram connection...');
   const [validationStatus, setValidationStatus] =
     useState<'pending' | 'validated' | 'fallback'>('pending');
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,12 +46,11 @@ const PresaleEntry: React.FC = () => {
         if (user?.id) {
           console.log('✅ Telegram user:', user.first_name, user.id);
           setTelegramUser(user);
+          setLoadingMessage('Verifying your account...');
 
           const initDataRaw = tg.initData;
           console.log('📤 Sending initData to backend:', initDataRaw ? 'Available' : 'Missing');
           console.log('📤 initData length:', initDataRaw?.length || 0);
-          
-          setIsLoading(false);
 
           // Save user and then redirect
           if (initDataRaw && initDataRaw.trim().length > 0) {
@@ -65,28 +63,40 @@ const PresaleEntry: React.FC = () => {
             await saveTelegramUserMobile(user);
           }
 
-          // Navigate after save completes
-          console.log('🚀 Navigating to /boost...');
-          try {
-            navigate('/boost');
-          } catch (err) {
-            // ignore navigate errors in non-router contexts
-            console.warn('Navigation to /boost failed', err);
-          }
+          // Show success state briefly before redirect
+          setLoadingMessage('Success! Launching game...');
+          setIsRedirecting(true);
+          
+          // Navigate after brief delay
+          setTimeout(() => {
+            console.log('🚀 Navigating to /boost...');
+            try {
+              navigate('/boost');
+            } catch (err) {
+              console.warn('Navigation to /boost failed', err);
+            }
+          }, 1000);
         } else {
-          setTelegramError('⚠️ No Telegram user data found.');
-          setIsLoading(false);
+          // No user data found, redirect to landing
+          console.log('⚠️ No Telegram user data found. Redirecting to landing...');
+          setLoadingMessage('Redirecting to homepage...');
+          setTimeout(() => navigate('/landing#home'), 1000);
         }
       } else if (checkCount < maxChecks) {
+        if (checkCount % 4 === 0) {
+          setLoadingMessage(`Connecting${'.'.repeat((checkCount / 4) % 4)}`);
+        }
         setTimeout(checkTelegram, 500);
       } else {
-        setTelegramError('❌ Telegram SDK not loaded. Please open from @Buycex_presale_bot.');
-        setIsLoading(false);
+        // Telegram SDK not loaded, redirect to landing
+        console.log('❌ Telegram SDK not loaded. Redirecting to landing page...');
+        setLoadingMessage('Opening web version...');
+        setTimeout(() => navigate('/landing#home'), 1000);
       }
     };
 
-    setTimeout(checkTelegram, 2000);
-  }, []);
+    setTimeout(checkTelegram, 1000);
+  }, [navigate]);
 
   const saveTelegramUserValidated = async (initDataRaw: string, user: TelegramUser) => {
     try {
@@ -135,74 +145,97 @@ const PresaleEntry: React.FC = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-black text-white">
-        <div className="text-center px-4">
-          <img src={Dino} alt="Loading..." className="w-52 h-56 animate-bounce mx-auto" />
-          <p className="text-xl mt-4">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black text-white p-4">
-      <div className="w-full max-w-md rounded-lg border border-white/10 bg-black/40 p-6 text-center backdrop-blur-lg shadow-lg">
-        <img src={buycexlogo} alt="Buycex Logo" className="mx-auto mb-6 h-14 w-auto" />
-        <h1 className="mb-4 text-3xl font-bold text-yellow-400">Enter The Buycex Presale</h1>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black via-gray-900 to-black text-white p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+      
 
-        {telegramUser ? (
-          <div className="mb-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-            <div className="flex items-center justify-center gap-3">
-              {telegramUser.photo_url ? (
-                <img
-                  src={telegramUser.photo_url}
-                  alt={telegramUser.first_name}
-                  className="w-12 h-12 rounded-full border-2 border-green-400"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full border-2 border-green-400 bg-green-500 flex items-center justify-center text-white font-bold text-xl">
-                  {telegramUser.first_name.charAt(0).toUpperCase()}
+        {/* Main Card */}
+        <div className="rounded-lg border border-white/30 bg-black/60 p-6 text-center backdrop-blur-lg shadow-2xl shadow-white/20">
+          {/* Dino Animation */}
+          <div className="mb-6">
+            <img 
+              src={Dino} 
+              alt="Dino" 
+              className={`w-40 h-44 mx-auto ${!telegramUser ? 'animate-bounce' : ''}`} 
+            />
+          </div>
+
+          {/* Loading/User State */}
+          {!telegramUser ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse delay-100"></div>
+                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse delay-200"></div>
+              </div>
+              <p className="text-xl text-yellow-300 font-semibold">{loadingMessage}</p>
+              <p className="text-sm text-gray-400">Please wait while we connect to Telegram...</p>
+            </div>
+          ) : (
+            <div className="space-y-4 animate-fadeIn">
+              {/* User Info Card */}
+              <div className="p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/40 rounded-lg">
+                <div className="flex items-center justify-center gap-4 mb-3">
+                  {telegramUser.photo_url ? (
+                    <img
+                      src={telegramUser.photo_url}
+                      alt={telegramUser.first_name}
+                      className="w-16 h-16 rounded-full border-3 border-green-400 shadow-lg shadow-green-500/50"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full border-3 border-green-400 bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-green-500/50">
+                      {telegramUser.first_name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="text-left">
+                    <p className="text-green-300 font-bold text-lg">
+                      {telegramUser.first_name} {telegramUser.last_name || ''}
+                    </p>
+                    {telegramUser.username && (
+                      <p className="text-green-400 text-sm">@{telegramUser.username}</p>
+                    )}
+                    {telegramUser.is_premium && (
+                      <span className="inline-block mt-1 text-xs bg-blue-500/30 text-blue-300 px-2 py-1 rounded-full border border-blue-400/50">
+                        ⭐ Premium
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-center gap-3 pt-3 border-t border-green-500/30">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    <p className="text-green-400 text-sm font-semibold">Connected</p>
+                  </div>
+                  {validationStatus === 'validated' && (
+                    <span className="text-xs bg-green-500/30 text-green-300 px-3 py-1 rounded-full border border-green-400/50">
+                      🔐 Verified
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Loading to Game */}
+              {isRedirecting && (
+                <div className="space-y-3 animate-fadeIn">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce delay-100"></div>
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce delay-200"></div>
+                  </div>
+                  <p className="text-yellow-300 font-semibold text-lg">{loadingMessage}</p>
                 </div>
               )}
-              <div className="text-left">
-                <p className="text-green-300 font-semibold">
-                  {telegramUser.first_name} {telegramUser.last_name || ''}
-                </p>
-                {telegramUser.username && (
-                  <p className="text-green-400 text-sm">@{telegramUser.username}</p>
-                )}
-                {telegramUser.is_premium && (
-                  <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded">
-                    ⭐ Premium
-                  </span>
-                )}
-              </div>
             </div>
-            <div className="flex items-center justify-center gap-2 mt-2">
-              <p className="text-green-400 text-xs">✅ Telegram connected</p>
-              {validationStatus === 'validated' && (
-                <span className="text-xs bg-green-500/20 text-green-300 px-2 py-0.5 rounded">
-                  🔐 Verified
-                </span>
-              )}
-             
-            </div>
-          </div>
-        ) : (
-          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-            <p className="text-red-300 text-sm whitespace-pre-line">{telegramError}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-3 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded text-red-300 text-sm active:bg-red-500/40"
-            >
-              🔄 Retry
-            </button>
-          </div>
-        )}
+          )}
+        </div>
 
-        
+        {/* Footer Text */}
+        <p className="text-center text-gray-500 text-sm mt-6">
+          Powered by Telegram Mini Apps
+        </p>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { StatRow } from "../components/boost/stat-row";
 import BottomNav from "../components/boost/BottomNav";
 import bcx from "../assets/img/coin-dino.png";
 import ImageModal from "../components/global/ImageModal";
+import PdfModal from "../components/global/PdfModal";
 import { useState, useEffect } from "react";
 import { FaAngleRight, FaTelegramPlane } from "react-icons/fa";
 import { TriangleAlert, ShoppingCart, FileText, ChevronRight } from "lucide-react";
@@ -12,7 +13,7 @@ import axios from "axios";
 import Dino from "../../public/dino-2.gif" 
 
 // ✅ Your backend base URL
-const BACKEND_URL = "https://manage.iamdino.org/";
+const BACKEND_URL = "https://manage.iamdino.org";
 
 function cn(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -22,6 +23,7 @@ export default function Boost() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [showStory, setShowStory] = useState(false);
+  const [showPdf, setShowPdf] = useState(false);
   const [userData, setUserData] = useState(null);
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -193,19 +195,7 @@ if (loading) {
 
         {/* ✅ Dynamic Task List with Beautiful Style */}
         <div className="space-y-2">
-          {console.log('🔍 Rendering tasks. userData:', userData)}
-          {console.log('🔍 userData.tasks:', userData?.tasks)}
-          {console.log('🔍 Is array?', Array.isArray(userData?.tasks))}
-          
-          {!userData?.tasks || userData.tasks.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <p className="text-lg">⏳ Loading tasks...</p>
-              <p className="text-xs mt-2">User data: {userData ? '✅ Loaded' : '❌ Not loaded'}</p>
-              <p className="text-xs">Tasks: {userData?.tasks?.length || 0}</p>
-              <p className="text-xs">Tasks type: {typeof userData?.tasks}</p>
-              <p className="text-xs mt-2 text-gray-600">Check console for details (F12)</p>
-            </div>
-          ) : (
+          {userData?.tasks && userData.tasks.length > 0 ? (
             userData.tasks.slice(0, 5).map((task, index) => {
             let requirementMet = true;
             let requirementText = "";
@@ -309,7 +299,8 @@ if (loading) {
                 )}
               </div>
             );
-          }))}
+          })
+          ) : null}
         </div>
 
         {/* Info Section */}
@@ -322,6 +313,11 @@ if (loading) {
               const handleNavigate = () => {
                 if (item.title === "What is IMDINO?") {
                   setShowStory(true);
+                  return;
+                }
+                if (item.title === "The Jungle Paper") {
+                  // Open PDF in modal within the app
+                  setShowPdf(true);
                   return;
                 }
                 if (item.url) window.location.href = item.url;
@@ -364,6 +360,7 @@ if (loading) {
 
       <BottomNav />
       {showStory && <StoryProgress onClose={() => setShowStory(false)} />}
+      {showPdf && <PdfModal open={showPdf} onClose={() => setShowPdf(false)} pdfUrl="/img/JunglePaper_compressed.pdf" title="The Jungle Paper" />}
 
       {/* Success Modal for Task Completion */}
       <ImageModal
