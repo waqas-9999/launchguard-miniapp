@@ -5,7 +5,7 @@ import { Gift, Copy } from "lucide-react";
 import InviteModal from "../components/global/InviteModal";
 import toast from "react-hot-toast";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://manage.iamdino.org";
 const NGROK_BASE = "https://manage.iamdino.org";
 
 function Friends() {

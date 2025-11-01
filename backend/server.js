@@ -13,7 +13,7 @@ app.use(cors({
     
     const allowedOrigins = [
       "http://localhost:5173",
-      "https://manage.iamdino.org/",
+      "https://manage.iamdino.org",
       "https://pussly-retreatal-veda.ngrok-free.dev",
       "https://manage.iamdino.org",
       "https://iamdino.org",

@@ -67,7 +67,7 @@ export default defineConfig({
    server: {
     host: '0.0.0.0',
     port: 5173,
-    allowedHosts: ['token.buycex.com', '.ngrok-free.dev', 'https://iamdino.org',     'sole-everything-img-prison.trycloudflare.com'
+    allowedHosts: ['token.buycex.com', '.ngrok-free.dev', 'iamdino.org',     'sole-everything-img-prison.trycloudflare.com'
 ],
   },
 
