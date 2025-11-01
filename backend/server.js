@@ -9,9 +9,10 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173", // your local React app
-    "https://isochronous-packable-sherly.ngrok-free.dev",
+    "https://manage.iamdino.org/",
     "https://pussly-retreatal-veda.ngrok-free.dev", // your frontend ngrok link
-    "https://kora-brotherless-unofficiously.ngrok-free.dev"
+    "https://kora-brotherless-unofficiously.ngrok-free.dev",
+    "https://iamdino.org/"
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
