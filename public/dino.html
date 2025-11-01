@@ -1102,12 +1102,24 @@
     },
     /**
     * Update the game frame.
+    * Uses frame-rate independent timing with deltaTime clamping for consistent speed across devices.
     */
     update: function() {
     this.drawPending = false;
     var now = getTimeStamp();
-    var deltaTime = now - (this.time || now);
+    var rawDeltaTime = now - (this.time || now);
     this.time = now;
+    
+    // Clamp deltaTime to prevent large jumps when frames drop
+    // Max deltaTime = 100ms (equivalent to ~6 dropped frames at 60fps)
+    // This ensures consistent movement speed across iOS, Android, and different frame rates
+    var MAX_DELTA_TIME = 100; // milliseconds
+    var deltaTime = Math.min(rawDeltaTime, MAX_DELTA_TIME);
+    
+    // Prevent negative or zero deltaTime (shouldn't happen, but safety check)
+    if (deltaTime <= 0) {
+      deltaTime = 16.67; // Default to ~60fps frame time
+    }
     if (this.activated) {
     this.clearCanvas();
     if (this.tRex.jumping) {
@@ -1527,10 +1539,17 @@
     }
     /**
     * Return the current timestamp.
+    * Uses performance.now() for consistent high-precision timing across all platforms.
     * @return {number}
     */
     function getTimeStamp() {
-    return IS_IOS ? new Date().getTime() : performance.now();
+    // Use performance.now() on all platforms for consistent frame-rate independent timing
+    // performance.now() has microsecond precision vs Date.getTime() which has millisecond precision
+    if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+      return performance.now();
+    }
+    // Fallback for very old browsers (should not occur in modern Telegram WebView)
+    return new Date().getTime();
     }
     //******************************************************************************
     /**
