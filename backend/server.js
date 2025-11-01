@@ -12,7 +12,7 @@ app.use(cors({
     "https://manage.iamdino.org/",
     "https://pussly-retreatal-veda.ngrok-free.dev", // your frontend ngrok link
     "https://kora-brotherless-unofficiously.ngrok-free.dev",
-    "https://iamdino.org/"
+    "https://iamdino.org"
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
